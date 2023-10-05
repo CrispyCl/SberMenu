@@ -126,19 +126,16 @@ legend {
 .logo {
     display: flex;
     position: relative;
-
-    left: 3.125rem;
-    color: #000;
+    color: #21201F;
     font-family: Inter;
     font-size: 4rem;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+    margin-left: 2.5rem;
 }
 
 .sb {
-    position: r;
-    right: 7.5rem;
     display: flex;
     width: 28.125rem;
     height: 3.125rem;
@@ -146,6 +143,7 @@ legend {
 }
 
 .sba {
+    gap: 5rem;
     display: flex;
 }
 
@@ -169,27 +167,44 @@ legend {
     background: #BCDE36;
     justify-content: center;
     align-items: center;
-    color: #000;
-    font-family: Inter;
+    color: #21201F;
+    font-family: sans-serif;
     font-size: 1.5rem;
     font-style: normal;
     font-weight: 600;
     line-height: normal;
+    cursor: pointer;
 }
 
 .avatar {
+    display: none !important;
     position: relative;
     display: flex;
-    right: 2.5rem;
-}
-
-.img {
     background: #CDCDCD;
     right: 2.5rem;
     width: 3.125rem;
     height: 3.125rem;
     border-radius: 50%;
     flex-shrink: 0;
+}
+
+.login_btn {
+    display: flex;
+    background: #CDCDCD;
+    margin-right: 2.5rem;
+    width: 5.5rem;
+    height: 3.125rem;
+    border-radius: 0.9375rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    color: #21201F;
+    font-family: sans-serif;
+    font-size: 1.3rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    align-items: center;
+    justify-content: center;
 }
 
 /* End Header */
