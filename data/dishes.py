@@ -13,4 +13,4 @@ class Dish(SqlAlchemyBase, UserMixin):
     name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     description = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
-    picture = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    image = sqlalchemy.Column(sqlalchemy.String, nullable=True)
