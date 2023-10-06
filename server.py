@@ -2,6 +2,7 @@ from data import db_session
 from data.users import User
 from flask import Flask, abort, redirect, render_template
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
+from forms.login import LoginForm
 from forms.user import UserForm
 
 
@@ -19,7 +20,6 @@ def index():
 
 @app.route("/register/user", methods=["GET", "POST"])
 def register_user():
-    print(1)
     if current_user.is_authenticated:
         abort(404)
     form = UserForm()
@@ -43,6 +43,23 @@ def register_user():
         db_sess.commit()
         return redirect("/")
     return render_template("register_user.html", title=title, form=form, message="")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user.is_authenticated:
+        return redirect('/')
+    title = "Вход"
+    form = LoginForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user, remember=form.remember_me.data)
+            return redirect('/')
+        message = {'status': 0, 'text': 'Неверный логин или пароль'}
+        return render_template('login.html', title=title, form=form, message=message)
+    return render_template('login.html', title=title, form=form, message="")
 
 
 @login_manager.user_loader
