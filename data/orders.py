@@ -12,4 +12,3 @@ class Order(SqlAlchemyBase):
     status = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
 
     user = orm.relationship("User")
-    dishes = []

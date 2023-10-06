@@ -12,3 +12,6 @@ class Dish(SqlAlchemyBase):
     description = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     image = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+
+
+orders = orm.relationship("DishOrder", back_populates="dish")
