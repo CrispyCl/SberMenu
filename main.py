@@ -3,7 +3,7 @@ from flask_login import LoginManager, login_required, logout_user, login_user, c
 
 from data import db_session
 from data.users import User
-from forms.register_form import UserFORM
+from forms.user import UserFORM
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'very_secret_key'
@@ -19,26 +19,25 @@ def index():
 
 @app.route('/register/user', methods=['GET', 'POST'])
 def register_user():
-    if not current_user.is_authenticated:
+    print(1)
+    if current_user.is_authenticated:
         abort(404)
     form = UserFORM()
     Title = 'Регистрация'
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             message = {'status': 0, 'text': 'Пароли не совпадают'}
-            return render_template('register_dispatcher.html', title=Title,
+            return render_template('register_user.html', title=Title,
                                    form=form,
                                    message=message)
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
             message = {'status': 0, 'text': 'Такой пользователь уже есть'}
-            return render_template('register_dispatcher.html', title=Title,
+            return render_template('register_user.html', title=Title,
                                    form=form,
                                    message=message)
         users = db_sess.query(User).all()
-        last_id = users[-1].id + 1
         user = User(
-            id=last_id,
             email=form.email.data,
             name=form.name.data,
             surname=form.surname.data,
@@ -48,7 +47,7 @@ def register_user():
         db_sess.add(user)
         db_sess.commit()
         return redirect('/')
-    return render_template('register_dispatcher.html', title=Title, form=form, message='')
+    return render_template('register_user.html', title=Title, form=form, message='')
 
 
 @login_manager.user_loader
@@ -66,4 +65,4 @@ def logout():
 
 if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
-    app.run(port=8081, host='127.0.0.1', debug=True)
+    app.run(port=8080, host='127.0.0.1', debug=True)
