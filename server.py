@@ -1,7 +1,11 @@
+from PIL import Image
 from data import db_session
+from data.dishes import Dish
 from data.users import User
 from flask import Flask, abort, redirect, render_template
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
+from forms.dish import DishForm
+from forms.login import LoginForm
 from forms.user import UserForm
 
 
@@ -19,7 +23,6 @@ def index():
 
 @app.route("/register/user", methods=["GET", "POST"])
 def register_user():
-    print(1)
     if current_user.is_authenticated:
         abort(404)
     form = UserForm()
@@ -43,6 +46,51 @@ def register_user():
         db_sess.commit()
         return redirect("/")
     return render_template("register_user.html", title=title, form=form, message="")
+
+
+@app.route("/create_dish", methods=["GET", "POST"])
+def create_dish():
+    if current_user.is_authenticated:
+        abort(404)
+    form = DishForm()
+
+    title = "Новое блюдо"
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        if db_sess.query(Dish).filter(Dish.title == form.title.data).first():
+            message = {"status": 0, "text": "Такое блюдо уже есть в меню"}
+            return render_template("register_user.html", title=title, form=form, message=message)
+        dish = Dish(title=form.title.data, price=form.price.data, description=form.description.data)
+
+        dishes = db_sess.query(Dish).all()
+        last_id = 1 if not dishes else dishes[-1].id + 1
+        if form.image.data:
+            img1 = form.image.data
+            img1.save(f"static/img/dishes/{last_id}.jpg")
+        else:
+            Image.open("static/img/dishes/no-img.jpg").save(f"static/img/dishes/{last_id}.jpg")
+        dish.image = f"img/dishes/{last_id}.jpg"
+        db_sess.add(dish)
+        db_sess.commit()
+        return redirect("/")
+    return render_template("create_dish.html", title=title, form=form, message="")
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if current_user.is_authenticated:
+        return redirect("/")
+    title = "Вход"
+    form = LoginForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        if user and user.check_password(form.password.data):
+            login_user(user, remember=form.remember_me.data)
+            return redirect("/")
+        message = {"status": 0, "text": "Неверный логин или пароль"}
+        return render_template("login.html", title=title, form=form, message=message)
+    return render_template("login.html", title=title, form=form, message="")
 
 
 @login_manager.user_loader

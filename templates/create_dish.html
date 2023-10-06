@@ -1,0 +1,46 @@
+<div>
+    <form action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div>Добавление блюда</div>
+            <div>
+                <div>
+                    <b>{{ form.title(class="form-control", type="text",
+                        placeholder="Название") }}</b>
+                    {% for error in form.title.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                    {% endfor %}
+                </div>
+                <div>
+                    <b>{{ form.price(class="form-control", type="text",
+                        placeholder="Цена") }}</b>
+                    {% for error in form.price.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                    {% endfor %}
+                </div>
+                <div>
+                    <b>{{ form.description(class="form-control", type="text",
+                        placeholder="Описание") }}</b>
+                    {% for error in form.description.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                    {% endfor %}
+                </div>
+                <div>
+                    <b>{{ form.image(class="form-control", type="file",
+                        placeholder="Фото") }}</b>
+                    {% for error in form.image.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                    {% endfor %}
+                </div>
+                <b>{{ form.submit(value="Добавить") }}</b>
+            </div>
+
+    </form>
+</div>
