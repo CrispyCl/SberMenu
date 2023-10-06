@@ -21,6 +21,8 @@
 
 # Комманда - ChinaGriB
 
-![example workflow](https://github.com/Gogasmerter/SberMenu/actions/workflows/python-package.yml/badge.svg)
+### Current branch status if ![example workflow](https://github.com/Gogasmerter/SberMenu/actions/workflows/python-package.yml/badge.svg)
 
-![example branch parameter](https://github.com/Gogasmerter/SberMenu/actions/workflows/python-package.yml/badge.svg?branch=develop)
+[![Python package](https://github.com/Gogasmerter/SberMenu/actions/workflows/python-package.yml/badge.svg)](https://github.com/Gogasmerter/SberMenu/actions/workflows/python-package.yml)
+
+![example branch parameter](https://github.com/Gogasmerter/SberMenu/actions/workflows/python-package.yml/badge.svg?branch=main)
