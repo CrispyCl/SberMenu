@@ -20,3 +20,7 @@
 * `python server.py` или `python3 server.py` (Зависит от системы)
 
 # Комманда - ChinaGriB
+
+![example workflow](https://github.com/Gogasmerter/SberMenu/actions/workflows/python-package.yml/badge.svg)
+
+![example branch parameter](https://github.com/Gogasmerter/SberMenu/actions/workflows/python-package.yml/badge.svg?branch=develop)
