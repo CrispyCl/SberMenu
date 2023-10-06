@@ -1,12 +1,12 @@
+from PIL import Image
 from data import db_session
-from data.users import User
 from data.dishes import Dish
+from data.users import User
 from flask import Flask, abort, redirect, render_template
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
+from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.user import UserForm
-from forms.dish import DishForm
-from PIL import Image
 
 
 app = Flask(__name__)
@@ -60,11 +60,7 @@ def create_dish():
         if db_sess.query(Dish).filter(Dish.title == form.title.data).first():
             message = {"status": 0, "text": "Такое блюдо уже есть в меню"}
             return render_template("register_user.html", title=title, form=form, message=message)
-        dish = Dish(
-            title=form.title.data,
-            price=form.price.data,
-            description=form.description.data
-        )
+        dish = Dish(title=form.title.data, price=form.price.data, description=form.description.data)
 
         dishes = db_sess.query(Dish).all()
         last_id = 1 if not dishes else dishes[-1].id + 1
@@ -72,9 +68,8 @@ def create_dish():
             img1 = form.image.data
             img1.save(f"static/img/dishes/{last_id}.jpg")
         else:
-            Image.open(
-                f'static/img/dishes/no-img.jpg').save(f"static/img/dishes/{last_id}.jpg")
-        dish.image = f'img/dishes/{last_id}.jpg'
+            Image.open("static/img/dishes/no-img.jpg").save(f"static/img/dishes/{last_id}.jpg")
+        dish.image = f"img/dishes/{last_id}.jpg"
         db_sess.add(dish)
         db_sess.commit()
         return redirect("/")
