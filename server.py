@@ -48,7 +48,7 @@ def register_user():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect('/')
+        return redirect("/")
     title = "Вход"
     form = LoginForm()
     if form.validate_on_submit():
@@ -56,10 +56,10 @@ def login():
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            return redirect('/')
-        message = {'status': 0, 'text': 'Неверный логин или пароль'}
-        return render_template('login.html', title=title, form=form, message=message)
-    return render_template('login.html', title=title, form=form, message="")
+            return redirect("/")
+        message = {"status": 0, "text": "Неверный логин или пароль"}
+        return render_template("login.html", title=title, form=form, message=message)
+    return render_template("login.html", title=title, form=form, message="")
 
 
 @login_manager.user_loader
