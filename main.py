@@ -3,7 +3,7 @@ from flask_login import LoginManager, login_required, logout_user, login_user, c
 
 from data import db_session
 from data.users import User
-from forms.user import UserFORM
+from forms.user import UserForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'very_secret_key'
@@ -64,5 +64,5 @@ def logout():
 
 
 if __name__ == "__main__":
-    db_session.global_init("db/GriBD.db")
+    db_session.global_init("db/structure.db")
     app.run(port=8080, host='127.0.0.1', debug=True)
