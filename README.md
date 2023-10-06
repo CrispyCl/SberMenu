@@ -19,5 +19,4 @@
 ### Выполните команду:
 * `python server.py` или `python3 server.py` (Зависит от системы)
 
-
-## Комманда - ChinaGriB
+# Комманда - ChinaGriB

@@ -208,7 +208,7 @@ input {
 
 .login,
 .Login {
-    background: #BCDE36;
+    background: #BCDE36 !important;
     height: 3.125rem;
     width: 17rem;
     border-radius: 0.9375rem;

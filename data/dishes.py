@@ -9,7 +9,7 @@ class Dish(SqlAlchemyBase, UserMixin):
     __tablename__ = "dishes"
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    name = sqlalchemy.Column(sqlalchemy.String, nullable=False)
+    title = sqlalchemy.Column(sqlalchemy.String, nullable=False)
     description = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     image = sqlalchemy.Column(sqlalchemy.String, nullable=True)
