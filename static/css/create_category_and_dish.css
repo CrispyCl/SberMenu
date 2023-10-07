@@ -21,6 +21,21 @@
     line-height: normal;
 }
 
+.txta {
+    width: 100%;
+    min-width: 400px;
+    max-width: 400px;
+    min-height: 40px;
+    font-size: 16px;
+    line-height: 1.4;
+    margin: 10px 0;
+    border: 2px solid #CDCDCD;
+    border-radius: 0.9375rem;
+    padding: 0 20px;
+    min-height: 100px !important;
+    padding: 5px 20px;
+}
+
 .name,
 .submitbtn {
     height: 3.125rem;
