@@ -1,64 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SberMenu | Добро пожаловать</title>
-</head>
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 
-<link rel="stylesheet" href="/static/css/index.css">
-<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-
-<div class="PC">
-    <header class="header_PC">
-        <div class="header">
-            <div class="logo">SberMenu</div>
-            <div class="sba">
-                <div class="sb">
-                    <div class="search_bar"></div>
-                    <a class="found_btn">Найти</a>
-                </div>
-
-                <div class="avatar">
-                    <div class="img"></div>
-                </div>
-                <a class="login_btn" href="/login">Войти</a>
-            </div>
+<div class="wrapper">
+    <i id="left" class='bx bx-left-arrow-alt'></i>
+    <div class="top_container">
+        <div class="it">
+            <img class="box" src="/static/img/1.jpg">
+            <h1 class="img_text">dasdas</h1>
         </div>
-    </header>
-    <main class="main_PC">
-        <div class="wrapper">
-            <i id="left" class='bx bx-left-arrow-alt'></i>
-            <div class="top_container">
-                <div class="it">
-                    <img class="box" src="/static/img/1.jpg">
-                    <h1 class="img_text">dasdas</h1>
-                </div>
-                <div class="it">
-                    <img class="box" src="/static/img/1.jpg">
-                </div>
-                <div class="it">
-                    <img class="box" src="/static/img/1.jpg">
-                </div>
-                <div class="it">
-                    <img class="box" src="/static/img/1.jpg">
-                </div>
-                <div class="it">
-                    <img class="box" src="/static/img/1.jpg">
-                </div>
-                <div class="it">
-                    <img class="box" src="/static/img/1.jpg">
-                </div>
-                <div class="it">
-                    <img class="box" src="/static/img/1.jpg">
-                </div>
-            </div>
-            <i id="right" class='bx bx-right-arrow-alt'></i>
+        <div class="it">
+            <img class="box" src="/static/img/1.jpg">
+            <h1 class="img_text">dasdas</h1>
         </div>
-    </main>
-    <footer class="footer_PC"></footer>
+        <div class="it">
+            <img class="box" src="/static/img/1.jpg">
+            <h1 class="img_text">dasdas</h1>
+        </div>
+        <div class="it">
+            <img class="box" src="/static/img/1.jpg">
+            <h1 class="img_text">dasdas</h1>
+        </div>
+        <div class="it">
+            <img class="box" src="/static/img/1.jpg">
+            <h1 class="img_text">dasdas</h1>
+        </div>
+        <div class="it">
+            <img class="box" src="/static/img/1.jpg">
+            <h1 class="img_text">dasdas</h1>
+        </div>
+        <div class="it">
+            <img class="box" src="/static/img/1.jpg">
+            <h1 class="img_text">dasdas</h1>
+        </div>
+    </div>
+    <i id="right" class='bx bx-right-arrow-alt'></i>
 </div>
-<script src="/static/scripts/slider.js"></script>
 
-</html>
+
+<script src="{{ url_for('static', filename='scripts/slider.js') }}"></script>
+{% endblock %}

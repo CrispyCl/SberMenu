@@ -14,7 +14,7 @@ const ShowHideIcon = () => {
 
 arrowIcons.forEach(icon => {
     icon.addEventListener('click', () => {
-        let firstImgWidth = firstImg.clientWidth
+        let firstImgWidth = firstImg.clientWidth + 47
         slider.scrollLeft += icon.id == "left" ? -firstImgWidth : firstImgWidth;
         setTimeout(() => ShowHideIcon(), 60);
     })
