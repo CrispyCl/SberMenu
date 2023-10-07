@@ -32,7 +32,10 @@ def index():
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
     categories = db_sess.query(Category).all()
-    return render_template("index.html", message=smessage, order=session["order"], categories=categories)
+    dishes = {}
+    for category in categories:
+        dishes[category.id] = list(map(lambda di: di.dish, db_sess.query(DishCategory).filter(DishCategory.category_id == category.id).all()))
+    return render_template("index.html", message=smessage, order=session["order"], categories=categories, dishes=dishes)
 
 
 @app.route("/create/dish", methods=["GET", "POST"])
