@@ -23,8 +23,6 @@ login_manager.init_app(app)
 
 @app.route("/")
 def index():
-    if not session.get("message"):
-        session["message"] = dumps(ST_message)
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     return render_template("index.html", message=smessage)
@@ -43,7 +41,7 @@ def create_dish():
         db_sess = db_session.create_session()
         if db_sess.query(Dish).filter(Dish.title == form.title.data).first():
             message = {"status": 0, "text": "Такое блюдо уже есть в меню"}
-            return render_template("register_user.html", title=title, form=form, message=message)
+            return render_template("register_user.html", title=title, form=form, message=dumps(message))
         dish = Dish(title=form.title.data, price=form.price.data, description=form.description.data)
 
         dishes = db_sess.query(Dish).all()
@@ -73,7 +71,7 @@ def create_category():
         db_sess = db_session.create_session()
         if db_sess.query(Category).filter(Category.title == form.title.data).first():
             message = {"status": 0, "text": "Такая категория уже есть"}
-            return render_template("register_user.html", title=title, form=form, message=message)
+            return render_template("register_user.html", title=title, form=form, message=dumps(message))
         category = Category(title=form.title.data)
 
         categories = db_sess.query(Category).all()
@@ -101,11 +99,11 @@ def register_user():
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             message = {"status": 0, "text": "Пароли не совпадают"}
-            return render_template("register_user.html", title=title, form=form, message=message)
+            return render_template("register_user.html", title=title, form=form, message=dumps(message))
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
             message = {"status": 0, "text": "Такой пользователь уже есть"}
-            return render_template("register_user.html", title=title, form=form, message=message)
+            return render_template("register_user.html", title=title, form=form, message=dumps(message))
         user = User(
             email=form.email.data,
             name=form.name.data,
@@ -115,6 +113,10 @@ def register_user():
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
+        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        login_user(user, remember=False)
+        message = {"status": 1, "text": "Успех"}
+        session["message"] = dumps(message)
         return redirect("/")
     return render_template("register_user.html", title=title, form=form, message=smessage)
 
@@ -126,15 +128,20 @@ def login():
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     title = "Вход"
+    print(smessage)
     form = LoginForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
+            message = {"status": 1, "text": "Успех"}
+            session["message"] = dumps(message)
             return redirect("/")
         message = {"status": 0, "text": "Неверный логин или пароль"}
-        return render_template("login.html", title=title, form=form, message=message)
+        session["message"] = dumps(message)
+        print(message)
+        return render_template("login.html", title=title, form=form, message=dumps(message))
     return render_template("login.html", title=title, form=form, message=smessage)
 
 
@@ -153,4 +160,5 @@ def logout():
 
 if __name__ == "__main__":
     db_session.global_init("db/structure.db")
+    session["message"] = dumps(ST_message)
     app.run(port=8080, host="127.0.0.1", debug=True)
