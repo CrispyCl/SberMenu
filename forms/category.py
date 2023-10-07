@@ -3,9 +3,7 @@ from wtforms import FileField, IntegerField, StringField, SubmitField, TextAreaF
 from wtforms.validators import DataRequired
 
 
-class DishForm(FlaskForm):
+class CategoryForm(FlaskForm):
     title = StringField("Название", validators=[DataRequired()])
-    description = TextAreaField("Описание")
-    price = IntegerField("Цена", validators=[DataRequired()])
     image = FileField()
     submit = SubmitField("Добавить")
