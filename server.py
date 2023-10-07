@@ -137,5 +137,5 @@ def logout():
 
 
 if __name__ == "__main__":
-    db_session.global_init("db/structure.db")
+    db_session.global_init("db/GriBD.db")
     app.run(port=8080, host="127.0.0.1", debug=True)
