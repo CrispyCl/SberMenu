@@ -63,7 +63,7 @@
 }
 
 .wrapper i {
-    top: 50%;
+    top: 40%;
     height: 2.875rem;
     width: 2.875rem;
     text-align: center;
@@ -82,7 +82,7 @@
 }
 
 .wrapper i:last-child {
-    right: -23px;
+    right: -24px;
 }
 
 .img_text {
