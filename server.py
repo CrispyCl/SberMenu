@@ -30,7 +30,9 @@ def index():
         session["order"] = []
     smessage = session["message"]
     session["message"] = dumps(ST_message)
-    return render_template("index.html", message=smessage, order=session["order"])
+    db_sess = db_session.create_session()
+    categories = db_sess.query(Category).all()
+    return render_template("index.html", message=smessage, order=session["order"], categories=categories)
 
 
 @app.route("/create/dish", methods=["GET", "POST"])
