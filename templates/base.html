@@ -35,8 +35,9 @@
                 <!-- ddmenu -->
                 <div class="dd-menu-wrap">
                     <div class="dd-menu">
-                        <p>1 2</p>
-                        <p>1 3</p>
+                        {% for dish in order %}
+                        <p><a href="#"><img src="{{ url_for('static', filename=dish.image) }}"></a> <div>{{ dish.title }}</p>{{ dish.price }}</div></p>
+                        {% endfor %}
                     </div>
                 </div>
 

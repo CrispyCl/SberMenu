@@ -23,9 +23,13 @@ login_manager.init_app(app)
 
 @app.route("/")
 def index():
+    if not session.get("message"):
+        session["message"] = dumps(ST_message)
+    if not session.get("order"):
+        session["order"] = []
     smessage = session["message"]
     session["message"] = dumps(ST_message)
-    return render_template("index.html", message=smessage)
+    return render_template("index.html", message=smessage, order=session["order"])
 
 
 @app.route("/create/dish", methods=["GET", "POST"])
@@ -41,7 +45,9 @@ def create_dish():
         db_sess = db_session.create_session()
         if db_sess.query(Dish).filter(Dish.title == form.title.data).first():
             message = {"status": 0, "text": "Такое блюдо уже есть в меню"}
-            return render_template("register_user.html", title=title, form=form, message=dumps(message))
+            return render_template(
+                "register_user.html", title=title, form=form, message=dumps(message), order=session["order"]
+            )
         dish = Dish(title=form.title.data, price=form.price.data, description=form.description.data)
 
         dishes = db_sess.query(Dish).all()
@@ -55,7 +61,7 @@ def create_dish():
         db_sess.add(dish)
         db_sess.commit()
         return redirect("/")
-    return render_template("create_dish.html", title=title, form=form, message=smessage)
+    return render_template("create_dish.html", title=title, form=form, message=smessage, order=session["order"])
 
 
 @app.route("/create/category", methods=["GET", "POST"])
@@ -71,7 +77,9 @@ def create_category():
         db_sess = db_session.create_session()
         if db_sess.query(Category).filter(Category.title == form.title.data).first():
             message = {"status": 0, "text": "Такая категория уже есть"}
-            return render_template("register_user.html", title=title, form=form, message=dumps(message))
+            return render_template(
+                "register_user.html", title=title, form=form, message=dumps(message), order=session["order"]
+            )
         category = Category(title=form.title.data)
 
         categories = db_sess.query(Category).all()
@@ -85,7 +93,7 @@ def create_category():
         db_sess.add(category)
         db_sess.commit()
         return redirect("/")
-    return render_template("create_category.html", title=title, form=form, message=smessage)
+    return render_template("create_category.html", title=title, form=form, message=smessage, order=session["order"])
 
 
 @app.route("/register/user", methods=["GET", "POST"])
@@ -99,11 +107,15 @@ def register_user():
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
             message = {"status": 0, "text": "Пароли не совпадают"}
-            return render_template("register_user.html", title=title, form=form, message=dumps(message))
+            return render_template(
+                "register_user.html", title=title, form=form, message=dumps(message), order=session["order"]
+            )
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
             message = {"status": 0, "text": "Такой пользователь уже есть"}
-            return render_template("register_user.html", title=title, form=form, message=dumps(message))
+            return render_template(
+                "register_user.html", title=title, form=form, message=dumps(message), order=session["order"]
+            )
         user = User(
             email=form.email.data,
             name=form.name.data,
@@ -118,7 +130,7 @@ def register_user():
         message = {"status": 1, "text": "Успех"}
         session["message"] = dumps(message)
         return redirect("/")
-    return render_template("register_user.html", title=title, form=form, message=smessage)
+    return render_template("register_user.html", title=title, form=form, message=smessage, order=session["order"])
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -137,12 +149,13 @@ def login():
             login_user(user, remember=form.remember_me.data)
             message = {"status": 1, "text": "Успех"}
             session["message"] = dumps(message)
+            session["order"] = []
             return redirect("/")
         message = {"status": 0, "text": "Неверный логин или пароль"}
         session["message"] = dumps(message)
         print(message)
-        return render_template("login.html", title=title, form=form, message=dumps(message))
-    return render_template("login.html", title=title, form=form, message=smessage)
+        return render_template("login.html", title=title, form=form, message=dumps(message), order=session["order"])
+    return render_template("login.html", title=title, form=form, message=smessage, order=session["order"])
 
 
 @login_manager.user_loader
@@ -155,10 +168,10 @@ def load_user(user_id):
 @login_required
 def logout():
     logout_user()
+    session["order"] = []
     return redirect("/")
 
 
 if __name__ == "__main__":
     db_session.global_init("db/structure.db")
-    session["message"] = dumps(ST_message)
     app.run(port=8080, host="127.0.0.1", debug=True)
