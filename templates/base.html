@@ -14,12 +14,33 @@
 <div class="PC">
     <header class="header_PC">
         <div class="header">
-            <div class="logo">SberMenu</div>
+            <div class="logo">
+                <div class="green">Sber</div>Menu
+            </div>
             <div class="sba">
+                <div class="basket">
+                    <img src="/static/img/svg/basket-shopping-alt-svgrepo-com.svg" alt="">
+                </div>
+                {% if current_user.is_authenticated %}
                 <div class="avatar">
                     <div class="img"></div>
                 </div>
+                <a class="login_btn" href="/logout">Выйти</a>
+                {% else %}
                 <a class="login_btn" href="/login">Войти</a>
+                {% endif %}
+
+
+                <!-- ddmenu -->
+                <div class="dd-menu-wrap">
+                    <div class="dd-menu">
+                        <p>1 2</p>
+                        <p>1 3</p>
+                    </div>
+                </div>
+
+                <!-- end ddmenu -->
+
             </div>
         </div>
     </header>
@@ -28,5 +49,7 @@
     </main>
     <footer class="footer_PC"></footer>
 </div>
+
+<script src="{{ url_for('static', filename='/scripts/basket_dropdownmenu.js') }}"></script>
 
 </html>

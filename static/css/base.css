@@ -159,6 +159,7 @@ main {
 .sba {
     gap: 5rem;
     display: flex;
+    align-items: center;
 }
 
 .search_bar {
@@ -204,7 +205,7 @@ main {
 
 .login_btn {
     display: flex;
-    background: #CDCDCD;
+    background: #BCDE36;
     margin-right: 2.5rem;
     width: 5.5rem;
     height: 3.125rem;
@@ -221,4 +222,43 @@ main {
     justify-content: center;
 }
 
+.basket {
+    border-radius: 50%;
+    background: #cdcdcd;
+    display: flex;
+    width: 60px;
+    height: 60px;
+    align-items: center;
+    justify-content: center;
+}
+
+.basket img {
+    width: 50px;
+}
+
+.green {
+    color: #BCDE36;
+}
+
 /* End Header */
+
+
+.dd-menu-wrap {
+    display: none;
+    z-index: 999;
+    position: absolute;
+    top: 10%;
+    right: 10%;
+    width: 25rem;
+}
+
+.dd-menu {
+    height: 30rem;
+    background: #CDCDCD;
+    padding: 1.25rem;
+    margin: 0.625rem;
+}
+
+.dd-menu-wrap.show {
+    display: block;
+}
