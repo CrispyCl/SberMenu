@@ -70,6 +70,11 @@ input.name {
     border-color: #111;
 }
 
+.drop-container:hover .black,
+.drop-container.drag-active .black {
+    display: block;
+}
+
 .drop-container:hover .drop-title,
 .drop-container.drag-active .drop-title {
     color: #222;
@@ -107,4 +112,16 @@ input[type=file]::file-selector-button {
 
 input[type=file]::file-selector-button:hover {
     background: #0d45a5;
+}
+
+#show_img {
+    border-radius: 10px;
+    z-index: -1;
+    position: absolute;
+    /* object-fit: cover; */
+    width: 100% !important;
+}
+
+.black {
+    display: none;
 }
