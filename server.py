@@ -142,25 +142,28 @@ def create_category():
 # API
 @app.route("/api/create_order", methods=["POST"])
 def create_order():
-    json_d = request.json
-    json_user = json_d["user"]
-    db_sess = db_session.create_session()
-    user = db_sess.query(User).filter(User.email == json_user["email"]).first()
-    if user and user.check_password(json_user["password"]):
-        order = Order()
-        order.user_id = user.id
-        db_sess.add(order)
-        for dish__is in json_d["order"]:
-            db_dish_order = DishOrder()
-            db_dish_order.dish_id = dish__is
-            db_dish_order.order_id = order
-            db_sess.add(db_dish_order)
-        db_sess.commit()
-    message = {"status": 0, "text": "Неверный логин или пароль"}
-    return jsonify(message)
-
-
-
+    try:
+        json_d = request.get_json()
+        print(json_d)
+        json_user = json_d["user"]
+        db_sess = db_session.create_session()
+        user = db_sess.query(User).filter((User.email == json_user["email"]) | (User.role == json_user["role"])).first()
+        if user and user.check_password(json_user["password"]):
+            order = Order()
+            order.user_id = int(user.id)
+            order.status = 1
+            db_sess.add(order)
+            for dish__is in json_d["order"]:
+                db_dish_order = DishOrder(
+                dish_id=dish__is,
+                order_id=order.id)
+                db_sess.add(db_dish_order)
+            db_sess.commit()
+        message = {"status": 0, "text": "Неверный логин или пароль"}
+        return jsonify(message)
+    except KeyError:
+        message = {"status": -1, "text": "Wrong formate"}
+        return jsonify(message)
 
 
 if __name__ == "__main__":
