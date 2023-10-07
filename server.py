@@ -23,34 +23,7 @@ def index():
     return render_template("index.html")
 
 
-@app.route("/register/user", methods=["GET", "POST"])
-def register_user():
-    if current_user.is_authenticated:
-        abort(404)
-    form = UserForm()
-    title = "Регистрация"
-    if form.validate_on_submit():
-        if form.password.data != form.password_again.data:
-            message = {"status": 0, "text": "Пароли не совпадают"}
-            return render_template("register_user.html", title=title, form=form, message=message)
-        db_sess = db_session.create_session()
-        if db_sess.query(User).filter(User.email == form.email.data).first():
-            message = {"status": 0, "text": "Такой пользователь уже есть"}
-            return render_template("register_user.html", title=title, form=form, message=message)
-        user = User(
-            email=form.email.data,
-            name=form.name.data,
-            surname=form.surname.data,
-            role=2,
-        )
-        user.set_password(form.password.data)
-        db_sess.add(user)
-        db_sess.commit()
-        return redirect("/")
-    return render_template("register_user.html", title=title, form=form, message="")
-
-
-@app.route("/create_dish", methods=["GET", "POST"])
+@app.route("/create/dish", methods=["GET", "POST"])
 def create_dish():
     if current_user.is_authenticated:
         abort(404)
@@ -76,6 +49,61 @@ def create_dish():
         db_sess.commit()
         return redirect("/")
     return render_template("create_dish.html", title=title, form=form, message="")
+
+
+@app.route("/create/category", methods=["GET", "POST"])
+def create_category():
+    if current_user.is_authenticated:
+        abort(404)
+    form = CategoryForm()
+
+    title = "Новая категория"
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        if db_sess.query(Category).filter(Category.title == form.title.data).first():
+            message = {"status": 0, "text": "Такая категория уже есть"}
+            return render_template("register_user.html", title=title, form=form, message=message)
+        category = Category(title=form.title.data)
+
+        categories = db_sess.query(Category).all()
+        last_id = 1 if not categories else categories[-1].id + 1
+        if form.image.data:
+            img1 = form.image.data
+            img1.save(f"static/img/categories/{last_id}.jpg")
+        else:
+            Image.open("static/img/categories/no-img.jpg").save(f"static/img/categories/{last_id}.jpg")
+        category.image = f"img/categories/{last_id}.jpg"
+        db_sess.add(category)
+        db_sess.commit()
+        return redirect("/")
+    return render_template("create_category.html", title=title, form=form, message="")
+
+
+@app.route("/register/user", methods=["GET", "POST"])
+def register_user():
+    if current_user.is_authenticated:
+        abort(404)
+    form = UserForm()
+    title = "Регистрация"
+    if form.validate_on_submit():
+        if form.password.data != form.password_again.data:
+            message = {"status": 0, "text": "Пароли не совпадают"}
+            return render_template("register_user.html", title=title, form=form, message=message)
+        db_sess = db_session.create_session()
+        if db_sess.query(User).filter(User.email == form.email.data).first():
+            message = {"status": 0, "text": "Такой пользователь уже есть"}
+            return render_template("register_user.html", title=title, form=form, message=message)
+        user = User(
+            email=form.email.data,
+            name=form.name.data,
+            surname=form.surname.data,
+            role=2,
+        )
+        user.set_password(form.password.data)
+        db_sess.add(user)
+        db_sess.commit()
+        return redirect("/")
+    return render_template("register_user.html", title=title, form=form, message="")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -108,34 +136,6 @@ def logout():
     return redirect("/")
 
 
-@app.route("/create_category", methods=["GET", "POST"])
-def create_category():
-    if current_user.is_authenticated:
-        abort(404)
-    form = CategoryForm()
-
-    title = "Новая категория"
-    if form.validate_on_submit():
-        db_sess = db_session.create_session()
-        if db_sess.query(Category).filter(Category.title == form.title.data).first():
-            message = {"status": 0, "text": "Такая категория уже есть"}
-            return render_template("register_user.html", title=title, form=form, message=message)
-        category = Category(title=form.title.data)
-
-        categories = db_sess.query(Category).all()
-        last_id = 1 if not categories else categories[-1].id + 1
-        if form.image.data:
-            img1 = form.image.data
-            img1.save(f"static/img/categories/{last_id}.jpg")
-        else:
-            Image.open("static/img/categories/no-img.jpg").save(f"static/img/categories/{last_id}.jpg")
-        category.image = f"img/categories/{last_id}.jpg"
-        db_sess.add(category)
-        db_sess.commit()
-        return redirect("/")
-    return render_template("create_category.html", title=title, form=form, message="")
-
-
 if __name__ == "__main__":
-    db_session.global_init("db/GriBD.db")
+    db_session.global_init("db/structure.db")
     app.run(port=8080, host="127.0.0.1", debug=True)
