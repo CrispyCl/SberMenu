@@ -8,12 +8,26 @@
     <div class="top_container">
         {% for category in categories %}
         <div class="it">
-            <img class="box" src="{{ url_for('static', filename=category.image) }}">
+            <a href="#{{ category.id }}"><img class="box" src="{{ url_for('static', filename=category.image) }}"></a>
             <h1 class="img_text">{{ category.title }}</h1>
         </div>
         {% endfor %}
     </div>
     <i id="right" class='bx bx-right-arrow-alt'></i>
+</div> 
+
+<!-- МАКС ДОДЕЛАЙ ГОВНО -->
+<div>
+    {% for category in categories %}
+    <div>
+        <img id="{{ category.id }}" class="box" src="{{ url_for('static', filename=category.image) }}" width="300 px">
+        <div class="img_text">{{ category.title }}</div></duv>
+        {% for dish in dishes[category.id] %}
+            <img class="box" src="{{ url_for('static', filename=dish.image) }}">
+            <h4 class="img_text">{{ dish.title }}</h1>
+        {% endfor %}
+    
+    {% endfor %}
 </div>
 
 

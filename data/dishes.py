@@ -15,3 +15,4 @@ class Dish(SqlAlchemyBase):
 
 
 orders = orm.relationship("DishOrder", back_populates="dish")
+categories = orm.relationship("DishCategory", back_populates="dish")
