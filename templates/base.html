@@ -14,6 +14,7 @@
 <div class="PC">
     <header class="header_PC">
         <div class="header">
+            <div class="message-content" style="display: none;">{{ message|tojson }}</div>
             <div class="logo">
                 <div class="green">Sber</div>Menu
             </div>
@@ -34,8 +35,9 @@
                 <!-- ddmenu -->
                 <div class="dd-menu-wrap">
                     <div class="dd-menu">
-                        <p>1 2</p>
-                        <p>1 3</p>
+                        {% for dish in order %}
+                        <p><a href="#"><img src="{{ url_for('static', filename=dish.image) }}"></a> <div>{{ dish.title }}</p>{{ dish.price }}</div></p>
+                        {% endfor %}
                     </div>
                 </div>
 
@@ -44,6 +46,37 @@
             </div>
         </div>
     </header>
+    <!-- Good Alert Box  -->
+			<div class="good_alert_box">
+				<div class="good_alert_box_content">
+					<i class="fa-solid fa-check check"></i>
+
+					<div class="good_alert_message">
+						<span class="text text-1">Успех!</span>
+						<span class="text text-2"></span>
+					</div>
+				</div>
+				<i class="fa-solid fa-xmark close"></i>
+
+				<div class="good_alert_progress"></div>
+			</div>
+
+
+			<!-- Bad Alert Box -->
+
+			<div class="bad_alert_box">
+				<div class="bad_alert_box_content">
+					<i class="fa-solid fa-xmark check"></i>
+
+					<div class="bad_alert_message">
+						<span class="text text-1">Поздравляю, ты крякнулся</span>
+						<span class="text text-2"></span>
+					</div>
+				</div>
+				<i class="fa-solid fa-xmark close"></i>
+
+				<div class="bad_alert_progress"></div>
+			</div>
     <main class="main_PC">
         {% block content %}{% endblock %}
     </main>

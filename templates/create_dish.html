@@ -39,8 +39,16 @@
                     </p>
                     {% endfor %}
                 </div>
-                <b>{{ form.submit(value="Добавить") }}</b>
+                <div>
+                    {% for category in categories %}
+                    <input type="checkbox" name="categories"
+                        value="{{ category.id }}">
+                    <label>{{ category.title }}</label>
+                    <img src="{{ url_for('static', filename=category.image) }}" style="width: 20px">
+                    {% endfor %}
+                </div>
             </div>
+                <b>{{ form.submit(value="Добавить") }}</b>
 
     </form>
 </div>

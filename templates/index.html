@@ -6,34 +6,12 @@
 <div class="wrapper">
     <i id="left" class='bx bx-left-arrow-alt'></i>
     <div class="top_container">
+        {% for category in categories %}
         <div class="it">
-            <img class="box" src="/static/img/1.jpg">
-            <h1 class="img_text">dasdas</h1>
+            <img class="box" src="{{ url_for('static', filename=category.image) }}">
+            <h1 class="img_text">{{ category.title }}</h1>
         </div>
-        <div class="it">
-            <img class="box" src="/static/img/1.jpg">
-            <h1 class="img_text">dasdas</h1>
-        </div>
-        <div class="it">
-            <img class="box" src="/static/img/1.jpg">
-            <h1 class="img_text">dasdas</h1>
-        </div>
-        <div class="it">
-            <img class="box" src="/static/img/1.jpg">
-            <h1 class="img_text">dasdas</h1>
-        </div>
-        <div class="it">
-            <img class="box" src="/static/img/1.jpg">
-            <h1 class="img_text">dasdas</h1>
-        </div>
-        <div class="it">
-            <img class="box" src="/static/img/1.jpg">
-            <h1 class="img_text">dasdas</h1>
-        </div>
-        <div class="it">
-            <img class="box" src="/static/img/1.jpg">
-            <h1 class="img_text">dasdas</h1>
-        </div>
+        {% endfor %}
     </div>
     <i id="right" class='bx bx-right-arrow-alt'></i>
 </div>
