@@ -3,7 +3,8 @@ from data import db_session
 from data.dishes import Dish
 from data.users import User
 from data.categories import Category
-from flask import Flask, abort, redirect, render_template
+from data.dish_categories import DishCategory
+from flask import Flask, abort, redirect, render_template, request
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from forms.dish import DishForm
 from forms.login import LoginForm
@@ -55,17 +56,24 @@ def create_dish():
     if current_user.is_authenticated:
         abort(404)
     form = DishForm()
-
+    db_sess = db_session.create_session()
     title = "Новое блюдо"
+    categories = db_sess.query(Category).all()
     if form.validate_on_submit():
-        db_sess = db_session.create_session()
         if db_sess.query(Dish).filter(Dish.title == form.title.data).first():
             message = {"status": 0, "text": "Такое блюдо уже есть в меню"}
-            return render_template("register_user.html", title=title, form=form, message=message)
+            return render_template("register_user.html", title=title, form=form, message=message,
+                                   categories=categories)
+
         dish = Dish(title=form.title.data, price=form.price.data, description=form.description.data)
 
         dishes = db_sess.query(Dish).all()
         last_id = 1 if not dishes else dishes[-1].id + 1
+        ctgy = request.form.getlist('categories')
+        for s in ctgy:
+            d_categ = DishCategory(dish_id=last_id, category_id=s)
+            db_sess.add(d_categ)
+            db_sess.commit()
         if form.image.data:
             img1 = form.image.data
             img1.save(f"static/img/dishes/{last_id}.jpg")
@@ -75,7 +83,7 @@ def create_dish():
         db_sess.add(dish)
         db_sess.commit()
         return redirect("/")
-    return render_template("create_dish.html", title=title, form=form, message="")
+    return render_template("create_dish.html", title=title, form=form, message="", categories=categories)
 
 
 @app.route("/login", methods=["GET", "POST"])
