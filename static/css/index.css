@@ -1,9 +1,4 @@
 /* Plitka chokolate */
-.main_PC {
-    display: flex;
-    justify-content: center;
-}
-
 .wrapper {
     display: flex;
     position: relative;

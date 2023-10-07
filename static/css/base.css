@@ -262,3 +262,8 @@ main {
 .dd-menu-wrap.show {
     display: block;
 }
+
+.main_PC {
+    display: flex;
+    justify-content: center;
+}

@@ -3,9 +3,10 @@ from json import dumps, loads
 from PIL import Image
 from data import db_session
 from data.categories import Category
+from data.dish_categories import DishCategory
 from data.dishes import Dish
 from data.users import User
-from flask import Flask, abort, redirect, render_template, session
+from flask import Flask, abort, redirect, render_template, request, session
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from forms.category import CategoryForm
 from forms.dish import DishForm
@@ -29,7 +30,9 @@ def index():
         session["order"] = []
     smessage = session["message"]
     session["message"] = dumps(ST_message)
-    return render_template("index.html", message=smessage, order=session["order"])
+    db_sess = db_session.create_session()
+    categories = db_sess.query(Category).all()
+    return render_template("index.html", message=smessage, order=session["order"], categories=categories)
 
 
 @app.route("/create/dish", methods=["GET", "POST"])
@@ -41,17 +44,28 @@ def create_dish():
     session["message"] = dumps(ST_message)
 
     title = "Создание блюда"
+    db_sess = db_session.create_session()
+    categories = db_sess.query(Category).all()
     if form.validate_on_submit():
-        db_sess = db_session.create_session()
         if db_sess.query(Dish).filter(Dish.title == form.title.data).first():
             message = {"status": 0, "text": "Такое блюдо уже есть в меню"}
             return render_template(
-                "register_user.html", title=title, form=form, message=dumps(message), order=session["order"]
+                "register_user.html",
+                title=title,
+                form=form,
+                message=dumps(message),
+                order=session["order"],
+                categories=categories,
             )
         dish = Dish(title=form.title.data, price=form.price.data, description=form.description.data)
 
         dishes = db_sess.query(Dish).all()
         last_id = 1 if not dishes else dishes[-1].id + 1
+        categories = request.form.getlist("categories")
+        for category in categories:
+            d_categ = DishCategory(dish_id=last_id, category_id=category)
+            db_sess.add(d_categ)
+            db_sess.commit()
         if form.image.data:
             img1 = form.image.data
             img1.save(f"static/img/dishes/{last_id}.jpg")
@@ -61,7 +75,9 @@ def create_dish():
         db_sess.add(dish)
         db_sess.commit()
         return redirect("/")
-    return render_template("create_dish.html", title=title, form=form, message=smessage, order=session["order"])
+    return render_template(
+        "create_dish.html", title=title, form=form, message=smessage, order=session["order"], categories=categories
+    )
 
 
 @app.route("/create/category", methods=["GET", "POST"])
@@ -173,5 +189,5 @@ def logout():
 
 
 if __name__ == "__main__":
-    db_session.global_init("db/structure.db")
+    db_session.global_init("db/GriBD.db")
     app.run(port=8080, host="127.0.0.1", debug=True)
