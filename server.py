@@ -30,15 +30,15 @@ def index():
     return render_template("index.html", message=smessage)
 
 
-@app.route("/create_dish", methods=["GET", "POST"])
+@app.route("/create/dish", methods=["GET", "POST"])
 def create_dish():
     if current_user.is_authenticated:
         abort(404)
+    form = DishForm()
     smessage = session["message"]
     session["message"] = dumps(ST_message)
-    form = DishForm()
 
-    title = "Создайте блюдо"
+    title = "Создание блюда"
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         if db_sess.query(Dish).filter(Dish.title == form.title.data).first():
@@ -60,15 +60,15 @@ def create_dish():
     return render_template("create_dish.html", title=title, form=form, message=smessage)
 
 
-@app.route("/create_category", methods=["GET", "POST"])
+@app.route("/create/category", methods=["GET", "POST"])
 def create_category():
     if current_user.is_authenticated:
         abort(404)
+    form = CategoryForm()
     smessage = session["message"]
     session["message"] = dumps(ST_message)
-    form = CategoryForm()
 
-    title = "Создайте категорию"
+    title = "Создание категории"
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         if db_sess.query(Category).filter(Category.title == form.title.data).first():
@@ -152,5 +152,5 @@ def logout():
 
 
 if __name__ == "__main__":
-    db_session.global_init("db/GriBD.db")
+    db_session.global_init("db/structure.db")
     app.run(port=8080, host="127.0.0.1", debug=True)
