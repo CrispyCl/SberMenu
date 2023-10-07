@@ -1,14 +1,14 @@
 from PIL import Image
 from data import db_session
+from data.categories import Category
 from data.dishes import Dish
 from data.users import User
-from data.categories import Category
 from flask import Flask, abort, redirect, render_template
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
+from forms.category import CategoryForm
 from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.user import UserForm
-from forms.category import CategoryForm
 
 
 app = Flask(__name__)
