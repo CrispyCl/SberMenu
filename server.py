@@ -1,14 +1,17 @@
 from PIL import Image
 from data import db_session
 from data.categories import Category
+from data.dish_orders import DishOrder
 from data.dishes import Dish
+from data.orders import Order
 from data.users import User
-from flask import Flask, abort, redirect, render_template
+from flask import Flask, abort, redirect, render_template, request, jsonify
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from forms.category import CategoryForm
 from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.user import UserForm
+
 
 
 app = Flask(__name__)
@@ -134,6 +137,30 @@ def create_category():
         db_sess.commit()
         return redirect("/")
     return render_template("create_category.html", title=title, form=form, message="")
+
+
+# API
+@app.route("/api/create_order", methods=["POST"])
+def create_order():
+    json_d = request.json
+    json_user = json_d["user"]
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.email == json_user["email"]).first()
+    if user and user.check_password(json_user["password"]):
+        order = Order()
+        order.user_id = user.id
+        db_sess.add(order)
+        for dish__is in json_d["order"]:
+            db_dish_order = DishOrder()
+            db_dish_order.dish_id = dish__is
+            db_dish_order.order_id = order
+            db_sess.add(db_dish_order)
+        db_sess.commit()
+    message = {"status": 0, "text": "Неверный логин или пароль"}
+    return jsonify(message)
+
+
+
 
 
 if __name__ == "__main__":
