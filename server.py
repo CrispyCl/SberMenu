@@ -149,6 +149,36 @@ def register_user():
     return render_template("register_user.html", title=title, form=form, message=smessage, order=session["order"])
 
 
+@app.route("/edit/category/<int:id>", methods=["GET", "POST"])
+def edit_category(id):
+    if current_user.is_authenticated:
+        abort(404)
+    form = CategoryForm()
+    db_sess = db_session.create_session()
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+
+    title = "Изменение категории"
+    if request.method == "GET":
+        category = db_sess.query(Category).filter(Category.id == id).first()
+        if category:
+            form.title.data = category.title
+        else:
+            abort(404)
+    if form.validate_on_submit():
+        category = db_sess.query(Category).filter(Category.id == id).first()
+        if category:
+            category.title = form.title.data
+            if form.image.data:
+                img1 = form.image.data
+                img1.save(f"static/img/categories/{id}.jpg")
+            db_sess.commit()
+            return redirect('/')
+        else:
+            abort(404)
+    return render_template("edit_category.html", title=title, form=form, message=smessage, order=session["order"])
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
