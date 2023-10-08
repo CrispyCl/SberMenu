@@ -39,7 +39,7 @@
                         {% endfor %}
 
                         <!-- Password -->
-                        {{ form.password(class="form-control password", type="password", placeholder="Пароль") }}
+                        {{ form.password(class="form-control password", type="password", placeholder="Пароль", required='required') }}
                         {% for error in form.password.errors %}
                         <p class="alert alert-danger" role="alert">
                             {{ error }}
@@ -48,7 +48,7 @@
 
                         <!-- Password repeat -->
                         {{ form.password_again(class="form-control password", type="password",
-                        placeholder="Повторите пароль") }}
+                        placeholder="Повторите пароль", required='required') }}
                         {% for error in form.password_again.errors %}
                         <p class="alert alert-danger" role="alert">
                             {{ error }}
