@@ -47,7 +47,10 @@
                 <div class="dish_name">{{ dish.title }}</div>
                 <div class="dish_price">{{ dish.price }}руб.</div>
             </div>
+            {% if current_user.role not in [0, 1] %}
             <a class="add_dish_to_basket" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
+            {% endif %}
+
         </div>
         {% endfor %}
     </div>
