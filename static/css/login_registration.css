@@ -114,7 +114,6 @@ legend {
 .body.PC {
     height: 100vh;
     width: 100vw;
-
 }
 
 .container {
@@ -127,6 +126,7 @@ legend {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    flex-direction: column;
 }
 
 .login_container,
@@ -234,7 +234,6 @@ input {
     align-items: center;
     justify-content: center;
     transition: height .2s ease;
-
     overflow: hidden;
 }
 
@@ -324,4 +323,11 @@ input {
 /* стили для чекбокса, находящегося в состоянии disabled */
 .custom-checkbox:disabled+label::before {
     background-color: #e9ecef;
+}
+
+
+@media screen and (max-width: 410px) {
+    .white_container {
+        width: 22rem;
+    }
 }

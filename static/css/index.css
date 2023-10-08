@@ -138,7 +138,7 @@
     object-fit: cover;
     max-width: 23rem;
     border-radius: 0.9375rem;
-    max-height: 207px;
+    /* max-height: 207px; */
     min-height: 207px;
     min-width: 23rem;
 }

@@ -112,6 +112,15 @@
         </div>
     </footer>
 </div>
+<script>
+    let details = navigator.userAgent;
+    let regexp = /android|iphone|kindle|ipad/i;
+    let isMobileDevice = regexp.test(details);
+
+    if (isMobileDevice) {
+        document.write("<style>.wrapper i {display: none !important;}</style>")
+    }
+</script>
 
 <script src="{{ url_for('static', filename='/scripts/smooth scroll.js') }}"></script>
 <script type="module" src="{{ url_for('static', filename='/scripts/base.js') }}"></script>
