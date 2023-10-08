@@ -17,6 +17,7 @@ from forms.user import UserForm
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "very_secret_key"
 ST_message = {"status": 404, "text": ""}
+current_user.is_authenticated: bool
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -27,7 +28,8 @@ def index():
     if not session.get("message"):
         session["message"] = dumps(ST_message)
     if not session.get("order"):
-        session["order"] = []
+        session["order"] = {}
+    print(session["order"])
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
@@ -38,6 +40,29 @@ def index():
             map(lambda di: di.dish, db_sess.query(DishCategory).filter(DishCategory.category_id == category.id).all())
         )
     return render_template("index.html", message=smessage, order=session["order"], categories=categories, dishes=dishes)
+
+
+@app.route("/add_dish/<int:dish_id>")
+def add_dish(dish_id):
+    if current_user.is_authenticated:
+        if current_user.role in [0, 1]:
+            return redirect("/")
+    db_sess = db_session.create_session()
+    dish = db_sess.query(Dish).get(dish_id)
+    if not session.get("order"):
+        session["order"] = {}
+    if session["order"].get(str(dish_id)):
+        session["order"][str(dish_id)]["count"] += 1
+    else:
+        session["order"][str(dish_id)] = (dish.to_dict() | {"count": 1})
+    dc = session["order"]
+    print(dc)
+    for v in dc:
+        print(dc[v])
+    session["order"]["sum"] = sum(map(lambda v: dc[v]["count"] * dc[v]["price"] if v != "sum" else 0, dc))
+    message = {"status": 1, "text": "Блюдо добавлено в заказ"}
+    session["message"] = dumps(message)
+    return redirect("/")
 
 
 @app.route("/create/dish", methods=["GET", "POST"])
@@ -263,7 +288,7 @@ def load_user(user_id):
 @login_required
 def logout():
     logout_user()
-    session["order"] = []
+    session["order"] = {}
     return redirect("/")
 
 

@@ -46,7 +46,7 @@
                 <div class="dish_name">{{ dish.title }}</div>
                 <div class="dish_price">{{ dish.price }}руб.</div>
             </div>
-            <a class="add_dish_to_basket">Добавить в корзину</a>
+            <a class="add_dish_to_basket" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
         </div>
         {% endfor %}
     </div>
