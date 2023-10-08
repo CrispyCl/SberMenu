@@ -61,11 +61,17 @@
                 <!-- basket dropdown menu -->
                 <div class="dd-menu-wrap" id="basket">
                     <div class="dd-menu">
-                        {% for dish in order %}
-                        <p><a href="#"><img src="{{ url_for('static', filename=dish.image) }}"></a>
-                        <div>{{ dish.title }}</p>{{ dish.price }}</div>
+                        {% for k in order %}
+                        {% if k != "sum" %}
+                        {% set dish = order[k] %}
+                        <p><a href="#"><img src="{{ url_for('static', filename=dish.image) }}" width="50px"></a>
+                        <div>Название - {{ dish.title }}</p>
+                            Цена - {{ dish.price }}</p>
+                            Количество - {{ dish.count }}</div>
                         </p>
+                        {% endif %}
                         {% endfor %}
+                        Сумма заказа - {{ order["sum"] }}
                     </div>
                 </div>
                 <!-- end basket dropdown menu -->
