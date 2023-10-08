@@ -1,4 +1,4 @@
-# SberMenu
+# SberMenu ![alt text](./static/svg/SberMenuLogo.svg)
 ## Запуск проекта в dev-режиме
 ### Установите и активируйте виртуальное окружение
 * `python -m venv venv` или `python3 -m venv venv` (Зависит от системы)
