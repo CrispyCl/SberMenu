@@ -65,6 +65,27 @@ def add_dish(dish_id):
     return redirect("/")
 
 
+@app.route("/confirm_order", methods=["GET", "POST"])
+def confirm_order():
+    if not current_user.is_authenticated:
+        message = {"status": 0, "text": "Для оформления заказа авторизируйтесь"}
+        session["message"] = dumps(message)
+        return redirect("/login")
+    if current_user.role in [0, 1]:
+        abort(404)
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    title = "Подтвердите заказ"
+    order = session["order"]
+    if not order:
+        abort(404)
+    if request.method == "GET":
+        print(order)
+        return render_template("confirm_order.html", title=title, message=smessage, order=order)
+    if request.method == "POST":
+        return render_template("confirm_order.html", title=title, message=smessage, order=order)
+
+
 @app.route("/create/dish", methods=["GET", "POST"])
 def create_dish():
     if not current_user.is_authenticated:
