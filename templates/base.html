@@ -61,6 +61,7 @@
                 <!-- basket dropdown menu -->
                 <div class="dd-menu-wrap" id="basket">
                     <div class="dd-menu">
+                        {% if order %}
                         {% for k in order %}
                         {% if k != "sum" %}
                         {% set dish = order[k] %}
@@ -72,6 +73,10 @@
                         {% endif %}
                         {% endfor %}
                         Сумма заказа - {{ order["sum"] }}
+                        <a href="#">Оформить заказ</a>
+                        {% else %}
+                        Добавьте блюдо в заказ
+                        {% endif %}
                     </div>
                 </div>
                 <!-- end basket dropdown menu -->
