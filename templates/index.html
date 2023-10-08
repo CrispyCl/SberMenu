@@ -22,9 +22,10 @@
     </div>
     <i id="right" class='bx bx-right-arrow-alt'></i>
 </div>
-
+{% if current_user.role == 0 %}
 <div class="add_dish_wrapper"><a href="/create/dish" class="add_dish">Добавить блюдо</a></div>
-
+{% else %}<div></div>
+{% endif %}
 {% for category in categories %}
 <div class="dish_category">
     <div class="category_title" id="{{ category.id }}">{{ category.title }}
@@ -46,7 +47,7 @@
                 <div class="dish_name">{{ dish.title }}</div>
                 <div class="dish_price">{{ dish.price }}руб.</div>
             </div>
-            <a class="add_dish_to_basket">Добавить в корзину</a>
+            <a class="add_dish_to_basket" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
         </div>
         {% endfor %}
     </div>
