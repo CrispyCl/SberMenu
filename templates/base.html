@@ -23,9 +23,11 @@
                 <div class="green">Sber</div>Menu
             </a>
             <div class="sba">
+                {% if current_user.role not in [0, 1] %}
                 <a class="basket" easy-toggle="#basket" easy-class="show" easy-rcoe>
                     <img src="/static/svg/basket-shopping-alt-svgrepo-com.svg">
                 </a>
+                {% endif %}
                 {% if current_user.is_authenticated %}
                 <a class="dropdown-toggle" easy-toggle="#dropdown" easy-class="show" easy-rcoe>
                     <img src="/static/svg/user-alt-1-svgrepo-com.svg">
