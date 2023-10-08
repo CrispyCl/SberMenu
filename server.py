@@ -182,6 +182,47 @@ def edit_category(id):
     return render_template("edit_category.html", title=title, form=form, message=smessage, order=session["order"])
 
 
+@app.route("/edit/user/<int:user_id>", methods=["GET", "POST"])
+def edit_user(user_id):
+    if not current_user.is_authenticated:
+        abort(404)
+    if not current_user.id == user_id:
+        abort(404)
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == user_id).first()
+    if not user:
+        abort(404)
+    form = UserForm()
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+
+    title = "Изменение аккаунта"
+    if request.method == "GET":
+        form.name.data = user.name
+        form.surname.data = user.surname
+        form.email.data = user.email
+    if form.validate_on_submit():
+        if db_sess.query(User).filter(User.email == form.email.data, current_user.id != User.id).first():
+            message = {"status": 0, "text": "Такой пользователь уже есть"}
+            form.email.data = user.email
+            return render_template(
+                "edit_user.html", title=title, form=form, message=dumps(message), order=session["order"]
+            )
+        if form.password.data:
+            if form.password.data != form.password_again.data:
+                message = {"status": 0, "text": "Пароли не совпадают"}
+                return render_template(
+                    "edit_user.html", title=title, form=form, message=dumps(message), order=session["order"]
+                )
+            user.set_password(form.password.data)
+        user.name = form.name.data
+        user.surname = form.surname.data
+        user.email = form.email.data
+        db_sess.commit()
+        return redirect("/")
+    return render_template("edit_user.html", title=title, form=form, message=smessage, order=session["order"])
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
