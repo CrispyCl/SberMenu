@@ -1,4 +1,6 @@
-<title>SberMenu | Регистрация</title>
+{% extends "base.html" %}
+
+{% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/login_registration.css') }}">
 <form action="" method="post" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
@@ -64,3 +66,4 @@
         </div>
     </div>
 </form>
+{% endblock %}

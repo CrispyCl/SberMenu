@@ -1,16 +1,24 @@
 .wrapper {
+    max-width: 1092px;
+    align-self: center;
     display: flex;
-    align-items: center;
 }
 
-.container {
+.dishform {
+    min-width: 1092px;
+}
+
+.container,
+.dish_container {
+    margin: 2rem 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 3rem;
     border: 3px solid #cdcdcd;
     border-radius: 0.9375rem;
-    padding: 5rem 3rem;
+    padding: 5rem;
+    margin-bottom: 3rem;
 }
 
 .text-center {
@@ -22,16 +30,14 @@
 }
 
 .txta {
-    width: 100%;
-    min-width: 400px;
-    max-width: 400px;
-    min-height: 40px;
+    padding: 1rem !important;
+    width: 17rem;
+    max-width: 17rem;
+    min-width: 17rem;
     font-size: 16px;
     line-height: 1.4;
-    margin: 10px 0;
     border: 2px solid #CDCDCD;
     border-radius: 0.9375rem;
-    padding: 0 20px;
     min-height: 100px !important;
     padding: 5px 20px;
 }
@@ -64,6 +70,7 @@ input.name {
 
 .drop-container {
     width: 360px;
+    min-height: 100%;
     position: relative;
     display: flex;
     gap: 10px;
@@ -139,4 +146,153 @@ input[type=file]::file-selector-button:hover {
 
 .black {
     display: none;
+}
+
+
+
+/* cols in create dish */
+.cols {
+    gap: 3rem;
+    display: flex;
+}
+
+.first_col {
+    gap: 1rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.second_col {}
+
+.all_categories {
+    gap: 3rem;
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.choose_checkbox {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.category_image {
+    height: 11rem;
+    object-fit: cover;
+    background: #FFF;
+    border-radius: 0.9375rem;
+}
+
+.category_title {
+    font-family: sans-serif;
+    font-size: x-large;
+}
+
+
+
+/* custom checkbox in img */
+
+input[type="checkbox"][id^="myCheckbox"] {
+    display: none;
+}
+
+label.chekimg {
+    border: 1px solid #fff;
+    padding: 10px;
+    display: block;
+    position: relative;
+    margin: 10px;
+    cursor: pointer;
+}
+
+label.chekimg:before {
+    background-color: white;
+    color: white;
+    content: " ";
+    display: block;
+    border-radius: 50%;
+    border: 1px solid #BCDE36;
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    width: 25px;
+    height: 25px;
+    text-align: center;
+    line-height: 28px;
+    transition-duration: 0.4s;
+    transform: scale(0);
+}
+
+label.chekimg img {
+    max-width: 234.66px;
+    min-width: 234.66px;
+    transition-duration: 0.2s;
+    transform-origin: 50% 50%;
+}
+
+:checked+label.chekimg {
+    border-radius: 0.9375rem;
+    border-color: #BCDE36;
+}
+
+:checked+label.chekimg:before {
+    content: "✓";
+    background-color: #BCDE36;
+    transform: scale(1);
+}
+
+:checked+label.chekimg img {
+    transform: scale(0.9);
+    /* box-shadow: 0 0 5px #333; */
+    z-index: -1;
+}
+
+@media screen and (max-width: 1100px) {
+    .all_categories {
+        flex-direction: column;
+    }
+
+    .dish_container {
+        padding: 2rem;
+    }
+
+    .dishform {
+        max-width: 550px;
+        min-width: 550px !important;
+    }
+
+    .cols {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+
+
+@media screen and (max-width: 650px) {
+    .container {
+        padding: 2rem;
+    }
+}
+
+@media screen and (max-width: 560px) {
+    .dishform {
+        max-width: 350px;
+        min-width: 350px !important;
+    }
+
+    .drop-container {
+        max-width: 340px;
+    }
+}
+
+
+@media screen and (max-width: 460px) {
+    .drop-container {
+        max-width: 272px;
+    }
+
+    .container {
+        padding: 1rem;
+    }
 }

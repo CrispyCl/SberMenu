@@ -22,7 +22,7 @@ arrowIcons.forEach(icon => {
 
 const moveStart = (e) => {
     isMoveStart = true;
-    prevPageX = e.pageX;
+    prevPageX = e.pageX || e.touches[0].pageX;
     prevScrollLeft = slider.scrollLeft;
 }
 
@@ -31,7 +31,7 @@ const move = (e) => {
     if (!isMoveStart) return;
     e.preventDefault();
     slider.classList.add('move');
-    let positionDiff = e.pageX - prevPageX;
+    let positionDiff = (e.pageX || e.touches[0].pageX) - prevPageX;
     slider.scrollLeft = prevScrollLeft - positionDiff
     ShowHideIcon();
 }
@@ -43,6 +43,11 @@ const moveStop = () => {
 }
 
 slider.addEventListener('mousedown', moveStart)
+slider.addEventListener('touchstart', moveStart)
+
 slider.addEventListener('mousemove', move)
+slider.addEventListener('touchmove', move)
+
 slider.addEventListener('mouseup', moveStop)
 slider.addEventListener('mouseleave', moveStop)
+slider.addEventListener('touchend', moveStop)
