@@ -277,6 +277,72 @@ def edit_user(user_id):
     return render_template("edit_user.html", title=title, form=form, message=smessage, order=session["order"])
 
 
+@app.route("/edit/dish/<int:dish_id>", methods=["GET", "POST"])
+def edit_dish(dish_id):
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
+        abort(404)
+    db_sess = db_session.create_session()
+    dish = db_sess.query(Dish).filter(Dish.id == dish_id).first()
+    if not dish:
+        abort(404)
+    form = DishForm()
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    title = "Редактирование блюда"
+    categories = db_sess.query(Category).all()
+    dish_categories = db_sess.query(DishCategory).filter(DishCategory.dish_id == dish_id).all()
+    checked = []
+    for category in dish_categories:
+        checked.append(category.category_id)
+    if request.method == "GET":
+        form.title.data = dish.title
+        form.description.data = dish.description
+        form.price.data = dish.price
+    if form.validate_on_submit():
+        if db_sess.query(Dish).filter(Dish.title == form.title.data, dish_id != Dish.id).first():
+            message = {"status": 0, "text": "Такое блюдо уже есть в меню"}
+            return render_template(
+                "edit_dish.html",
+                title=title,
+                form=form,
+                message=dumps(message),
+                order=session["order"],
+                categories=categories,
+                checked=checked
+            )
+        dish.title = form.title.data
+        dish.price = form.price.data
+        dish.description = form.description.data
+        db_sess.merge(dish)
+        categories = request.form.getlist("categories")
+        for category in categories:
+            if int(category) not in checked:
+                db_sess.add(DishCategory(dish_id=dish_id, category_id=category))
+        for category in checked:
+            if str(category) not in categories:
+                db_sess.delete(db_sess.query(DishCategory).filter(DishCategory.dish_id == dish_id, DishCategory.category_id == category).first())
+        if form.image.data:
+            img1 = form.image.data
+            img1.save(f"static/img/dishes/{dish_id}.jpg")
+        db_sess.commit()
+        return redirect("/")
+    return render_template(
+        "edit_dish.html", title=title, form=form, message=smessage, order=session["order"], categories=categories, checked=checked
+    )
+
+
+@app.route('/profile/dish/<int:dish_id>')
+def profile(dish_id):
+    db_sess = db_session.create_session()
+    dish = db_sess.query(Dish).get(dish_id)
+    if not dish:
+        abort(404)
+    return render_template('dish_profile.html', title=dish.title, message=ST_message, dish=dish)
+
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
