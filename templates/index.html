@@ -6,6 +6,11 @@
 <div class="wrapper">
     <i id="left" class='bx bx-left-arrow-alt'></i>
     <div class="top_container">
+        <div class="it">
+            <a class="create_category" href="/create/category"><img class="plus"
+                    src="/static/svg/plus-large-svgrepo-com.svg" alt=""></a>
+            <h1 class="img_text">Создать категорию</h1>
+        </div>
         {% for category in categories %}
         <div class="it">
             <a href="#{{ category.id }}"><img class="box" src="{{ url_for('static', filename=category.image) }}"></a>
@@ -14,20 +19,28 @@
         {% endfor %}
     </div>
     <i id="right" class='bx bx-right-arrow-alt'></i>
-</div> 
+</div>
 
-<!-- МАКС ДОДЕЛАЙ ГОВНО -->
-<div>
-    {% for category in categories %}
-    <div>
-        <img id="{{ category.id }}" class="box" src="{{ url_for('static', filename=category.image) }}" width="300 px">
-        <div class="img_text">{{ category.title }}</div></duv>
+{% for category in categories %}
+<div class="dish_category">
+    <div class="category_title" id="{{ category.id }}">{{ category.title }}<a class="edit_dish"
+            href="/edit/category/{{ category.id }}">Изменить</a></div>
+    <div class="dc">
+        <!-- <img  class="box" src="{{ url_for('static', filename=category.image) }}" width="300 px"> -->
         {% for dish in dishes[category.id] %}
-            <img class="box" src="{{ url_for('static', filename=dish.image) }}">
-            <h4 class="img_text">{{ dish.title }}</h1>
+        <div class="dish">
+            <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
+            <div class="dish_name_and_price">
+                <div class="dish_name">{{ dish.title }}</div>
+                <div class="dish_price">{{ dish.price }}руб.</div>
+            </div>
+            <a class="add_dish_to_basket">Добавить в корзину</a>
+        </div>
         {% endfor %}
-    
-    {% endfor %}
+    </div>
+</div>
+{% endfor %}
+
 </div>
 
 
