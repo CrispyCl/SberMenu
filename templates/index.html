@@ -1,71 +1,64 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SberMenu | Добро пожаловать</title>
-</head>
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 
-<link rel="stylesheet" href="/static/css/index.css">
-
-<div class="body PC">
-    <div class="header">
-        <div class="logo">SberMenu</div>
-        <div class="sba">
-            <div class="sb">
-                <div class="search_bar"></div>
-                <a class="found_btn">Найти</a>
-            </div>
-
-            <div class="avatar">
-                <div class="img"></div>
-            </div>
-            <a class="login_btn" href="/login">Войти</a>
+<div class="wrapper">
+    <i id="left" class='bx bx-left-arrow-alt'></i>
+    <div class="top_container">
+        {% if current_user.role == 0 %}
+        <div class="it">
+            <a class="create_category" href="/create/category"><img class="plus"
+                    src="/static/svg/plus-large-svgrepo-com.svg" alt=""></a>
+            <h1 class="img_text">Создать категорию</h1>
         </div>
+        {% endif %}
+        {% for category in categories %}
+        <div class="it">
+            <a href="#{{ category.id }}"><img class="box" src="{{ url_for('static', filename=category.image) }}"></a>
+            <h1 class="img_text">{{ category.title }}</h1>
+        </div>
+        {% endfor %}
     </div>
-    <div class="main_body">
-        <!-- <div class="mid_container">
-            <div class="swiper-container mySwiper">
-                <div class="swiper-wrapper">
-                    <div class="swiper-slide">Slide 1</div>
-                    <div class="swiper-slide">Slide 2</div>
-                    <div class="swiper-slide">Slide 3</div>
-                    <div class="swiper-slide">Slide 4</div>
-                    <div class="swiper-slide">Slide 5</div>
-                    <div class="swiper-slide">Slide 6</div>
-                    <div class="swiper-slide">Slide 7</div>
-                    <div class="swiper-slide">Slide 8</div>
-                    <div class="swiper-slide">Slide 9</div>
-                </div>
-                <div class="swiper-button-next"></div>
-                <div class="swiper-button-prev"></div>
-                <div class="swiper-pagination"></div>
+    <i id="right" class='bx bx-right-arrow-alt'></i>
+</div>
+{% if current_user.role == 0 %}
+<div class="add_dish_wrapper"><a href="/create/dish" class="add_dish">Добавить блюдо</a></div>
+{% else %}<div></div>
+{% endif %}
+{% for category in categories %}
+<div class="dish_category">
+    <div class="category_title" id="{{ category.id }}">{{ category.title }}
+
+        {% if current_user.role == 0 %}
+        <div class="category_btns">
+            <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
+            <a class="del_dish" href="#">Удалить</a>
+        </div>
+
+        {% endif %}
+    </div>
+    <div class="dc">
+        <!-- <img  class="box" src="{{ url_for('static', filename=category.image) }}" width="300 px"> -->
+        {% for dish in dishes[category.id] %}
+        <div class="dish">
+            <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
+            <div class="dish_name_and_price">
+                <div class="dish_name">{{ dish.title }}</div>
+                <div class="dish_price">{{ dish.price }}руб.</div>
             </div>
-        </div> -->
+            {% if current_user.role not in [0, 1] %}
+            <a class="add_dish_to_basket" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
+            {% endif %}
+
+        </div>
+        {% endfor %}
     </div>
 </div>
-<script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
-<link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css" />
-<!-- <script>
-    var swiper = new Swiper(".mySwiper", {
-        spaceBetween: 30,
-        centeredSlides: true,
-        autoplay: {
-            delay: 2500,
-            disableOnInteraction: false
-        },
-        pagination: {
-            el: ".swiper-pagination",
-            clickable: true
-        },
-        navigation: {
-            nextEl: ".swiper-button-next",
-            prevEl: ".swiper-button-prev"
-        }
-    });
-</script> -->
-<div class="body Mobile">
+{% endfor %}
+
 </div>
 
-</html>
+
+<script src="{{ url_for('static', filename='scripts/slider.js') }}"></script>
+{% endblock %}

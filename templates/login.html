@@ -1,41 +1,33 @@
-<!DOCTYPE html>
-<for lang="en">
+{% extends "base.html" %}
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SberMenu | Регистрация</title>
-</head>
-
+{% block content %}
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/login_registration.css') }}">
 <form class="reg-form" action="" method="post" enctype="multipart/form-data">
-{{ form.hidden_tag() }}
-<div class="body PC">
-    <div class="container">
-        <div class="white_container">
-            <div class="login_container">
-                <div class="text_back">
-                    <div class="text">Вход</div>
-                    <div class="back"></div>
-                </div>
-                <div class="ep">
-                    {{ form.email(class="form-control email", type="email", placeholder="Почта") }}
-                    {{ form.password(class="form-control password", type="password", placeholder="Пароль") }}
-                    <b>{{ form.remember_me(class="form-control custom-checkbox", type="checkbox") }}
-                    {{form.remember_me.label }}</b>
-                    <div class="lg">
-                        {{ form.submit(value="Войти", class="login") }}
-                        <a href="/register/user">Создать аккаунт</a>
+    {{ form.hidden_tag() }}
+    <div class="body PC">
+        <div class="container">
+            <div class="white_container">
+                <div class="login_container">
+                    <div class="text_back">
+                        <div class="text">Вход</div>
+                        <div class="back"></div>
+                    </div>
+                    <div class="ep">
+                        {{ form.email(class="form-control email", type="email", placeholder="Почта") }}
+                        {{ form.password(class="form-control password", type="password", placeholder="Пароль") }}
+                        <div class="checkbox">{{ form.remember_me(class="form-control custom-checkbox",
+                            type="checkbox")}}
+                            {{form.remember_me.label }}</div>
+                        <div class="lg">
+                            {{ form.submit(value="Войти", class="login") }}
+                            <a class="RegisterNewAccount" href="/register/user">Создать аккаунт</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
-<div class="body Mobile"></div>
 </form>
 
-<script src="{{ url_for('static', filename='scripts/login_register.js') }}"></script>
-
-</html>
+{% endblock %}

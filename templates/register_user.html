@@ -1,54 +1,87 @@
-<div>
-    <form action="" method="post" enctype="multipart/form-data">
-        {{ form.hidden_tag() }}
-        <div>Регистрация пользователя</div>
-            <div>
-                <div>
-                    <b>{{ form.email(class="form-control", type="email",
-                        placeholder="E-mail") }}</b>
-                    {% for error in form.email.errors %}
-                    <p class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </p>
-                    {% endfor %}
+{% extends "base.html" %}
+
+{% block content %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/login_registration.css') }}">
+<form action="" method="post" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <div class="body PC">
+        <div class="container">
+            <div class="white_container Active">
+                <div class="registration_container">
+                    <div class="text_back">
+                        <div class="text">Регистрация</div>
+                        <div class="back"></div>
+                    </div>
+                    <div class="ep">
+
+                        <!-- Name -->
+                        {{ form.name(class="form-control email", type="text", placeholder="Имя") }}
+                        {% for error in form.name.errors %}
+                        <p class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </p>
+                        {% endfor %}
+
+                        <!-- SurName -->
+                        {{ form.surname(class="form-control email", type="text", placeholder="Фамилия") }}
+                        {% for error in form.surname.errors %}
+                        <p class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </p>
+                        {% endfor %}
+
+                        <!-- Email -->
+                        {{ form.email(class="form-control email", type="email", placeholder="E-mail") }}
+                        {% for error in form.email.errors %}
+                        <p class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </p>
+                        {% endfor %}
+
+                        <!-- Password -->
+                        {{ form.password(class="form-control password", type="password", placeholder="Пароль",
+                        required='required') }}
+                        {% for error in form.password.errors %}
+                        <p class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </p>
+                        {% endfor %}
+
+                        <!-- Password repeat -->
+                        {{ form.password_again(class="form-control password", type="password",
+                        placeholder="Повторите пароль", required='required') }}
+                        {% for error in form.password_again.errors %}
+                        <p class="alert alert-danger" role="alert">
+                            {{ error }}
+                        </p>
+                        {% endfor %}
+
+                        <!-- Submit -->
+                        <div class="lg">
+                            {{ form.submit(class="register", value="Создать") }}
+                            <a class="Login" href="/login">Войти</a>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <b>{{ form.name(class="form-control", type="text",
-                        placeholder="Имя") }}</b>
-                    {% for error in form.name.errors %}
-                    <p class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </p>
-                    {% endfor %}
-                </div>
-                <div>
-                    <b>{{ form.surname(class="form-control", type="text",
-                        placeholder="Фамилия") }}</b>
-                    {% for error in form.surname.errors %}
-                    <p class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </p>
-                    {% endfor %}
-                </div>
-                <div>
-                    <b>{{ form.password(class="form-control", type="password",
-                        placeholder="Пароль") }}</b>
-                    {% for error in form.password.errors %}
-                    <p class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </p>
-                    {% endfor %}
-                </div>
-                <div>
-                    <b>{{ form.password_again(class="form-control", type="password",
-                        placeholder="Повторите пароль") }}</b>
-                    {% for error in form.password_again.errors %}
-                    <p class="alert alert-danger" role="alert">
-                        {{ error }}
-                    </p>
-                    {% endfor %}
-                </div>
-                <b>{{ form.submit(value="Зарегистрировать") }}</b>
             </div>
-    </form>
-</div>
+        </div>
+    </div>
+</form>
+
+<style>
+    @media screen and (max-height: 740px) {
+        .registration_container {
+            gap: 1rem !important;
+            padding: 20px 0;
+        }
+
+        .Active {
+            min-height: 0;
+        }
+
+        .white_container {
+            height: auto;
+        }
+    }
+</style>
+{% endblock %}
