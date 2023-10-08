@@ -30,7 +30,11 @@
     <div class="category_title" id="{{ category.id }}">{{ category.title }}
 
         {% if current_user.role == 0 %}
-        <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
+        <div class="category_btns">
+            <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
+            <a class="del_dish" href="#">Удалить</a>
+        </div>
+
         {% endif %}
     </div>
     <div class="dc">

@@ -156,10 +156,23 @@
     font-size: xx-large;
 }
 
+.del_dish {
+    border: 3px solid red !important;
+}
 
+.del_dish:hover {
+    background-color: red;
+    color: #FFF;
+}
+
+.category_btns {
+    display: flex;
+    gap: 1rem;
+}
 
 .add_dish_to_basket,
 .edit_dish,
+.del_dish,
 .add_dish {
     margin-top: 1rem;
     border: 3px solid #BCDE36;
@@ -179,7 +192,8 @@
     padding: 1.5rem;
 }
 
-.edit_dish {
+.edit_dish,
+.del_dish {
     margin: 0 !important;
 }
 
