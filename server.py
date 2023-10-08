@@ -310,7 +310,7 @@ def edit_dish(dish_id):
                 message=dumps(message),
                 order=session["order"],
                 categories=categories,
-                checked=checked
+                checked=checked,
             )
         dish.title = form.title.data
         dish.price = form.price.data
@@ -322,25 +322,34 @@ def edit_dish(dish_id):
                 db_sess.add(DishCategory(dish_id=dish_id, category_id=category))
         for category in checked:
             if str(category) not in categories:
-                db_sess.delete(db_sess.query(DishCategory).filter(DishCategory.dish_id == dish_id, DishCategory.category_id == category).first())
+                db_sess.delete(
+                    db_sess.query(DishCategory)
+                    .filter(DishCategory.dish_id == dish_id, DishCategory.category_id == category)
+                    .first()
+                )
         if form.image.data:
             img1 = form.image.data
             img1.save(f"static/img/dishes/{dish_id}.jpg")
         db_sess.commit()
         return redirect("/")
     return render_template(
-        "edit_dish.html", title=title, form=form, message=smessage, order=session["order"], categories=categories, checked=checked
+        "edit_dish.html",
+        title=title,
+        form=form,
+        message=smessage,
+        order=session["order"],
+        categories=categories,
+        checked=checked,
     )
 
 
-@app.route('/profile/dish/<int:dish_id>')
+@app.route("/profile/dish/<int:dish_id>")
 def profile(dish_id):
     db_sess = db_session.create_session()
     dish = db_sess.query(Dish).get(dish_id)
     if not dish:
         abort(404)
-    return render_template('dish_profile.html', title=dish.title, message=ST_message, dish=dish)
-
+    return render_template("dish_profile.html", title=dish.title, message=ST_message, dish=dish)
 
 
 @app.route("/login", methods=["GET", "POST"])
