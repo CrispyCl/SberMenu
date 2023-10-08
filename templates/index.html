@@ -22,14 +22,21 @@
     </div>
     <i id="right" class='bx bx-right-arrow-alt'></i>
 </div>
-
+{% if current_user.role == 0 %}
+<div class="add_dish_wrapper"><a href="/create/dish" class="add_dish">Добавить блюдо</a></div>
+{% else %}<div></div>
+{% endif %}
 {% for category in categories %}
 <div class="dish_category">
     <div class="category_title" id="{{ category.id }}">{{ category.title }}
 
-    {% if current_user.role == 0 %}
-    <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
-    {% endif %}
+        {% if current_user.role == 0 %}
+        <div class="category_btns">
+            <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
+            <a class="del_dish" href="#">Удалить</a>
+        </div>
+
+        {% endif %}
     </div>
     <div class="dc">
         <!-- <img  class="box" src="{{ url_for('static', filename=category.image) }}" width="300 px"> -->
@@ -40,7 +47,10 @@
                 <div class="dish_name">{{ dish.title }}</div>
                 <div class="dish_price">{{ dish.price }}руб.</div>
             </div>
+            {% if current_user.role not in [0, 1] %}
             <a class="add_dish_to_basket" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
+            {% endif %}
+
         </div>
         {% endfor %}
     </div>
