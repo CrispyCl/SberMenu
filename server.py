@@ -34,13 +34,17 @@ def index():
     categories = db_sess.query(Category).all()
     dishes = {}
     for category in categories:
-        dishes[category.id] = list(map(lambda di: di.dish, db_sess.query(DishCategory).filter(DishCategory.category_id == category.id).all()))
+        dishes[category.id] = list(
+            map(lambda di: di.dish, db_sess.query(DishCategory).filter(DishCategory.category_id == category.id).all())
+        )
     return render_template("index.html", message=smessage, order=session["order"], categories=categories, dishes=dishes)
 
 
 @app.route("/create/dish", methods=["GET", "POST"])
 def create_dish():
-    if current_user.is_authenticated:
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
         abort(404)
     form = DishForm()
     smessage = session["message"]
@@ -53,7 +57,7 @@ def create_dish():
         if db_sess.query(Dish).filter(Dish.title == form.title.data).first():
             message = {"status": 0, "text": "Такое блюдо уже есть в меню"}
             return render_template(
-                "register_user.html",
+                "create_dish.html",
                 title=title,
                 form=form,
                 message=dumps(message),
@@ -85,7 +89,9 @@ def create_dish():
 
 @app.route("/create/category", methods=["GET", "POST"])
 def create_category():
-    if current_user.is_authenticated:
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
         abort(404)
     form = CategoryForm()
     smessage = session["message"]
@@ -95,9 +101,9 @@ def create_category():
     if form.validate_on_submit():
         db_sess = db_session.create_session()
         if db_sess.query(Category).filter(Category.title == form.title.data).first():
-            message = {"status": 0, "text": "Такая категория уже есть"}
+            message = {"status": 0, "text": "Категория с таким названием уже есть"}
             return render_template(
-                "register_user.html", title=title, form=form, message=dumps(message), order=session["order"]
+                "create_category.html", title=title, form=form, message=dumps(message), order=session["order"]
             )
         category = Category(title=form.title.data)
 
@@ -146,39 +152,41 @@ def register_user():
         db_sess.commit()
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         login_user(user, remember=False)
-        message = {"status": 1, "text": "Успех"}
+        message = {"status": 1, "text": "Успешная авторизиция"}
         session["message"] = dumps(message)
         return redirect("/")
     return render_template("register_user.html", title=title, form=form, message=smessage, order=session["order"])
 
 
-@app.route("/edit/category/<int:id>", methods=["GET", "POST"])
-def edit_category(id):
-    if current_user.is_authenticated:
+@app.route("/edit/category/<int:category_id>", methods=["GET", "POST"])
+def edit_category(category_id):
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
+        abort(404)
+    db_sess = db_session.create_session()
+    category = db_sess.query(Category).filter(Category.id == category_id).first()
+    if not category:
         abort(404)
     form = CategoryForm()
-    db_sess = db_session.create_session()
     smessage = session["message"]
     session["message"] = dumps(ST_message)
 
     title = "Изменение категории"
     if request.method == "GET":
-        category = db_sess.query(Category).filter(Category.id == id).first()
-        if category:
-            form.title.data = category.title
-        else:
-            abort(404)
+        form.title.data = category.title
     if form.validate_on_submit():
-        category = db_sess.query(Category).filter(Category.id == id).first()
-        if category:
-            category.title = form.title.data
-            if form.image.data:
-                img1 = form.image.data
-                img1.save(f"static/img/categories/{id}.jpg")
-            db_sess.commit()
-            return redirect('/')
-        else:
-            abort(404)
+        if db_sess.query(Category).filter(Category.title == form.title.data,
+                                          Category.id != category_id).first():
+            message = {"status": 0, "text": "Категория с таким названием уже есть"}
+            return render_template(
+                "edit_category.html", title=title, form=form, message=dumps(message), order=session["order"]
+            )
+        category.title = form.title.data
+        if form.image.data:
+            form.image.data.save(f"static/img/categories/{category_id}.jpg")
+        db_sess.commit()
+        return redirect("/")
     return render_template("edit_category.html", title=title, form=form, message=smessage, order=session["order"])
 
 
@@ -196,9 +204,8 @@ def login():
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            message = {"status": 1, "text": "Успех"}
+            message = {"status": 1, "text": "Успешная авторизиция"}
             session["message"] = dumps(message)
-            session["order"] = []
             return redirect("/")
         message = {"status": 0, "text": "Неверный логин или пароль"}
         session["message"] = dumps(message)

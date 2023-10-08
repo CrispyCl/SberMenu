@@ -6,11 +6,13 @@
 <div class="wrapper">
     <i id="left" class='bx bx-left-arrow-alt'></i>
     <div class="top_container">
+        {% if current_user.role == 0 %}
         <div class="it">
             <a class="create_category" href="/create/category"><img class="plus"
                     src="/static/svg/plus-large-svgrepo-com.svg" alt=""></a>
             <h1 class="img_text">Создать категорию</h1>
         </div>
+        {% endif %}
         {% for category in categories %}
         <div class="it">
             <a href="#{{ category.id }}"><img class="box" src="{{ url_for('static', filename=category.image) }}"></a>
@@ -23,8 +25,12 @@
 
 {% for category in categories %}
 <div class="dish_category">
-    <div class="category_title" id="{{ category.id }}">{{ category.title }}<a class="edit_dish"
-            href="/edit/category/{{ category.id }}">Изменить</a></div>
+    <div class="category_title" id="{{ category.id }}">{{ category.title }}
+
+    {% if current_user.role == 0 %}
+    <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
+    {% endif %}
+    </div>
     <div class="dc">
         <!-- <img  class="box" src="{{ url_for('static', filename=category.image) }}" width="300 px"> -->
         {% for dish in dishes[category.id] %}
