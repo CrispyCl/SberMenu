@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h3>{{ dish.title }}</h3>
+<img src="{{ url_for('static', filename=dish.image) }}">
+{% if current_user.role == 0 %}
+<a href="/edit/dish/{{ dish.id }}">Редактировать</a>
+{% endif %}
+<p>Цена - {{ dish.price }}руб.</p>
+<textarea readonly>{{ dish.description }}</textarea>
+
+{% endblock %}

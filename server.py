@@ -12,6 +12,7 @@ from forms.category import CategoryForm
 from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.user import UserForm
+from static.python.functions import create_main_admin
 
 
 app = Flask(__name__)
@@ -54,7 +55,7 @@ def add_dish(dish_id):
     if session["order"].get(str(dish_id)):
         session["order"][str(dish_id)]["count"] += 1
     else:
-        session["order"][str(dish_id)] = (dish.to_dict() | {"count": 1})
+        session["order"][str(dish_id)] = dish.to_dict() | {"count": 1}
     dc = session["order"]
     print(dc)
     for v in dc:
@@ -63,6 +64,27 @@ def add_dish(dish_id):
     message = {"status": 1, "text": "Блюдо добавлено в заказ"}
     session["message"] = dumps(message)
     return redirect("/")
+
+
+@app.route("/confirm_order", methods=["GET", "POST"])
+def confirm_order():
+    if not current_user.is_authenticated:
+        message = {"status": 0, "text": "Для оформления заказа авторизируйтесь"}
+        session["message"] = dumps(message)
+        return redirect("/login")
+    if current_user.role in [0, 1]:
+        abort(404)
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    title = "Подтвердите заказ"
+    order = session["order"]
+    if not order:
+        abort(404)
+    if request.method == "GET":
+        print(order)
+        return render_template("confirm_order.html", title=title, message=smessage, order=order)
+    if request.method == "POST":
+        return render_template("confirm_order.html", title=title, message=smessage, order=order)
 
 
 @app.route("/create/dish", methods=["GET", "POST"])
@@ -201,8 +223,7 @@ def edit_category(category_id):
     if request.method == "GET":
         form.title.data = category.title
     if form.validate_on_submit():
-        if db_sess.query(Category).filter(Category.title == form.title.data,
-                                          Category.id != category_id).first():
+        if db_sess.query(Category).filter(Category.title == form.title.data, Category.id != category_id).first():
             message = {"status": 0, "text": "Категория с таким названием уже есть"}
             return render_template(
                 "edit_category.html", title=title, form=form, message=dumps(message), order=session["order"]
@@ -256,6 +277,81 @@ def edit_user(user_id):
     return render_template("edit_user.html", title=title, form=form, message=smessage, order=session["order"])
 
 
+@app.route("/edit/dish/<int:dish_id>", methods=["GET", "POST"])
+def edit_dish(dish_id):
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
+        abort(404)
+    db_sess = db_session.create_session()
+    dish = db_sess.query(Dish).filter(Dish.id == dish_id).first()
+    if not dish:
+        abort(404)
+    form = DishForm()
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    title = "Редактирование блюда"
+    categories = db_sess.query(Category).all()
+    dish_categories = db_sess.query(DishCategory).filter(DishCategory.dish_id == dish_id).all()
+    checked = []
+    for category in dish_categories:
+        checked.append(category.category_id)
+    if request.method == "GET":
+        form.title.data = dish.title
+        form.description.data = dish.description
+        form.price.data = dish.price
+    if form.validate_on_submit():
+        if db_sess.query(Dish).filter(Dish.title == form.title.data, dish_id != Dish.id).first():
+            message = {"status": 0, "text": "Такое блюдо уже есть в меню"}
+            return render_template(
+                "edit_dish.html",
+                title=title,
+                form=form,
+                message=dumps(message),
+                order=session["order"],
+                categories=categories,
+                checked=checked,
+            )
+        dish.title = form.title.data
+        dish.price = form.price.data
+        dish.description = form.description.data
+        db_sess.merge(dish)
+        categories = request.form.getlist("categories")
+        for category in categories:
+            if int(category) not in checked:
+                db_sess.add(DishCategory(dish_id=dish_id, category_id=category))
+        for category in checked:
+            if str(category) not in categories:
+                db_sess.delete(
+                    db_sess.query(DishCategory)
+                    .filter(DishCategory.dish_id == dish_id, DishCategory.category_id == category)
+                    .first()
+                )
+        if form.image.data:
+            img1 = form.image.data
+            img1.save(f"static/img/dishes/{dish_id}.jpg")
+        db_sess.commit()
+        return redirect("/")
+    return render_template(
+        "edit_dish.html",
+        title=title,
+        form=form,
+        message=smessage,
+        order=session["order"],
+        categories=categories,
+        checked=checked,
+    )
+
+
+@app.route("/profile/dish/<int:dish_id>")
+def profile(dish_id):
+    db_sess = db_session.create_session()
+    dish = db_sess.query(Dish).get(dish_id)
+    if not dish:
+        abort(404)
+    return render_template("dish_profile.html", title=dish.title, message=ST_message, dish=dish)
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
@@ -294,4 +390,5 @@ def logout():
 
 if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
+    create_main_admin(db_session.create_session())
     app.run(port=8080, host="127.0.0.1", debug=True)
