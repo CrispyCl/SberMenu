@@ -42,7 +42,9 @@
         <!-- <img  class="box" src="{{ url_for('static', filename=category.image) }}" width="300 px"> -->
         {% for dish in dishes[category.id] %}
         <div class="dish">
+            <a href="/profile/dish/{{ dish.id }}">
             <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
+            </a>
             <div class="dish_name_and_price">
                 <div class="dish_name">{{ dish.title }}</div>
                 <div class="dish_price">{{ dish.price }}руб.</div>
