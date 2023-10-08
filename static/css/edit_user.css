@@ -1,0 +1,67 @@
+.wrapper {
+    max-width: 1092px;
+    align-self: center;
+    display: flex;
+}
+
+.container {
+    margin: 2rem 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+    border: 3px solid #cdcdcd;
+    border-radius: 0.9375rem;
+    padding: 5rem;
+    margin-bottom: 3rem;
+}
+
+.text-center {
+    font-family: sans-serif;
+    font-size: 2rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.name,
+.email,
+.password {
+    padding-left: 1.5rem;
+}
+
+.name,
+.email,
+.password,
+.submitbtn {
+    height: 3.125rem;
+    width: 17rem;
+    border: 2px solid #CDCDCD;
+    border-radius: 0.9375rem;
+    font-family: sans-serif;
+    font-size: 1.3rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.submitbtn {
+    border: 3px solid #BCDE36 !important;
+}
+
+.submitbtn:hover {
+    background: #BCDE36;
+    color: #fff;
+}
+
+@media screen and (max-width: 650px) {
+    .container {
+        padding: 2rem;
+    }
+}
+
+@media screen and (max-width: 460px) {
+    .container {
+        padding: 1rem;
+    }
+}
