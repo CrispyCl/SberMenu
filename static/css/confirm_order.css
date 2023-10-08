@@ -43,6 +43,7 @@
 }
 
 .order_name {
+    min-width: 150px;
     align-self: center;
     font-family: sans-serif;
     display: flex;
