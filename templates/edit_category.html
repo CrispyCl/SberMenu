@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create_category_and_dish.css') }}">
+
+
+<div class="wrapper">
+    <form action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="container">
+            <div class="text">
+                <h1 class="text-center">Изменить категорию</h1>
+            </div>
+
+            <!-- Name -->
+            {{ form.title(class="form-control name", type="text",
+            placeholder="Название") }}
+            {% for error in form.title.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+
+            <!-- Photo -->
+            <label for="images" class="drop-container" id="dropcontainer">
+                <img id="show_img">
+                <span class="drop-title">Выберите изображение</span>
+                {{ form.image(class="form-control", id="images", onchange="readURL(this);", accept="image/*",
+                type="file", placeholder="Фото") }}
+                <span id="file-chosen">Файл не выбран</span>
+            </label>
+            {% for error in form.image.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+
+            <!-- Submit -->
+            {{ form.submit(class="submitbtn", value="Изменить") }}
+        </div>
+</div>
+
+<script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+<script src="{{ url_for('static', filename='scripts/create_category.js') }}"></script>
+
+
+{% endblock %}

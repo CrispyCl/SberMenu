@@ -1,46 +1,86 @@
-<div>
-    <form action="" method="post" enctype="multipart/form-data">
+{% extends "base.html" %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create_category_and_dish.css') }}">
+
+
+<div class="wrapper">
+    <form class="dishform" action="" method="post" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
-        <div>Добавление блюда</div>
-            <div>
-                <div>
-                    <b>{{ form.title(class="form-control", type="text",
-                        placeholder="Название") }}</b>
+        <div class="dish_container">
+            <div class="text">
+                <h1 class="text-center">Добавить блюдо</h1>
+            </div>
+            <div class="cols">
+                <div class="first_col">
+                    <!-- Name -->
+                    {{ form.title(class="form-control name", type="text",
+                    placeholder="Название") }}
                     {% for error in form.title.errors %}
                     <p class="alert alert-danger" role="alert">
                         {{ error }}
                     </p>
                     {% endfor %}
-                </div>
-                <div>
-                    <b>{{ form.price(class="form-control", type="text",
-                        placeholder="Цена") }}</b>
+
+                    <!-- Price -->
+                    {{ form.price(class="form-control name", type="text",
+                    placeholder="Цена") }}
                     {% for error in form.price.errors %}
                     <p class="alert alert-danger" role="alert">
                         {{ error }}
                     </p>
                     {% endfor %}
-                </div>
-                <div>
-                    <b>{{ form.description(class="form-control", type="text",
-                        placeholder="Описание") }}</b>
+
+                    <!-- About -->
+                    {{ form.description(class="form-control txta", type="text",
+                    placeholder="Описание") }}
                     {% for error in form.description.errors %}
                     <p class="alert alert-danger" role="alert">
                         {{ error }}
                     </p>
                     {% endfor %}
                 </div>
-                <div>
-                    <b>{{ form.image(class="form-control", type="file",
-                        placeholder="Фото") }}</b>
+
+                <div class="second_col">
+                    <!-- Dish image -->
+                    <label for="images" class="drop-container" id="dropcontainer">
+                        <img id="show_img">
+                        <span class="drop-title">Выберите изображение</span>
+                        {{ form.image(class="form-control", id="images", onchange="readURL(this);", accept="image/*",
+                        type="file", placeholder="Фото") }}
+                        <span id="file-chosen">Файл не выбран</span>
+                    </label>
                     {% for error in form.image.errors %}
                     <p class="alert alert-danger" role="alert">
                         {{ error }}
                     </p>
                     {% endfor %}
                 </div>
-                <b>{{ form.submit(value="Добавить") }}</b>
             </div>
 
+
+            <!-- Choose category -->
+            <div class="all_categories">
+                {% for category in categories %}
+                <div class="choose_checkbox">
+                    <input id="myCheckbox{{ category.id }}" type="checkbox" name="categories" value="{{ category.id }}">
+                    <label class="chekimg" for="myCheckbox{{ category.id }}"><img class="category_image"
+                            src="{{ url_for('static', filename=category.image) }}"></label>
+                    <div class="category_title">{{ category.title }}</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Submit -->
+            {{ form.submit(class="submitbtn", value="Добавить") }}
+        </div>
     </form>
 </div>
+
+
+<script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+<script src="{{ url_for('static', filename='scripts/create_category.js') }}"></script>
+
+{% endblock %}
