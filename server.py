@@ -12,6 +12,7 @@ from forms.category import CategoryForm
 from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.user import UserForm
+from static.python.functions import create_main_admin
 
 
 app = Flask(__name__)
@@ -54,7 +55,7 @@ def add_dish(dish_id):
     if session["order"].get(str(dish_id)):
         session["order"][str(dish_id)]["count"] += 1
     else:
-        session["order"][str(dish_id)] = (dish.to_dict() | {"count": 1})
+        session["order"][str(dish_id)] = dish.to_dict() | {"count": 1}
     dc = session["order"]
     print(dc)
     for v in dc:
@@ -222,8 +223,7 @@ def edit_category(category_id):
     if request.method == "GET":
         form.title.data = category.title
     if form.validate_on_submit():
-        if db_sess.query(Category).filter(Category.title == form.title.data,
-                                          Category.id != category_id).first():
+        if db_sess.query(Category).filter(Category.title == form.title.data, Category.id != category_id).first():
             message = {"status": 0, "text": "Категория с таким названием уже есть"}
             return render_template(
                 "edit_category.html", title=title, form=form, message=dumps(message), order=session["order"]
@@ -315,4 +315,5 @@ def logout():
 
 if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
+    create_main_admin(db_session.create_session())
     app.run(port=8080, host="127.0.0.1", debug=True)

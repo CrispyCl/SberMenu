@@ -65,17 +65,32 @@
                         {% for k in order %}
                         {% if k != "sum" %}
                         {% set dish = order[k] %}
-                        <p><a href="#"><img src="{{ url_for('static', filename=dish.image) }}" width="50px"></a>
-                        <div>Название - {{ dish.title }}</p>
-                            Цена - {{ dish.price }}</p>
-                            Количество - {{ dish.count }}</div>
-                        </p>
+                        <div class="ihr">
+                            <div class="basket_item">
+                                <a class="item_img" href="#">
+                                    <img src="{{ url_for('static', filename=dish.image) }}">
+                                </a>
+                                <div class="item_info">
+                                    <div class="item_dish_title">{{ dish.title }}</div>
+                                    {% if dish.count > 1 %}
+                                    <div class="item_dish_price">Цена - {{ dish.price }}руб. за 1 шт.</div>
+                                    {% else %}
+                                    <div class="item_dish_price">Цена - {{ dish.price }}</div>
+                                    {% endif %}
+                                    <div class="item_dish_count">Количество - {{ dish.count }} шт.</div>
+                                </div>
+                            </div>
+                            <hr>
+                        </div>
                         {% endif %}
                         {% endfor %}
-                        Сумма заказа - {{ order["sum"] }}
-                        <a href="/confirm_order">Оформить заказ</a>
+                        <div class="basket_bottom">
+                            <div class="end_price">Сумма заказа -<div class="bold">{{ order["sum"] }}руб.</div>
+                            </div>
+                            <a class="order_basket" href="/confirm_order">Оформить заказ</a>
+                        </div>
                         {% else %}
-                        Добавьте блюдо в заказ
+                        <div class="empty_basket">Корзина пустая</div>
                         {% endif %}
                     </div>
                 </div>
