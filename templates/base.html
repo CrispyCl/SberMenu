@@ -78,7 +78,7 @@
                                 <div class="item_info">
                                     <div class="item_dish_title">{{ dish.title }}</div>
                                     {% if dish.count > 1 %}
-                                    <div class="item_dish_price">Цена - {{ dish.price }}руб. за 1 шт.</div>
+                                    <div class="item_dish_price">Цена - {{ dish.price }}₽ за 1 шт.</div>
                                     {% else %}
                                     <div class="item_dish_price">Цена - {{ dish.price }}</div>
                                     {% endif %}
@@ -90,7 +90,7 @@
                         {% endif %}
                         {% endfor %}
                         <div class="basket_bottom">
-                            <div class="end_price">Сумма заказа -<div class="bold">{{ order["sum"] }}руб.</div>
+                            <div class="end_price">Сумма заказа -<div class="bold">{{ order["sum"] }}₽</div>
                             </div>
                             <a class="order_basket" href="/confirm_order">Оформить заказ</a>
                         </div>

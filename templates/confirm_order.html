@@ -2,23 +2,98 @@
 
 {% block content %}
 
-<div>
-<form action="" method="post">
-<p>Оформление заказа</p>
-<ul>
-{% for k in order %}
-    {% if k != "sum" %}
-    {% set dish = order[k] %}
-    <li>Название - <a href="#">{{ dish.title }}</a>
-        Цена - {{ dish.price }}
-        Количество - {{ dish.count }}
-    </li>
-    {% endif %}
-{% endfor %}
-Сумма заказа - {{ order["sum"] }}
-</ul>
-<input type="submit" value="Заказать">
-</form>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/confirm_order.css') }}">
+
+
+<div class="all">
+
+    <div class="text-center">Оформление заказа</div>
+    <form class="order" action="" method="post">
+        <div class="wc">
+            <div class="order_wrapper">
+                {% for k in order %}
+                {% if k != "sum" %}
+                {% set dish = order[k] %}
+                <div class="info">
+                    <div class="order_info">
+                        <img class="order_img" src="{{ url_for('static', filename=dish.image) }}">
+                        <div class="order_name">{{ dish.title }}</div>
+                        <div class="order_price_count">
+                            <div class="price">{{ dish.price }}₽</div>
+                            <div class="count">
+                                <button class="minus" aria-label="Decrease by one">
+                                    <img src="/static/svg/minus-svgrepo-com.svg">
+                                </button>
+                                <div class="number">{{ dish.count }}</div>
+                                <button class="plus" aria-label="Increase by one">
+                                    <img src="/static/svg/plus-large-svgrepo-com.svg">
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order_info_mobile">
+                    <div class="in">
+                        <img class="order_img" src="{{ url_for('static', filename=dish.image) }}">
+                        <div class="order_name">{{ dish.title }}</div>
+                    </div>
+                    <div class="order_price_count">
+                        <div class="price">{{ dish.price }}₽</div>
+                        <div class="count">
+                            <button class="minus" aria-label="Decrease by one">
+                                <img src="/static/svg/minus-svgrepo-com.svg">
+                            </button>
+                            <div class="number">{{ dish.count }}</div>
+                            <button class="plus" aria-label="Increase by one">
+                                <img src="/static/svg/plus-large-svgrepo-com.svg">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% if order %}
+            <div class="order_total">
+                <div class="tpos">
+
+                    <div class="total_price">
+                        <div class="text-center-total">Всего: {{ order["sum"] }}₽</div>
+                    </div>
+                    <input class="order_submit" type="submit" value="Заказать">
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </form>
 </div>
+
+<script>
+    const buttons = document.querySelectorAll("button");
+
+    buttons.forEach((button) => {
+        button.addEventListener("click", (event) => {
+            // 1. Get the clicked element
+            const element = event.currentTarget;
+            // 2. Get the parent
+            const parent = element.parentNode;
+            // 3. Get the number (within the parent)
+            const numberContainer = parent.querySelector(".number");
+            const number = parseFloat(numberContainer.textContent);
+            // 4. Get the minus and plus buttons
+            const increment = parent.querySelector(".plus");
+            const decrement = parent.querySelector(".minus");
+            // 5. Change the number based on click (either plus or minus)
+            const newNumber = element.classList.contains("plus")
+                ? number + 1
+                : number - 1;
+            numberContainer.textContent = newNumber;
+            console.log(newNumber);
+        });
+    });
+
+</script>
 
 {% endblock %}
