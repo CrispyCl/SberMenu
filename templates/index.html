@@ -23,13 +23,19 @@
     <i id="right" class='bx bx-right-arrow-alt'></i>
 </div>
 
+<div class="add_dish_wrapper"><a href="/create/dish" class="add_dish">Добавить блюдо</a></div>
+
 {% for category in categories %}
 <div class="dish_category">
     <div class="category_title" id="{{ category.id }}">{{ category.title }}
 
-    {% if current_user.role == 0 %}
-    <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
-    {% endif %}
+        {% if current_user.role == 0 %}
+        <div class="category_btns">
+            <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
+            <a class="del_dish" href="#">Удалить</a>
+        </div>
+
+        {% endif %}
     </div>
     <div class="dc">
         <!-- <img  class="box" src="{{ url_for('static', filename=category.image) }}" width="300 px"> -->

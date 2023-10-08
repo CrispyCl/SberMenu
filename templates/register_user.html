@@ -39,7 +39,8 @@
                         {% endfor %}
 
                         <!-- Password -->
-                        {{ form.password(class="form-control password", type="password", placeholder="Пароль", required='required') }}
+                        {{ form.password(class="form-control password", type="password", placeholder="Пароль",
+                        required='required') }}
                         {% for error in form.password.errors %}
                         <p class="alert alert-danger" role="alert">
                             {{ error }}
@@ -66,4 +67,21 @@
         </div>
     </div>
 </form>
+
+<style>
+    @media screen and (max-height: 740px) {
+        .registration_container {
+            gap: 1rem !important;
+            padding: 20px 0;
+        }
+
+        .Active {
+            min-height: 0;
+        }
+
+        .white_container {
+            height: auto;
+        }
+    }
+</style>
 {% endblock %}

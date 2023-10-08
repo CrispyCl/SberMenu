@@ -1,53 +1,68 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="" method="post" enctype="multipart/form-data">
-    {{ form.hidden_tag() }}
-            <div>
-                <b>{{ form.surname(class="form-control", type="text",
-                    placeholder="Фамилия") }}</b>
-                {% for error in form.surname.errors %}
-                <p class="alert alert-danger" role="alert">
-                    {{ error }}
-                </p>
-                {% endfor %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/edit_user.css') }}">
+
+
+<div class="wrapper">
+    <form action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="container">
+            <div class="text">
+                <h1 class="text-center">Изменить профиль</h1>
             </div>
-            <div>
-                <b>{{ form.name(class="form-control", type="text",
-                    placeholder="Имя") }}</b>
-                {% for error in form.name.errors %}
-                <p class="alert alert-danger" role="alert">
-                    {{ error }}
-                </p>
-                {% endfor %}
-            </div>
-            <div>
-                <b>{{ form.email(class="form-control", type="email",
-                    placeholder="E-mail") }}</b>
-                {% for error in form.email.errors %}
-                <p class="alert alert-danger" role="alert">
-                    {{ error }}
-                </p>
-                {% endfor %}
-            </div>
-            <div>
-                <b>{{ form.password(class="form-control", type="password",
-                    placeholder="Новый пароль") }}</b>
-                {% for error in form.password.errors %}
-                <p class="alert alert-danger" role="alert">
-                    {{ error }}
-                </p>
-                {% endfor %}
-            </div>
-            <div>
-                <b>{{ form.password_again(class="form-control", type="password",
-                    placeholder="Повторите пароль") }}</b>
-                {% for error in form.password_again.errors %}
-                <p class="alert alert-danger" role="alert">
-                    {{ error }}
-                </p>
-                {% endfor %}
-            </div>
-    <b>{{ form.submit(value="Сохранить изменения") }}</b>
-</form>>
+
+            <!-- SurName -->
+            {{ form.surname(class="form-control name", type="text",
+            placeholder="Фамилия") }}
+            {% for error in form.surname.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+
+            <!-- Name -->
+
+            {{ form.name(class="form-control name", type="text",
+            placeholder="Имя") }}
+            {% for error in form.name.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+
+            <!-- Email -->
+
+            {{ form.email(class="form-control email", type="email",
+            placeholder="E-mail") }}
+            {% for error in form.email.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+
+            <!-- Password -->
+
+            {{ form.password(class="form-control password", type="password",
+            placeholder="Новый пароль") }}
+            {% for error in form.password.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+
+            {{ form.password_again(class="form-control password", type="password",
+            placeholder="Повторите пароль") }}
+            {% for error in form.password_again.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+
+            <!-- Submit -->
+            {{ form.submit(class="submitbtn",value="Сохранить изменения") }}
+        </div>
+</div>
+
 {% endblock %}

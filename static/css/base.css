@@ -518,7 +518,7 @@ main {
 }
 
 .github {
-    padding: 1rem;
+    padding: 0.5rem;
     display: flex;
     justify-content: center;
     flex-direction: column;
@@ -526,7 +526,7 @@ main {
 }
 
 .github a {
-    margin: 1rem;
+    margin: 0 1rem 1rem;
 }
 
 .githubicon {
