@@ -24,13 +24,13 @@
     line-height: normal;
 }
 
-.name,
+.namefiled,
 .email,
 .password {
     padding-left: 1.5rem;
 }
 
-.name,
+.namefiled,
 .email,
 .password,
 .submitbtn {

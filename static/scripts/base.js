@@ -12,6 +12,8 @@ const BadAlertClose = document.querySelector('.bad_alert_box .close'),
     Badmess = document.querySelector('.bad_alert_message .text.text-2'),
     Goodmess = document.querySelector('.good_alert_message .text.text-2');
 
+
+
 let mes = JSON.parse(document.querySelector('.message-content').innerHTML);
 
 $(function () {

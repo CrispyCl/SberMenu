@@ -1,0 +1,196 @@
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    margin-top: 5rem;
+}
+
+.text-center {
+    text-align: center;
+    font-family: sans-serif;
+    font-size: 2rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    margin: 0 0 40px 0;
+}
+
+.container {
+    width: 70%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+
+.ii {
+    max-width: 888px;
+    width: 100%;
+    min-height: 400px;
+    display: flex;
+    gap: 3rem;
+    align-self: end;
+    flex-direction: row;
+}
+
+.image {
+    width: 20rem !important;
+    height: 20rem !important;
+    object-fit: cover;
+    background: #FFF;
+    border-radius: 0.9375rem;
+}
+
+.info {
+    pointer-events: none;
+    border-radius: 0.9375rem;
+    min-height: 200px;
+    resize: none;
+    max-width: 600px;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.btns {
+    margin-top: 20px;
+    max-width: 888px;
+    width: 100%;
+    align-self: end;
+    display: flex;
+    justify-content: space-between;
+}
+
+.edit {
+    width: 272px;
+    max-width: 17rem;
+    display: flex !important;
+    margin-top: 1rem;
+    border: 3px solid #BCDE36;
+    height: 3.125rem;
+    border-radius: 0.9375rem;
+    color: #21201F;
+    font-family: sans-serif;
+    font-size: 1.3rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    align-items: center;
+    justify-content: center;
+}
+
+.remove {
+    width: 272px;
+    max-width: 17rem;
+    display: flex !important;
+    margin-top: 1rem;
+    border: 3px solid red;
+    height: 3.125rem;
+    border-radius: 0.9375rem;
+    color: #21201F;
+    font-family: sans-serif;
+    font-size: 1.3rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    align-items: center;
+    justify-content: center;
+}
+
+.dish_buy {
+    width: 100%;
+    display: flex;
+    gap: 2rem;
+    align-self: center;
+}
+
+.buy {
+    margin-right: 20px;
+    border: 2px solid #cdcdcd;
+    border-radius: 0.9375rem;
+    width: 30%;
+    display: flex;
+    gap: 3rem;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.price {
+    font-family: sans-serif;
+    color: #21201F;
+    font-size: 2rem;
+    font-style: normal;
+    font-weight: 600;
+    line-height: normal;
+}
+
+.order {
+    width: 272px;
+    max-width: 17rem;
+    display: flex !important;
+    margin-top: 1rem;
+    border: 3px solid #BCDE36;
+    height: 3.125rem;
+    border-radius: 0.9375rem;
+    color: #21201F;
+    font-family: sans-serif;
+    font-size: 1.3rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    align-items: center;
+    justify-content: center;
+}
+
+
+@media screen and (max-width: 1010px) {
+    .dish_buy {
+        flex-direction: column;
+    }
+
+    .container,
+    .btns,
+    .buy {
+        align-self: center;
+    }
+
+    .buy {
+        width: 70%;
+        margin: 0;
+        margin-bottom: 30px;
+        padding: 10px;
+    }
+
+    .ii {
+        flex-direction: column;
+    }
+
+    .info {
+        height: auto !important;
+        /* max-width: 360px; */
+        min-height: 100px;
+        align-self: center;
+    }
+
+    .image {
+        align-self: center;
+    }
+}
+
+@media screen and (max-width: 790px) {
+    .btns {
+        flex-direction: column;
+    }
+
+    .edit,
+    .remove,
+    .order {
+        width: 100%;
+        max-width: 100%;
+    }
+}
+
+@media screen and (max-width: 470px) {
+    .image {
+        width: 234.66px !important;
+        width: 234.66px !important;
+    }
+}

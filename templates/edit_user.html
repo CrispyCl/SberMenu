@@ -13,7 +13,7 @@
             </div>
             {% if current_user.role == 2 %}
             <!-- SurName -->
-            {{ form.surname(class="form-control name", type="text",
+            {{ form.surname(class="form-control namefiled", type="text",
             placeholder="Фамилия", required='required') }}
             {% for error in form.surname.errors %}
             <p class="alert alert-danger" role="alert">
@@ -23,7 +23,7 @@
 
             <!-- Name -->
 
-            {{ form.name(class="form-control name", type="text",
+            {{ form.name(class="form-control namefiled", type="text",
             placeholder="Имя", required='required') }}
             {% for error in form.name.errors %}
             <p class="alert alert-danger" role="alert">
