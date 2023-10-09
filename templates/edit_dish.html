@@ -63,21 +63,15 @@
             <!-- Choose category -->
             <div class="all_categories">
                 {% for category in categories %}
-                {% if category.id in checked %}
+
                 <div class="choose_checkbox">
-                    <input id="myCheckbox{{ category.id }}" type="checkbox" name="categories" value="{{ category.id }}" checked="checked">
+                    <input id="myCheckbox{{ category.id }}" type="checkbox" name="categories" value="{{ category.id }}"
+                    {% if category.id in checked %}checked="checked"{% endif %}>
                     <label class="chekimg" for="myCheckbox{{ category.id }}"><img class="category_image"
                             src="{{ url_for('static', filename=category.image) }}"></label>
                     <div class="category_title">{{ category.title }}</div>
                 </div>
-                {% else %}
-                <div class="choose_checkbox">
-                    <input id="myCheckbox{{ category.id }}" type="checkbox" name="categories" value="{{ category.id }}">
-                    <label class="chekimg" for="myCheckbox{{ category.id }}"><img class="category_image"
-                            src="{{ url_for('static', filename=category.image) }}"></label>
-                    <div class="category_title">{{ category.title }}</div>
-                </div>
-                {% endif %}
+
                 {% endfor %}
             </div>
 

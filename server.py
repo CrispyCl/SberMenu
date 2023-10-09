@@ -1,13 +1,13 @@
-from json import dumps, loads
+from json import dumps
 
 from PIL import Image
 from data import db_session
 from data.categories import Category
 from data.dish_categories import DishCategory
-from data.dishes import Dish
-from data.users import User
-from data.orders import Order
 from data.dish_orders import DishOrder
+from data.dishes import Dish
+from data.orders import Order
+from data.users import User
 from flask import Flask, abort, redirect, render_template, request, session
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from forms.category import CategoryForm
@@ -19,6 +19,7 @@ from forms.user import UserForm
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "very_secret_key"
 ST_message = {"status": 404, "text": ""}
+STATUS = {1: "Следан заказ", 2: "Приготовлен", 3: "Выдан", 0: "Отменён"}
 current_user.is_authenticated: bool
 
 login_manager = LoginManager()
@@ -56,7 +57,7 @@ def add_dish(dish_id):
     if session["order"].get(str(dish_id)):
         session["order"][str(dish_id)]["count"] += 1
     else:
-        session["order"][str(dish_id)] = (dish.to_dict() | {"count": 1})
+        session["order"][str(dish_id)] = dish.to_dict() | {"count": 1}
     dc = session["order"]
     print(dc)
     for v in dc:
@@ -224,8 +225,7 @@ def edit_category(category_id):
     if request.method == "GET":
         form.title.data = category.title
     if form.validate_on_submit():
-        if db_sess.query(Category).filter(Category.title == form.title.data,
-                                          Category.id != category_id).first():
+        if db_sess.query(Category).filter(Category.title == form.title.data, Category.id != category_id).first():
             message = {"status": 0, "text": "Категория с таким названием уже есть"}
             return render_template(
                 "edit_category.html", title=title, form=form, message=dumps(message), order=session["order"]
@@ -294,10 +294,9 @@ def edit_dish(dish_id):
     session["message"] = dumps(ST_message)
     title = "Редактирование блюда"
     categories = db_sess.query(Category).all()
-    dish_categories = db_sess.query(DishCategory).filter(DishCategory.dish_id == dish_id).all()
-    checked = []
-    for category in dish_categories:
-        checked.append(category.category_id)
+    checked = list(
+        map(lambda v: v.category_id, db_sess.query(DishCategory).filter(DishCategory.dish_id == dish_id).all())
+    )
     if request.method == "GET":
         form.title.data = dish.title
         form.description.data = dish.description
@@ -312,36 +311,44 @@ def edit_dish(dish_id):
                 message=dumps(message),
                 order=session["order"],
                 categories=categories,
-                checked=checked
+                checked=checked,
             )
         dish.title = form.title.data
         dish.price = form.price.data
         dish.description = form.description.data
         db_sess.merge(dish)
         categories = request.form.getlist("categories")
-        for category in categories:
-            if int(category) not in checked:
-                db_sess.add(DishCategory(dish_id=dish_id, category_id=category))
         for category in checked:
-            if str(category) not in categories:
-                db_sess.delete(db_sess.query(DishCategory).filter(DishCategory.dish_id == dish_id, DishCategory.category_id == category).first())
+            db_sess.delete(
+                db_sess.query(DishCategory)
+                .filter(DishCategory.dish_id == dish_id, DishCategory.category_id == category)
+                .first()
+            )
+        for category in categories:
+            db_sess.add(DishCategory(dish_id=dish_id, category_id=category))
         if form.image.data:
             img1 = form.image.data
             img1.save(f"static/img/dishes/{dish_id}.jpg")
         db_sess.commit()
         return redirect("/")
     return render_template(
-        "edit_dish.html", title=title, form=form, message=smessage, order=session["order"], categories=categories, checked=checked
+        "edit_dish.html",
+        title=title,
+        form=form,
+        message=smessage,
+        order=session["order"],
+        categories=categories,
+        checked=checked,
     )
 
 
-@app.route('/profile/dish/<int:dish_id>')
+@app.route("/profile/dish/<int:dish_id>")
 def profile(dish_id):
     db_sess = db_session.create_session()
     dish = db_sess.query(Dish).get(dish_id)
     if not dish:
         abort(404)
-    return render_template('dish_profile.html', title=dish.title, message=ST_message, dish=dish)
+    return render_template("dish_profile.html", title=dish.title, message=ST_message, dish=dish)
 
 
 @app.route("/orders")
@@ -351,13 +358,13 @@ def orders():
     db_sess = db_session.create_session()
     orders = db_sess.query(Order).all()
     dishes = {}
-    STATUS = {1: "Следан заказ", 2: "Приготовлен", 3: "Выдан", 0: "Отменён"}
     for order in orders:
         dishes[order.id] = list(
             map(lambda di: di.dish, db_sess.query(DishOrder).filter(DishOrder.order_id == order.id).all())
         )
-    return render_template("order_list.html", message=smessage, order=session["order"],
-                           orders=orders, dishes=dishes, STATUS=STATUS)
+    return render_template(
+        "order_list.html", message=smessage, order=session["order"], orders=orders, dishes=dishes, STATUS=STATUS
+    )
 
 
 @app.route("/login", methods=["GET", "POST"])
