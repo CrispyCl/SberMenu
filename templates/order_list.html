@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Список заказов</h2>
+{% if current_user.role == 2 %}
+{% for order in orders %}
+{% if order.user_id == current_user.id %}
+<p>ID: {{ order.id }}</p>
+<p>Цена: {{ order.price }}руб.</p>
+<p>Статус:{{ STATUS[order.status] }}</p>
+---БЛЮДА---
+{% for dish in dishes[order.id] %}
+        <div>
+            <a href="/profile/dish/{{ dish.id }}">
+            <div class="dish_name_and_price">
+                <div>{{ dish.title }}</div>
+                <div>{{ dish.price }}руб.</div>
+            </div>
+            </a>
+        </div>
+        {% endfor %}
+
+{% endif %}
+{% endfor %}
+{% else %}
+{% for order in orders %}
+<p>ID: {{ order.id }}</p>
+<p>Цена: {{ order.price }}руб.</p>
+<p>Статус:{{ STATUS[order.status] }}</p>
+<a>Изменить статус</a>
+---БЛЮДА---
+{% for dish in dishes[order.id] %}
+        <div>
+            <a href="/profile/dish/{{ dish.id }}">
+            <div class="dish_name_and_price">
+                <div>{{ dish.title }}</div>
+                <div>{{ dish.price }}руб.</div>
+            </div>
+            </a>
+        </div>
+        {% endfor %}
+
+{% endfor %}
+{% endif %}
+{% endblock %}

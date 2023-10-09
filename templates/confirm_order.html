@@ -8,7 +8,7 @@
 <div class="all">
 
     <div class="text-center">Оформление заказа</div>
-    <form class="order" action="" method="post">
+    <form class="order" action="" method="post" enctype="multipart/form-data">
         <div class="wc">
             <div class="order_wrapper">
                 {% for k in order %}
@@ -19,15 +19,11 @@
                         <img class="order_img" src="{{ url_for('static', filename=dish.image) }}">
                         <div class="order_name">{{ dish.title }}</div>
                         <div class="order_price_count">
-                            <div class="price">{{ dish.price }}₽</div>
+                            <div name="PricePC" class="price">{{ dish.price }}₽</div>
                             <div class="count">
-                                <button class="minus" aria-label="Decrease by one">
-                                    <img src="/static/svg/minus-svgrepo-com.svg">
-                                </button>
-                                <div class="number">{{ dish.count }}</div>
-                                <button class="plus" aria-label="Increase by one">
-                                    <img src="/static/svg/plus-large-svgrepo-com.svg">
-                                </button>
+                                <input id="number_{{ dish.id }}" type="number" class="number" name="rcounts"
+                                min="0" max="99" value="{{ dish.count }}"
+                                onkeyup="SetSumPC()" onmouseup="SetSumPC()" />
                             </div>
                         </div>
                     </div>
@@ -60,7 +56,7 @@
                 <div class="tpos">
 
                     <div class="total_price">
-                        <div class="text-center-total">Всего: {{ order["sum"] }}₽</div>
+                        <div id="TotalSum" class="text-center-total">Всего: {{ order["sum"] }}₽</div>
                     </div>
                     <input class="order_submit" type="submit" value="Заказать">
                 </div>
@@ -70,6 +66,28 @@
     </form>
 </div>
 
+<style>
+    .number{
+        max-width: 30px;
+        text-align: center;
+    }
+    #basket, .basket{
+        display: none;
+    }
+</style>
+<script>
+    function SetSumPC(){
+        let arr = document.getElementsByName('rcounts');
+        let arr2 = document.getElementsByName('PricePC');
+        let tot = 0;
+        for (let i = 0; i < arr.length; i++) {
+            console.log(parseInt(arr[i].value), parseInt(arr2[i].innerText.slice(0, -1)));
+            tot += parseInt(arr[i].value) * parseInt(arr2[i].innerText.slice(0, -1));
+        }
+        document.getElementById("TotalSum").innerHTML = `Всего: ${tot}₽`;
+
+    };
+</script>
 <script>
     const buttons = document.querySelectorAll("button");
 
