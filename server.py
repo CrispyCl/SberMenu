@@ -426,6 +426,17 @@ def login():
     return render_template("login.html", title=title, form=form, message=smessage, order=session["order"])
 
 
+@app.route("/delete/category/<int:categ_id>")
+def delete_categ(categ_id):
+    db_sess = db_session.create_session()
+    dish_categories = db_sess.query(DishCategory).filter(DishCategory.category_id == categ_id).all()
+    for i in dish_categories:
+        db_sess.delete(i)
+    db_sess.delete(db_sess.query(Category).filter(Category.id == categ_id).first())
+    db_sess.commit()
+    return redirect("/")
+
+
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
