@@ -359,6 +359,20 @@ def orders():
                            orders=orders, dishes=dishes, STATUS=STATUS)
 
 
+@app.route("/dishes")
+def dishes():
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
+        abort(404)
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    db_sess = db_session.create_session()
+    dishes = db_sess.query(Dish).all()
+    return render_template("dish_list.html", message=smessage, order=session["order"],
+                           dishes=dishes)
+
+
 @app.route("/profile/dish/<int:dish_id>")
 def profile(dish_id):
     db_sess = db_session.create_session()
