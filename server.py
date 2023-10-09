@@ -396,6 +396,20 @@ def orders():
     )
 
 
+@app.route("/dishes")
+def dishes():
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
+        abort(404)
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    db_sess = db_session.create_session()
+    dishes = db_sess.query(Dish).all()
+    return render_template("dish_list.html", message=smessage, order=session["order"],
+                           dishes=dishes)
+
+
 @app.route("/profile/dish/<int:dish_id>")
 def profile(dish_id):
     db_sess = db_session.create_session()
@@ -403,6 +417,33 @@ def profile(dish_id):
     if not dish:
         abort(404)
     return render_template("dish_profile.html", title=dish.title, message=ST_message, dish=dish)
+
+
+@app.route("/delete/category/<int:categ_id>")
+def delete_categ(categ_id):
+    db_sess = db_session.create_session()
+    dish_categories = db_sess.query(DishCategory).filter(DishCategory.category_id == categ_id).all()
+    for i in dish_categories:
+        db_sess.delete(i)
+    db_sess.delete(db_sess.query(Category).filter(Category.id == categ_id).first())
+    db_sess.commit()
+    return redirect("/")
+
+
+@app.route("/delete/dish/<int:dish_id>")
+def delete_dish(dish_id):
+    db_sess = db_session.create_session()
+    dish_categories = db_sess.query(DishCategory).filter(DishCategory.dish_id == dish_id).all()
+    for i in dish_categories:
+        db_sess.delete(i)
+    dish_orders = db_sess.query(DishOrder).filter(DishOrder.dish_id == dish_id).all()
+    for i in dish_orders:
+        db_sess.delete(i)
+    db_sess.delete(db_sess.query(Dish).filter(Dish.id == dish_id).first())
+    db_sess.commit()
+    return redirect("/")
+
+
 
 
 @app.route("/login", methods=["GET", "POST"])
