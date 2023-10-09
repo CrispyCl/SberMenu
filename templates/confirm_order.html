@@ -39,12 +39,12 @@
                         <img class="order_img" src="{{ url_for('static', filename=dish.image) }}">
                     </div>
                     <div class="order_price_count">
-                        <div class="price">{{ dish.price }}₽</div>
+                        <div name="PriceMB" class="price">{{ dish.price }}₽</div>
                         <div class="number-input">
-                            <button onclick="this.parentNode.querySelector('input[type=number]').stepDown()"></button>
+                            <button onclick="this.parentNode.querySelector('input[type=number]').stepDown(); SetSumPC('MB')"></button>
                             <input id="number_{{ dish.id }}" type="number" class="number quantity" name="rrcounts"
-                                min="0" max="99" value="{{ dish.count }}" onkeyup="SetSumPC()" onkeydown="SetSumPC()" />
-                            <button onclick="this.parentNode.querySelector('input[type=number]').stepUp()"
+                                min="0" max="99" value="{{ dish.count }}"/>
+                            <button onclick="this.parentNode.querySelector('input[type=number]').stepUp(); SetSumPC('MB')"
                                 class="plus"></button>
                         </div>
                     </div>
@@ -66,6 +66,7 @@
             </div>
             {% endif %}
         </div>
+        <input id="req_version" name="req_version" type="text" style="display: none;"/>
     </form>
 </div>
 <style>
@@ -80,18 +81,23 @@
     }
 </style>
 <script>
-    function SetSumPC() {
-        let arr = document.getElementsByName('rcounts');
-        let arr2 = document.getElementsByName('PricePC');
-        console.log(arr)
-        console.log(arr2)
+    function SetSumPC(vers="PC") {
+        if (vers == "PC") {
+            var arr = document.getElementsByName('rcounts');
+            var arr2 = document.getElementsByName('PricePC');
+        }
+        else{
+            var arr = document.getElementsByName('rrcounts');
+            var arr2 = document.getElementsByName('PriceMB');
+        }
+        console.log(arr);
+        console.log(arr2);
         let tot = 0;
         for (let i = 0; i < arr.length; i++) {
             console.log(parseInt(arr[i].value), parseInt(arr2[i].innerText.slice(0, -1)));
             tot += parseInt(arr[i].value) * parseInt(arr2[i].innerText.slice(0, -1));
         }
         document.getElementById("TotalSum").innerHTML = `Всего: ${tot}₽`;
-
     };
     $('form').on('click', 'button:not([type="submit"])', function (e) {
         e.preventDefault();
@@ -104,9 +110,9 @@
     let regexp = /android|iphone|kindle|ipad/i;
     let isMobileDevice = regexp.test(details);
     if (isMobileDevice) {
-        document.write("<h3>Its a Mobile Device !</h3>");
+        document.getElementById("req_version").value = "MB"
     } else {
-        document.write("<h3>Its a Desktop !</h3>");
+        document.getElementById("req_version").value = "PC"
     }
 </script>
 
