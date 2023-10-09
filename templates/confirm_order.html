@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/confirm_order.css') }}">
+
+
+<div class="all">
+
+    <div class="text-center">Оформление заказа</div>
+    <form class="order" action="" method="post" enctype="multipart/form-data">
+        <div class="wc">
+            <div class="order_wrapper">
+                {% for k in order %}
+                {% if k != "sum" %}
+                {% set dish = order[k] %}
+                <div class="info">
+                    <div class="order_info">
+                        <img class="order_img" src="{{ url_for('static', filename=dish.image) }}">
+                        <div class="order_name">{{ dish.title }}</div>
+                        <div class="order_price_count">
+                            <div name="PricePC" class="price">{{ dish.price }}₽</div>
+                            <div class="count">
+                                <input id="number_{{ dish.id }}" type="number" class="number" name="rcounts"
+                                min="0" max="99" value="{{ dish.count }}"
+                                onkeyup="SetSumPC()" onmouseup="SetSumPC()" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order_info_mobile">
+                    <div class="in">
+                        <img class="order_img" src="{{ url_for('static', filename=dish.image) }}">
+                        <div class="order_name">{{ dish.title }}</div>
+                    </div>
+                    <div class="order_price_count">
+                        <div class="price">{{ dish.price }}₽</div>
+                        <div class="count">
+                            <button class="minus" aria-label="Decrease by one">
+                                <img src="/static/svg/minus-svgrepo-com.svg">
+                            </button>
+                            <div class="number">{{ dish.count }}</div>
+                            <button class="plus" aria-label="Increase by one">
+                                <img src="/static/svg/plus-large-svgrepo-com.svg">
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% if order %}
+            <div class="order_total">
+                <div class="tpos">
+
+                    <div class="total_price">
+                        <div id="TotalSum" class="text-center-total">Всего: {{ order["sum"] }}₽</div>
+                    </div>
+                    <input class="order_submit" type="submit" value="Заказать">
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<style>
+    .number{
+        max-width: 30px;
+        text-align: center;
+    }
+    #basket, .basket{
+        display: none;
+    }
+</style>
+<script>
+    function SetSumPC(){
+        let arr = document.getElementsByName('rcounts');
+        let arr2 = document.getElementsByName('PricePC');
+        let tot = 0;
+        for (let i = 0; i < arr.length; i++) {
+            console.log(parseInt(arr[i].value), parseInt(arr2[i].innerText.slice(0, -1)));
+            tot += parseInt(arr[i].value) * parseInt(arr2[i].innerText.slice(0, -1));
+        }
+        document.getElementById("TotalSum").innerHTML = `Всего: ${tot}₽`;
+
+    };
+</script>
+<script>
+    const buttons = document.querySelectorAll("button");
+
+    buttons.forEach((button) => {
+        button.addEventListener("click", (event) => {
+            // 1. Get the clicked element
+            const element = event.currentTarget;
+            // 2. Get the parent
+            const parent = element.parentNode;
+            // 3. Get the number (within the parent)
+            const numberContainer = parent.querySelector(".number");
+            const number = parseFloat(numberContainer.textContent);
+            // 4. Get the minus and plus buttons
+            const increment = parent.querySelector(".plus");
+            const decrement = parent.querySelector(".minus");
+            // 5. Change the number based on click (either plus or minus)
+            const newNumber = element.classList.contains("plus")
+                ? number + 1
+                : number - 1;
+            numberContainer.textContent = newNumber;
+            console.log(newNumber);
+        });
+    });
+
+</script>
+
+{% endblock %}

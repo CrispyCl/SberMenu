@@ -40,9 +40,14 @@
                             <div class="name">{{ current_user.name }} {{ current_user.surname }}</div>
                         </div>
                         <hr>
-                        <a href="/#" class="menu_link">
+                        <a href="/edit/user/{{ current_user.id }}" class="menu_link">
                             <img class="menu_img" src="/static/svg/settings-svgrepo-com.svg">
                             <p>Редактировать профиль</p>
+                            <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
+                        </a>
+                        <a id="mobile_basket" href="#" class="menu_link">
+                            <img class="menu_img" src="/static/svg/basket-shopping-alt-svgrepo-com.svg">
+                            <p>Моя корзина</p>
                             <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
                         </a>
                         <a href="/logout" class="menu_link">
@@ -61,11 +66,37 @@
                 <!-- basket dropdown menu -->
                 <div class="dd-menu-wrap" id="basket">
                     <div class="dd-menu">
-                        {% for dish in order %}
-                        <p><a href="#"><img src="{{ url_for('static', filename=dish.image) }}"></a>
-                        <div>{{ dish.title }}</p>{{ dish.price }}</div>
-                        </p>
+                        {% if order %}
+                        {% for k in order %}
+                        {% if k != "sum" %}
+                        {% set dish = order[k] %}
+                        <div class="ihr">
+                            <div class="basket_item">
+                                <a class="item_img" href="#">
+                                    <img src="{{ url_for('static', filename=dish.image) }}">
+                                </a>
+                                <div class="item_info">
+                                    <div class="item_dish_title">{{ dish.title }}</div>
+                                    {% if dish.count > 1 %}
+                                    <div class="item_dish_price">Цена - {{ dish.price }}₽ за 1 шт.</div>
+                                    {% else %}
+                                    <div class="item_dish_price">Цена - {{ dish.price }}</div>
+                                    {% endif %}
+                                    <div class="item_dish_count">Количество - {{ dish.count }} шт.</div>
+                                </div>
+                            </div>
+                            <hr>
+                        </div>
+                        {% endif %}
                         {% endfor %}
+                        <div class="basket_bottom">
+                            <div class="end_price">Сумма заказа -<div class="bold">{{ order["sum"] }}₽</div>
+                            </div>
+                            <a class="order_basket" href="/confirm_order">Оформить заказ</a>
+                        </div>
+                        {% else %}
+                        <div class="empty_basket">Корзина пустая</div>
+                        {% endif %}
                     </div>
                 </div>
                 <!-- end basket dropdown menu -->
