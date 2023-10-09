@@ -368,6 +368,33 @@ def profile(dish_id):
     return render_template("dish_profile.html", title=dish.title, message=ST_message, dish=dish)
 
 
+@app.route("/delete/category/<int:categ_id>")
+def delete_categ(categ_id):
+    db_sess = db_session.create_session()
+    dish_categories = db_sess.query(DishCategory).filter(DishCategory.category_id == categ_id).all()
+    for i in dish_categories:
+        db_sess.delete(i)
+    db_sess.delete(db_sess.query(Category).filter(Category.id == categ_id).first())
+    db_sess.commit()
+    return redirect("/")
+
+
+@app.route("/delete/dish/<int:dish_id>")
+def delete_dish(dish_id):
+    db_sess = db_session.create_session()
+    dish_categories = db_sess.query(DishCategory).filter(DishCategory.dish_id == dish_id).all()
+    for i in dish_categories:
+        db_sess.delete(i)
+    dish_orders = db_sess.query(DishOrder).filter(DishOrder.dish_id == dish_id).all()
+    for i in dish_orders:
+        db_sess.delete(i)
+    db_sess.delete(db_sess.query(Dish).filter(Dish.id == dish_id).first())
+    db_sess.commit()
+    return redirect("/")
+
+
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
