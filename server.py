@@ -60,9 +60,6 @@ def add_dish(dish_id):
     else:
         session["order"][str(dish_id)] = dish.to_dict() | {"count": 1}
     dc = session["order"]
-    print(dc)
-    for v in dc:
-        print(dc[v])
     session["order"]["sum"] = sum(map(lambda v: dc[v]["count"] * dc[v]["price"] if v != "sum" else 0, dc))
     message = {"status": 1, "text": "Блюдо добавлено в заказ"}
     session["message"] = dumps(message)
@@ -71,23 +68,30 @@ def add_dish(dish_id):
 
 @app.route("/confirm_order", methods=["GET", "POST"])
 def confirm_order():
-    if not current_user.is_authenticated:
-        message = {"status": 0, "text": "Для оформления заказа авторизируйтесь"}
-        session["message"] = dumps(message)
-        return redirect("/login")
     if current_user.role in [0, 1]:
         abort(404)
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     title = "Подтвердите заказ"
     order = session["order"]
-    # number = request.form.getlist("number")
     if not order:
         abort(404)
     if request.method == "GET":
-        print(order)
         return render_template("confirm_order.html", title=title, message=smessage, order=order)
     if request.method == "POST":
+        counts = request.form.getlist("rcounts")
+        print(1, counts)
+        for i, k in enumerate(session["order"]):
+            if k == "sum":
+                continue
+            session["order"][k]["count"] = int(counts[i])
+        dc = session["order"]
+        session["order"]["sum"] = sum(map(lambda v: dc[v]["count"] * dc[v]["price"] if v != "sum" else 0, dc))
+
+        if not current_user.is_authenticated:
+            message = {"status": 0, "text": "Для оформления заказа авторизируйтесь"}
+            session["message"] = dumps(message)
+            return redirect("/login")
         return render_template("confirm_order.html", title=title, message=smessage, order=order)
 
 
