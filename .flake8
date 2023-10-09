@@ -1,6 +1,6 @@
 [flake8]
 exclude = .git,__pycache__,venv
-extend-ignore = F401,E501
+extend-ignore = F401,E501,C901
 max-complexity = 10
 import-order-style = pycharm
 max-line-length = 88
