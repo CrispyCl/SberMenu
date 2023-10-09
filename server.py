@@ -1,10 +1,12 @@
-from json import dumps, loads
+from json import dumps
 
 from PIL import Image
 from data import db_session
 from data.categories import Category
 from data.dish_categories import DishCategory
+from data.dish_orders import DishOrder
 from data.dishes import Dish
+from data.orders import Order
 from data.users import User
 from flask import Flask, abort, redirect, render_template, request, session
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
@@ -18,6 +20,7 @@ from static.python.functions import create_main_admin
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "very_secret_key"
 ST_message = {"status": 404, "text": ""}
+STATUS = {1: "Следан заказ", 2: "Приготовлен", 3: "Выдан", 0: "Отменён"}
 current_user.is_authenticated: bool
 
 login_manager = LoginManager()
@@ -292,10 +295,9 @@ def edit_dish(dish_id):
     session["message"] = dumps(ST_message)
     title = "Редактирование блюда"
     categories = db_sess.query(Category).all()
-    dish_categories = db_sess.query(DishCategory).filter(DishCategory.dish_id == dish_id).all()
-    checked = []
-    for category in dish_categories:
-        checked.append(category.category_id)
+    checked = list(
+        map(lambda v: v.category_id, db_sess.query(DishCategory).filter(DishCategory.dish_id == dish_id).all())
+    )
     if request.method == "GET":
         form.title.data = dish.title
         form.description.data = dish.description
@@ -317,16 +319,14 @@ def edit_dish(dish_id):
         dish.description = form.description.data
         db_sess.merge(dish)
         categories = request.form.getlist("categories")
-        for category in categories:
-            if int(category) not in checked:
-                db_sess.add(DishCategory(dish_id=dish_id, category_id=category))
         for category in checked:
-            if str(category) not in categories:
-                db_sess.delete(
-                    db_sess.query(DishCategory)
-                    .filter(DishCategory.dish_id == dish_id, DishCategory.category_id == category)
-                    .first()
-                )
+            db_sess.delete(
+                db_sess.query(DishCategory)
+                .filter(DishCategory.dish_id == dish_id, DishCategory.category_id == category)
+                .first()
+            )
+        for category in categories:
+            db_sess.add(DishCategory(dish_id=dish_id, category_id=category))
         if form.image.data:
             img1 = form.image.data
             img1.save(f"static/img/dishes/{dish_id}.jpg")
