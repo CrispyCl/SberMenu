@@ -33,9 +33,9 @@ def index():
         session["message"] = dumps(ST_message)
     if not session.get("order"):
         session["order"] = {}
-    if current_user.is_authenticated:
+    '''if current_user.is_authenticated:
         if current_user.role == 1:
-            return redirect("/order")
+            return redirect("/")'''
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
@@ -292,6 +292,43 @@ def register_user():
         session["message"] = dumps(message)
         return redirect("/")
     return render_template("register_user.html", title=title, form=form, message=smessage, order=session["order"])
+
+
+@app.route("/register/spec", methods=["GET", "POST"])
+def register_spec():
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
+        abort(404)
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    form = UserForm()
+    title = "Регистрация"
+    if form.validate_on_submit():
+        if form.password.data != form.password_again.data:
+            print("/")
+            message = {"status": 0, "text": "Пароли не совпадают"}
+            return render_template(
+                "register_spec.html", title=title, form=form, message=dumps(message), order=session["order"]
+            )
+        db_sess = db_session.create_session()
+        if db_sess.query(User).filter(User.email == form.email.data).first():
+            print('*')
+            message = {"status": 0, "text": "Такой пользователь уже есть"}
+            return render_template(
+                "register_spec.html", title=title, form=form, message=dumps(message), order=session["order"]
+            )
+        user = User(
+            email=form.email.data,
+            role=1,
+        )
+        user.set_password(form.password.data)
+        db_sess.add(user)
+        db_sess.commit()
+        message = {"status": 1, "text": "Успешная авторизиция"}
+        session["message"] = dumps(message)
+        return redirect("/")
+    return render_template("register_spec.html", title=title, form=form, message=smessage, order=session["order"])
 
 
 @app.route("/edit/category/<int:category_id>", methods=["GET", "POST"])
