@@ -14,6 +14,7 @@ from forms.category import CategoryForm
 from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.user import UserForm
+from static.python.functions import create_main_admin
 
 
 app = Flask(__name__)
@@ -351,22 +352,6 @@ def profile(dish_id):
     return render_template("dish_profile.html", title=dish.title, message=ST_message, dish=dish)
 
 
-@app.route("/orders")
-def orders():
-    smessage = session["message"]
-    session["message"] = dumps(ST_message)
-    db_sess = db_session.create_session()
-    orders = db_sess.query(Order).all()
-    dishes = {}
-    for order in orders:
-        dishes[order.id] = list(
-            map(lambda di: di.dish, db_sess.query(DishOrder).filter(DishOrder.order_id == order.id).all())
-        )
-    return render_template(
-        "order_list.html", message=smessage, order=session["order"], orders=orders, dishes=dishes, STATUS=STATUS
-    )
-
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
@@ -405,4 +390,5 @@ def logout():
 
 if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
+    create_main_admin(db_session.create_session())
     app.run(port=8080, host="127.0.0.1", debug=True)

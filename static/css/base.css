@@ -262,13 +262,17 @@ main {
 }
 
 .dd-menu {
+    gap: 2rem;
+    display: flex;
     border-radius: 0.9375rem;
-    height: 30rem;
+    min-height: 30rem;
     border: 2px solid #cdcdcd;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     background: #fff;
     padding: 1.25rem;
     margin: 0.625rem;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .dd-menu-wrap.show {
@@ -533,6 +537,10 @@ main {
     width: 50px;
 }
 
+#mobile_basket {
+    display: none;
+}
+
 @media screen and (max-width: 875px) {
     .dc {
         flex-direction: column;
@@ -549,6 +557,10 @@ main {
 
     .top_container .it:last-child {
         margin-right: 3rem;
+    }
+
+    #mobile_basket {
+        display: flex;
     }
 
     .basket {
@@ -595,4 +607,76 @@ main {
         max-width: 20rem !important;
         min-width: 20rem !important;
     }
+}
+
+
+
+/* basket */
+
+.basket_item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item_img img {
+    border-radius: 0.9375rem;
+    width: 100px;
+    height: 100px !important;
+    object-fit: cover;
+}
+
+.item_info {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.basket_bottom {}
+
+.bold {
+    margin-left: 3px;
+    font-weight: bolder;
+}
+
+.end_price,
+.item_dish_title,
+.item_dish_price,
+.item_dish_count {
+    display: flex;
+    font-family: sans-serif;
+    font-size: 1.3rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    color: #21201F;
+}
+
+.order_basket {
+    margin-top: 1rem;
+    border: 3px solid #BCDE36;
+    display: flex;
+    height: 3.125rem;
+    border-radius: 0.9375rem;
+    cursor: pointer;
+    color: #21201F;
+    font-family: sans-serif;
+    font-size: 1.3rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.order_basket:hover {
+    background: #BCDE36;
+}
+
+.ihr hr {
+    background: #CDCDCD;
+    height: 2px !important;
+    width: 100%;
+    margin-top: 10px;
 }
