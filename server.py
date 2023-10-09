@@ -33,9 +33,9 @@ def index():
         session["message"] = dumps(ST_message)
     if not session.get("order"):
         session["order"] = {}
-    '''if current_user.is_authenticated:
+    if current_user.is_authenticated:
         if current_user.role == 1:
-            return redirect("/")'''
+            return redirect("/")
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
@@ -316,7 +316,6 @@ def register_spec():
             )
         db_sess = db_session.create_session()
         if db_sess.query(User).filter(User.email == form.email.data).first():
-            print('*')
             message = {"status": 0, "text": "Такой пользователь уже есть"}
             return render_template(
                 "register_spec.html", title=title, form=form, message=dumps(message), order=session["order"]
