@@ -6,6 +6,8 @@ from data.categories import Category
 from data.dish_categories import DishCategory
 from data.dishes import Dish
 from data.users import User
+from data.orders import Order
+from data.dish_orders import DishOrder
 from flask import Flask, abort, redirect, render_template, request, session
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from forms.category import CategoryForm
@@ -320,6 +322,21 @@ def profile(dish_id):
         abort(404)
     return render_template('dish_profile.html', title=dish.title, message=ST_message, dish=dish)
 
+
+@app.route("/orders")
+def orders():
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    db_sess = db_session.create_session()
+    orders = db_sess.query(Order).all()
+    dishes = {}
+    STATUS = {1: "Следан заказ", 2: "Приготовлен", 3: "Выдан", 0: "Отменён"}
+    for order in orders:
+        dishes[order.id] = list(
+            map(lambda di: di.dish, db_sess.query(DishOrder).filter(DishOrder.order_id == order.id).all())
+        )
+    return render_template("order_list.html", message=smessage, order=session["order"],
+                           orders=orders, dishes=dishes, STATUS=STATUS)
 
 
 @app.route("/login", methods=["GET", "POST"])
