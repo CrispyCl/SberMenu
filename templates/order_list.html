@@ -8,12 +8,14 @@
 <p>Статус:{{ STATUS[order.status] }}</p>
 <a>Изменить статус</a>
 ---БЛЮДА---
-{% for dish in dishes[order.id] %}
+{% for di in dishes[order.id] %}
+{% set dish = di[0] %}
      <div>
          <a href="/profile/dish/{{ dish.id }}">
         <div class="dish_name_and_price">
             <div>{{ dish.title }}</div>
             <div>{{ dish.price }}руб.</div>
+            <div>{{ di[1] }}</div>
         </div>
         </a>
     </div>

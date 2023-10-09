@@ -81,7 +81,11 @@ def confirm_order():
     if request.method == "GET":
         return render_template("confirm_order.html", title=title, message=smessage, order=session["order"])
     if request.method == "POST":
-        counts = request.form.getlist("rcounts")
+        if request.form.get("req_version") == "PC":
+            counts = request.form.getlist("rcounts")
+        else:
+            counts = request.form.getlist("rrcounts")
+        print(request.form.get("req_version"))
         to_del = set()
         for i, k in enumerate(session["order"]):
             if k == "sum":
@@ -482,7 +486,7 @@ def orders():
     dishes = {}
     for order in orders:
         dishes[order.id] = list(
-            map(lambda di: di.dish, db_sess.query(DishOrder).filter(DishOrder.order_id == order.id).all())
+            map(lambda di: (di.dish, di.count), db_sess.query(DishOrder).filter(DishOrder.order_id == order.id).all())
         )
     return render_template(
         "order_list.html", message=smessage, order=session["order"], orders=orders, dishes=dishes, STATUS=STATUS
