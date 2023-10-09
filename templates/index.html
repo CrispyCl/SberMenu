@@ -33,7 +33,7 @@
         {% if current_user.role == 0 %}
         <div class="category_btns">
             <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
-            <a class="del_dish" href="#">Удалить</a>
+            <a class="del_dish" href="/delete/category/{{ category.id }}">Удалить</a>
         </div>
 
         {% endif %}

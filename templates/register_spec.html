@@ -9,26 +9,10 @@
             <div class="white_container Active">
                 <div class="registration_container">
                     <div class="text_back">
-                        <div class="text">Регистрация</div>
+                        <div class="text">Регистрация специалиста</div>
                         <div class="back"></div>
                     </div>
                     <div class="ep">
-
-                        <!-- Name -->
-                        {{ form.name(class="form-control email", type="text", placeholder="Имя", required='required') }}
-                        {% for error in form.name.errors %}
-                        <p class="alert alert-danger" role="alert">
-                            {{ error }}
-                        </p>
-                        {% endfor %}
-
-                        <!-- SurName -->
-                        {{ form.surname(class="form-control email", type="text", placeholder="Фамилия", required='required') }}
-                        {% for error in form.surname.errors %}
-                        <p class="alert alert-danger" role="alert">
-                            {{ error }}
-                        </p>
-                        {% endfor %}
 
                         <!-- Email -->
                         {{ form.email(class="form-control email", type="email", placeholder="E-mail") }}
@@ -67,21 +51,4 @@
         </div>
     </div>
 </form>
-
-<style>
-    @media screen and (max-height: 740px) {
-        .registration_container {
-            gap: 1rem !important;
-            padding: 20px 0;
-        }
-
-        .Active {
-            min-height: 0;
-        }
-
-        .white_container {
-            height: auto;
-        }
-    }
-</style>
 {% endblock %}

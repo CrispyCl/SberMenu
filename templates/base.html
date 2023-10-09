@@ -37,7 +37,11 @@
                 <div class="dropdown-menu" id="dropdown">
                     <div class="menu">
                         <div class="user_info">
+                            {% if current_user.role == 2 %}
                             <div class="name">{{ current_user.name }} {{ current_user.surname }}</div>
+                            {% else %}
+                            <div class="name">{{ current_user.email }}</div>
+                            {% endif %}
                         </div>
                         <hr>
                         <a href="/edit/user/{{ current_user.id }}" class="menu_link">
