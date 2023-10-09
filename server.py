@@ -238,6 +238,9 @@ def delete_dish(dish_id):
         db_sess.delete(i)
     dish_orders = db_sess.query(DishOrder).filter(DishOrder.dish_id == dish_id).all()
     for i in dish_orders:
+        order = db_sess.query(Order).get(i.order_id)
+        order.status = 0
+        db_sess.merge(i)
         db_sess.delete(i)
     db_sess.delete(db_sess.query(Dish).filter(Dish.id == dish_id).first())
     db_sess.commit()
