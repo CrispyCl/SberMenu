@@ -39,6 +39,7 @@
 }
 
 .top_container .box {
+    max-width: 234.66px;
     min-width: 234.66px;
     height: 11rem;
     object-fit: cover;
@@ -220,4 +221,10 @@
     margin: 0;
     width: 90%;
     height: 5rem;
+}
+
+
+
+.dis_none {
+    display: none;
 }

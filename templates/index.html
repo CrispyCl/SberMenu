@@ -13,7 +13,15 @@
             <h1 class="img_text">Создать категорию</h1>
         </div>
         {% endif %}
+        <script>
+            let a = 0;
+        </script>
         {% for category in categories %}
+
+        <script>
+            console.log((a += 1))
+        </script>
+
         <div class="it">
             <a href="#{{ category.id }}"><img class="box" src="{{ url_for('static', filename=category.image) }}"></a>
             <h1 class="img_text">{{ category.title }}</h1>
@@ -61,6 +69,36 @@
 
 </div>
 
+<script>
+    const ricon = document.getElementById("right");
+</script>
+
+
+{% if current_user.role == 0 %}
+<script>
+    if (a <= 3) {
+        ricon.classList.add("dis_none")
+        console.log("done")
+    } else {
+        ricon.classList.remove("dis_none")
+        console.log("done")
+
+    }
+</script>
+{% endif %}
+
+{% if current_user.role != 0 %}
+<script>
+    if (a <= 4) {
+        ricon.classList.add("dis_none")
+        console.log("done")
+    } else {
+        ricon.classList.remove("dis_none")
+        console.log("done")
+
+    }
+</script>
+{% endif %}
 
 <script src="{{ url_for('static', filename='scripts/slider.js') }}"></script>
 {% endblock %}
