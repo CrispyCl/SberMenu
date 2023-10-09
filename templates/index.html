@@ -43,11 +43,11 @@
         {% for dish in dishes[category.id] %}
         <div class="dish">
             <a href="/profile/dish/{{ dish.id }}">
-            <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
+                <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
             </a>
             <div class="dish_name_and_price">
                 <div class="dish_name">{{ dish.title }}</div>
-                <div class="dish_price">{{ dish.price }}руб.</div>
+                <div class="dish_price">{{ dish.price }}₽</div>
             </div>
             {% if current_user.role not in [0, 1] %}
             <a class="add_dish_to_basket" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>

@@ -537,6 +537,10 @@ main {
     width: 50px;
 }
 
+#mobile_basket {
+    display: none;
+}
+
 @media screen and (max-width: 875px) {
     .dc {
         flex-direction: column;
@@ -553,6 +557,10 @@ main {
 
     .top_container .it:last-child {
         margin-right: 3rem;
+    }
+
+    #mobile_basket {
+        display: flex;
     }
 
     .basket {
