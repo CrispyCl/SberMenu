@@ -81,6 +81,7 @@ def confirm_order():
     session["message"] = dumps(ST_message)
     title = "Подтвердите заказ"
     order = session["order"]
+    # number = request.form.getlist("number")
     if not order:
         abort(404)
     if request.method == "GET":
@@ -341,6 +342,21 @@ def edit_dish(dish_id):
         categories=categories,
         checked=checked,
     )
+
+
+@app.route("/orders")
+def orders():
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    db_sess = db_session.create_session()
+    orders = db_sess.query(Order).all()
+    dishes = {}
+    for order in orders:
+        dishes[order.id] = list(
+            map(lambda di: di.dish, db_sess.query(DishOrder).filter(DishOrder.order_id == order.id).all())
+        )
+    return render_template("order_list.html", message=smessage, order=session["order"],
+                           orders=orders, dishes=dishes, STATUS=STATUS)
 
 
 @app.route("/profile/dish/<int:dish_id>")
