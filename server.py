@@ -33,7 +33,6 @@ def index():
         session["message"] = dumps(ST_message)
     if not session.get("order"):
         session["order"] = {}
-    print(session["order"])
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
@@ -68,23 +67,28 @@ def add_dish(dish_id):
 
 @app.route("/confirm_order", methods=["GET", "POST"])
 def confirm_order():
-    if current_user.role in [0, 1]:
-        abort(404)
+    if current_user.is_authenticated:
+        if current_user.role in [0, 1]:
+            abort(404)
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     title = "Подтвердите заказ"
-    order = session["order"]
-    if not order:
+    if not session["order"]:
         abort(404)
     if request.method == "GET":
-        return render_template("confirm_order.html", title=title, message=smessage, order=order)
+        return render_template("confirm_order.html", title=title, message=smessage, order=session["order"])
     if request.method == "POST":
         counts = request.form.getlist("rcounts")
-        print(1, counts)
+        to_del = set()
         for i, k in enumerate(session["order"]):
             if k == "sum":
                 continue
+            if int(counts[i]) == 0:
+                to_del.add(k)
+                continue
             session["order"][k]["count"] = int(counts[i])
+        for k in to_del:
+            del session["order"][k]
         dc = session["order"]
         session["order"]["sum"] = sum(map(lambda v: dc[v]["count"] * dc[v]["price"] if v != "sum" else 0, dc))
 
@@ -92,7 +96,35 @@ def confirm_order():
             message = {"status": 0, "text": "Для оформления заказа авторизируйтесь"}
             session["message"] = dumps(message)
             return redirect("/login")
-        return render_template("confirm_order.html", title=title, message=smessage, order=order)
+        if list(session["order"]) == ["sum"]:
+            message = {"status": 1, "text": "Заказ отменён"}
+            session["message"] = dumps(message)
+            session["order"] = {}
+            return redirect("/")
+        db_sess = db_session.create_session()
+        orders = db_sess.query(Order).all()
+        last_id = 1 if not orders else orders[-1].id + 1
+        order = Order(
+            id=last_id,
+            user_id=current_user.id,
+            status=1,
+            price=session["order"]["sum"],
+        )
+        db_sess.add(order)
+        for k in session["order"]:
+            if k == "sum":
+                continue
+            dish_order = DishOrder(
+                dish_id=int(k),
+                order_id=last_id,
+                count=session["order"][k]["count"],
+            )
+            db_sess.add(dish_order)
+        db_sess.commit()
+        message = {"status": 1, "text": "Заказ создан"}
+        session["message"] = dumps(message)
+        session["order"] = {}
+        return redirect("/")
 
 
 @app.route("/create/dish", methods=["GET", "POST"])
@@ -359,8 +391,9 @@ def orders():
         dishes[order.id] = list(
             map(lambda di: di.dish, db_sess.query(DishOrder).filter(DishOrder.order_id == order.id).all())
         )
-    return render_template("order_list.html", message=smessage, order=session["order"],
-                           orders=orders, dishes=dishes, STATUS=STATUS)
+    return render_template(
+        "order_list.html", message=smessage, order=session["order"], orders=orders, dishes=dishes, STATUS=STATUS
+    )
 
 
 @app.route("/profile/dish/<int:dish_id>")
@@ -379,7 +412,6 @@ def login():
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     title = "Вход"
-    print(smessage)
     form = LoginForm()
     if form.validate_on_submit():
         db_sess = db_session.create_session()
