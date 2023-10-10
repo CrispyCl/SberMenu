@@ -36,15 +36,15 @@
 {% endif %}
 {% for category in categories %}
 <div class="dish_category">
-    <div class="category_title">{{ category.title }}
+    <div class="category_title" id="{{ category.id }}">{{ category.title }}
 
         {% if current_user.role == 0 %}
         <div class="category_btns">
             <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
             <!-- <a class="del_dish" href="/delete/category/{{ category.id }}">Удалить</a> -->
-            <a class="del_dish" onclick="OpenDialog()">Удалить</a>
+            <a class="del_dish" onclick="OpenDialog('{{category.id }}')">Удалить</a>
         </div>
-        <div class="dialog">
+        <div class="dialog" id="di{{ category.id }}">
             <div class="dwrapper">
                 <div class="dheader">Удаление категории!</div>
                 <div class="dmain">Вы хотите удалить категорию "{{ category.title }}" ?</div>
@@ -52,23 +52,20 @@
                 <div class="dfooter">
                     <div class="dbtns">
                         <a class="dremove" href="/delete/category/{{ category.id }}">Удалить</a>
-                        <a class="dcancel" onclick="RemoveDialog()">Отмена</a>
+                        <a class="dcancel" onclick="RemoveDialog('{{category.id }}')">Отмена</a>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- <script>
-            var dialog = document.getElementById(`{{ category.id }}`);
-            console.log(dialog)
-
-            function OpenDialog() {
-                dialog.classList.add("open")
+        <script>
+            function OpenDialog(category_id) {
+                document.getElementById(`di${category_id}`).classList.add("open")
             }
 
-            function RemoveDialog() {
-                dialog.classList.remove("open")
+            function RemoveDialog(category_id) {
+                document.getElementById(`di${category_id}`).classList.remove("open")
             }
-        </script> -->
+        </script>
         {% endif %}
     </div>
     <div class="dc">

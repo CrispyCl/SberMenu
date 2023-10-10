@@ -16,7 +16,7 @@
                     Описания нет
                     {% else %}
                     {{ dish.description }}
-                    {% endif %}                
+                    {% endif %}
                 </textarea>
             </div>
             {% if current_user.role == 0 %}
@@ -43,7 +43,7 @@
         {% if current_user.role != 0 %}
         <div class="buy">
             <div class="price">Цена - {{ dish.price }}₽</div>
-            <a class="order" href="#">Добавить в корзину</a>
+            <a class="order" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
         </div>
         {% endif %}
     </div>

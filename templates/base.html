@@ -44,16 +44,18 @@
                             {% endif %}
                         </div>
                         <hr>
+                        {% if current_user.role != 0 %}
                         <a href="/edit/user/{{ current_user.id }}" class="menu_link">
                             <img class="menu_img" src="/static/svg/settings-svgrepo-com.svg">
                             <p>Редактировать профиль</p>
                             <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
                         </a>
-                        <a id="mobile_basket" href="#" class="menu_link">
+                        <a id="mobile_basket" href="/confirm_order" class="menu_link">
                             <img class="menu_img" src="/static/svg/basket-shopping-alt-svgrepo-com.svg">
                             <p>Моя корзина</p>
                             <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
                         </a>
+                        {% endif %}
                         <a href="/logout" class="menu_link">
                             <img class="menu_img" src="/static/svg/logout-svgrepo-com.svg">
                             <p>Выйти</p>
@@ -159,7 +161,7 @@
     </main>
     <footer class="footer_PC">
         <div class="github">
-            <a href="https://github.com"><img class="githubicon" src="/static/svg/github-mark.svg"></a>
+            <a href="https://github.com/Gogasmerter/SberMenu"><img class="githubicon" src="/static/svg/github-mark.svg"></a>
             <div class="githubtext">© 2023 ChinaGrib Team</div>
         </div>
     </footer>
