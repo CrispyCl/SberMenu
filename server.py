@@ -1,3 +1,4 @@
+import datetime
 from json import dumps
 
 from PIL import Image
@@ -35,7 +36,7 @@ def index():
         session["order"] = {}
     if current_user.is_authenticated:
         if current_user.role == 1:
-            return redirect("/")
+            return redirect("/orders")
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
@@ -80,6 +81,26 @@ def cancel_order(order_id):
     if current_user.role == 2 and current_user.id != order.user.id:
         abort(404)
     order.status = 0
+    order.edit_date = datetime.date.today()
+    db_sess.merge(order)
+    db_sess.commit()
+    return redirect(f"/orders#{order_id}")
+
+
+@app.route("/change_order/<int:order_id>")
+def change_order(order_id):
+    if not current_user.is_authenticated:
+        abort(404)
+    db_sess = db_session.create_session()
+    order = db_sess.query(Order).get(order_id)
+    if not order:
+        abort(404)
+    if order.status in [0, 3]:
+        abort(404)
+    if current_user.role == 2 and current_user.id != order.user.id:
+        abort(404)
+    order.status += 1
+    order.edit_date = datetime.date.today()
     db_sess.merge(order)
     db_sess.commit()
     return redirect(f"/orders#{order_id}")
