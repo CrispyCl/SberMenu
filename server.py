@@ -55,6 +55,8 @@ def add_dish(dish_id):
             return redirect("/")
     db_sess = db_session.create_session()
     dish = db_sess.query(Dish).get(dish_id)
+    if not dish:
+        return redirect("/")
     if not session.get("order"):
         session["order"] = {}
     if session["order"].get(str(dish_id)):
@@ -63,6 +65,7 @@ def add_dish(dish_id):
         session["order"][str(dish_id)] = dish.to_dict() | {"count": 1}
     dc = session["order"]
     session["order"]["sum"] = sum(map(lambda v: dc[v]["count"] * dc[v]["price"] if v != "sum" else 0, dc))
+    session["order"] = session["order"]
     return redirect("/")
 
 

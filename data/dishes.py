@@ -18,7 +18,6 @@ class Dish(SqlAlchemyBase, SerializerMixin):
         return {
             "id": self.id,
             "title": self.title,
-            "description": self.description,
             "price": self.price,
             "image": self.image,
         }
