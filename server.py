@@ -20,7 +20,7 @@ from static.python.functions import create_main_admin
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "very_secret_key"
 ST_message = {"status": 404, "text": ""}
-STATUS = {1: "Следан заказ", 2: "Приготовлен", 3: "Выдан", 0: "Отменён"}
+STATUS = {1: "В процессе", 2: "Приготовлен", 3: "Выдан", 0: "Отменён"}
 current_user.is_authenticated: bool
 
 login_manager = LoginManager()
@@ -63,8 +63,6 @@ def add_dish(dish_id):
         session["order"][str(dish_id)] = dish.to_dict() | {"count": 1}
     dc = session["order"]
     session["order"]["sum"] = sum(map(lambda v: dc[v]["count"] * dc[v]["price"] if v != "sum" else 0, dc))
-    message = {"status": 1, "text": "Блюдо добавлено в заказ"}
-    session["message"] = dumps(message)
     return redirect("/")
 
 
