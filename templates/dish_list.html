@@ -6,6 +6,20 @@
 <div class="dish_category">
   <div class="category_title">Список блюд</div>
   <div class="dc">
+    {% if current_user.role == 0 %}
+    <div class="dish">
+      <a class="create_category dish_img " href="/create/dish">
+        <img class=" plus" src="/static/svg/plus-large-svgrepo-com.svg">
+      </a>
+      <div class="dish_name_and_price" id="addd">
+        <div class="dish_name">Добавить блюдо</div>
+      </div>
+      <div class="btns">
+        <div class="category_title">
+        </div>
+      </div>
+    </div>
+    {% endif %}
     {% for dish in dishes %}
     <div class="dish">
       <a href="/profile/dish/{{ dish.id }}">

@@ -56,6 +56,23 @@
                             <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
                         </a>
                         {% endif %}
+                        {% if current_user.role == 0 %}
+                        <a href="/register/spec" class="menu_link">
+                            <img class="menu_img" src="/static/svg/user-alt-1-svgrepo-com.svg">
+                            <p>Создать специалиста</p>
+                            <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
+                        </a>
+                        <a href="/dishes" class="menu_link">
+                            <img class="menu_img" src="/static/svg/list-svgrepo-com.svg">
+                            <p>Блюда</p>
+                            <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
+                        </a>
+                        {% endif %}
+                        <a href="/orders" class="menu_link">
+                            <img class="menu_img" src="/static/svg/list-svgrepo-com.svg">
+                            <p>Заказы</p>
+                            <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
+                        </a>
                         <a href="/logout" class="menu_link">
                             <img class="menu_img" src="/static/svg/logout-svgrepo-com.svg">
                             <p>Выйти</p>
@@ -161,7 +178,8 @@
     </main>
     <footer class="footer_PC">
         <div class="github">
-            <a href="https://github.com/Gogasmerter/SberMenu"><img class="githubicon" src="/static/svg/github-mark.svg"></a>
+            <a href="https://github.com/Gogasmerter/SberMenu"><img class="githubicon"
+                    src="/static/svg/github-mark.svg"></a>
             <div class="githubtext">© 2023 ChinaGrib Team</div>
         </div>
     </footer>
