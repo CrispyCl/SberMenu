@@ -6,7 +6,11 @@
 {% if not orders %}
 <div class="text-center">В текущий момент нет незакрытых заказов</div>
 {% else %}
+{% if current_user.role == 1 %}
 <div class="text-center">Список заказов</div>
+{% else %}
+<div class="text-center">История заказов</div>
+{% endif %}
 {% endif %}
 
 <div class="wrapper">
@@ -14,13 +18,14 @@
     <div class="container" id="{{ order.id }}">
         <div class="info">
             <div class="dish_number">Заказ №{{ order.id }}</div>
+            {% if current_user.role != 2 %}<div>Пользователь - {{ order.user.email }}</div>{% endif %}
             <div class="status">Статус - {{ STATUS[order.status] }}</div>
             <div class="price">Цена - {{ order.price }}₽</div>
         </div>
         <div>
         {% if order.status in [1, 2] %}
         {% if current_user.role in [0, 1] %}
-        <a class="edit_status">Изменить статус</a>
+        <a class="edit_status"href="/change_order/{{ order.id }}">Изменить статус</a>
         {% endif %}
         <a class="cancel_status" href="/cancel_order/{{ order.id }}">Отменить</a>
         {% endif %}
