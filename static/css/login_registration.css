@@ -113,7 +113,7 @@ legend {
 
 .body.PC {
     height: 100vh;
-    width: 100vw;
+    /* width: 100vw; */
 }
 
 .container {
@@ -237,7 +237,7 @@ input {
 }
 
 .Active {
-    margin: 10px 0;
+    margin: 15px 0;
     min-height: 45rem;
 }
 
@@ -330,4 +330,8 @@ input {
     .white_container {
         width: 22rem;
     }
+}
+
+.basket {
+    display: none;
 }

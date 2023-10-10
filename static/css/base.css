@@ -222,6 +222,11 @@ main {
     justify-content: center;
 }
 
+.login_btn:hover {
+    color: #fff;
+
+}
+
 .dropdown-toggle {
     margin-right: 2.5rem;
 }
@@ -277,6 +282,7 @@ main {
 
 .dd-menu-wrap.show {
     max-height: 100%;
+    display: table;
 }
 
 .main_PC {
@@ -397,13 +403,30 @@ main {
     transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
 }
 
+.warning_alert_box {
+    z-index: 5;
+    position: fixed;
+    top: 25px;
+    right: 30px;
+    border-radius: 12px;
+    background-color: #fff;
+    padding: 20px 35px 20px 25px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    border-left: 6px solid rgb(255, 225, 0);
+    overflow: hidden;
+    transform: translateX(calc(100% + 30px));
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+}
+
 .good_alert_box.alert_show,
-.bad_alert_box.alert_show {
+.bad_alert_box.alert_show,
+.warning_alert_box.alert_show {
     transform: translateX(0%);
 }
 
 .good_alert_box .good_alert_box_content,
-.bad_alert_box .bad_alert_box_content {
+.bad_alert_box .bad_alert_box_content,
+.warning_alert_box .warning_alert_box_content {
     display: flex;
     align-items: center;
 }
@@ -437,15 +460,32 @@ main {
 
 }
 
+.warning_alert_box_content .check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(255, 225, 0);
+    color: #fff;
+    font-size: 20px;
+    border-radius: 50%;
+    max-width: 35px;
+    max-height: 35px;
+    min-width: 35px;
+    min-height: 35px;
+
+}
+
 .good_alert_box_content .good_alert_message,
-.bad_alert_box_content .bad_alert_message {
+.bad_alert_box_content .bad_alert_message,
+.warning_alert_box_content .warning_alert_message {
     display: flex;
     flex-direction: column;
     margin: 0 20px;
 }
 
 .good_alert_message .text,
-.bad_alert_message .text {
+.bad_alert_message .text,
+.warning_alert_message .text {
     font-size: 20px;
     font-weight: 400;
     color: #666;
@@ -453,13 +493,15 @@ main {
 }
 
 .good_alert_message .text-1,
-.bad_alert_message .text-1 {
+.bad_alert_message .text-1,
+.warning_alert_message .text-1 {
     font-weight: 600;
     color: #333;
 }
 
 .good_alert_box .close,
-.bad_alert_box .close {
+.bad_alert_box .close,
+.warning_alert_box .close {
     position: absolute;
     top: 10px;
     right: 15px;
@@ -469,12 +511,14 @@ main {
 }
 
 .good_alert_box .close:hover,
-.bad_alert_box .close:hover {
+.bad_alert_box .close:hover,
+.warning_alert_box .close:hover {
     opacity: 1;
 }
 
 .good_alert_box .good_alert_progress,
-.bad_alert_box .bad_alert_progress {
+.bad_alert_box .bad_alert_progress,
+.warning_alert_box .warning_alert_progress {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -503,8 +547,19 @@ main {
     background-color: red;
 }
 
+.warning_alert_box .warning_alert_progress:before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgb(255, 225, 0);
+}
+
 .good_alert_progress.active:before,
-.bad_alert_progress.active:before {
+.bad_alert_progress.active:before,
+.warning_alert_progress.active:before {
     animation: progress 5s linear forwards;
 }
 
@@ -537,6 +592,10 @@ main {
     width: 50px;
 }
 
+#mobile_basket {
+    display: none;
+}
+
 @media screen and (max-width: 875px) {
     .dc {
         flex-direction: column;
@@ -555,6 +614,10 @@ main {
         margin-right: 3rem;
     }
 
+    #mobile_basket {
+        display: flex;
+    }
+
     .basket {
         display: none;
     }
@@ -569,7 +632,7 @@ main {
     }
 
     .category_title {
-        flex-direction: column;
+        /* flex-direction: column; */
     }
 
     .login_btn {
@@ -664,6 +727,7 @@ main {
 
 .order_basket:hover {
     background: #BCDE36;
+    color: #fff
 }
 
 .ihr hr {
@@ -671,4 +735,17 @@ main {
     height: 2px !important;
     width: 100%;
     margin-top: 10px;
+}
+
+#namea {
+    height: auto;
+    border: none;
+    text-align: center;
+    width: auto;
+}
+
+.empty_basket {
+    margin-top: 10px;
+    font-family: sans-serif;
+    font-size: xx-large;
 }

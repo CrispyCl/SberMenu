@@ -1,3 +1,5 @@
+import datetime
+
 import sqlalchemy
 from sqlalchemy import orm
 
@@ -11,5 +13,6 @@ class Order(SqlAlchemyBase):
     user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"))
     status = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    edit_date = sqlalchemy.Column(sqlalchemy.DATE, nullable=False, default=datetime.date.today())
 
     user = orm.relationship("User")
