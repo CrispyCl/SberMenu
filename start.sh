@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Exit early on errors
+set -eu
+
+# Python buffers stdout. Without this, you won't see what you "print" in the Activity Logs
+export PYTHONUNBUFFERED=true
+
+# Install Python 3 virtual env
+VIRTUALENV=./venv
+
+if [ ! -d $VIRTUALENV ]; then
+  python3 -m venv $VIRTUALENV
+fi
+
+# Install pip into virtual environment
+if [ ! -f $VIRTUALENV/bin/pip ]; then
+  curl --silent --show-error --retry 5 https://bootstrap.pypa.io/get-pip.py |
+$VIRTUALENV/bin/python
+fi
+
+# Install the requirements
+$VIRTUALENV/bin/pip install -r requirements/prod.txt
+$VIRTUALENV/bin/pip install Werkzeug==2.3.0
+
+# Run your glorious application
+$VIRTUALENV/bin/python3 server.py

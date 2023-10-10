@@ -115,7 +115,7 @@ def confirm_order():
     session["message"] = dumps(ST_message)
     title = "Подтвердите заказ"
     if request.method == "GET":
-        return render_template("confirm_order.html", title=title, message=smessage, order=order)
+        return render_template("confirm_order.html", title=title, message=smessage, order=session["order"])
     if request.method == "POST":
         if request.form.get("req_version") == "PC":
             counts = request.form.getlist("rcounts")
