@@ -20,7 +20,7 @@ from static.python.functions import create_main_admin
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "very_secret_key"
 ST_message = {"status": 404, "text": ""}
-STATUS = {1: "Следан заказ", 2: "Приготовлен", 3: "Выдан", 0: "Отменён"}
+STATUS = {1: "В процессе", 2: "Приготовлен", 3: "Выдан", 0: "Отменён"}
 current_user.is_authenticated: bool
 
 login_manager = LoginManager()
@@ -63,9 +63,23 @@ def add_dish(dish_id):
         session["order"][str(dish_id)] = dish.to_dict() | {"count": 1}
     dc = session["order"]
     session["order"]["sum"] = sum(map(lambda v: dc[v]["count"] * dc[v]["price"] if v != "sum" else 0, dc))
-    message = {"status": 1, "text": "Блюдо добавлено в заказ"}
-    session["message"] = dumps(message)
     return redirect("/")
+
+
+@app.route("/cancel_order/<int:order_id>")
+def cancel_order(order_id):
+    if not current_user.is_authenticated:
+        abort(404)
+    db_sess = db_session.create_session()
+    order = db_sess.query(Order).get(order_id)
+    if not order:
+        abort(404)
+    if current_user.role == 2 and current_user.id != order.user.id:
+        abort(404)
+    order.status = 0
+    db_sess.merge(order)
+    db_sess.commit()
+    return redirect(f"/orders#{order_id}")
 
 
 @app.route("/confirm_order", methods=["GET", "POST"])
@@ -100,7 +114,7 @@ def confirm_order():
         session["order"]["sum"] = sum(map(lambda v: dc[v]["count"] * dc[v]["price"] if v != "sum" else 0, dc))
 
         if not current_user.is_authenticated:
-            message = {"status": 0, "text": "Для оформления заказа авторизируйтесь"}
+            message = {"status": 2, "text": "Для оформления заказа авторизуйтесь"}
             session["message"] = dumps(message)
             return redirect("/login")
         if list(session["order"]) == ["sum"]:
@@ -480,9 +494,11 @@ def orders():
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
     if current_user.role == 2:
-        orders = db_sess.query(Order).filter(Order.user_id == current_user.id).all()
+        orders = db_sess.query(Order).filter(Order.user_id == current_user.id).all()[::-1]
+    elif current_user.role == 1:
+        orders = db_sess.query(Order).filter(Order.status.in_([1, 2])).all()[::-1]
     else:
-        orders = db_sess.query(Order).all()
+        orders = db_sess.query(Order).all()[::-1]
     dishes = {}
     for order in orders:
         dishes[order.id] = list(

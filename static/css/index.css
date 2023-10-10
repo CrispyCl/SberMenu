@@ -228,3 +228,67 @@
 .dis_none {
     display: none;
 }
+
+.dialog.open {
+    display: block;
+}
+
+.dialog {
+    display: none;
+    border-radius: 0.9375rem;
+    align-self: center;
+    margin: auto;
+    height: 40%;
+}
+
+.dialog.open::backdrop {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.dwrapper {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.dheader {
+    padding: 20px;
+    background: red;
+    color: #fff;
+}
+
+.dmain {
+    padding: 20px;
+}
+
+.dfooter {}
+
+.dbtns {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.dremove,
+.dcancel {
+    margin: 10px;
+    border: 3px solid red;
+    display: flex;
+    height: 3.125rem;
+    border-radius: 0.9375rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    color: #21201F;
+    font-family: sans-serif;
+    font-size: 1.3rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.dcancel {
+    border: 3px solid #cdcdcd;
+}

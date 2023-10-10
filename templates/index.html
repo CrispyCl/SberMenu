@@ -41,9 +41,31 @@
         {% if current_user.role == 0 %}
         <div class="category_btns">
             <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
-            <a class="del_dish" href="/delete/category/{{ category.id }}">Удалить</a>
+            <!-- <a class="del_dish" href="/delete/category/{{ category.id }}">Удалить</a> -->
+            <a class="del_dish" onclick="OpenDialog('{{category.id }}')">Удалить</a>
         </div>
+        <div class="dialog" id="di{{ category.id }}">
+            <div class="dwrapper">
+                <div class="dheader">Удаление категории!</div>
+                <div class="dmain">Вы хотите удалить категорию "{{ category.title }}" ?</div>
+                <hr class="dhr">
+                <div class="dfooter">
+                    <div class="dbtns">
+                        <a class="dremove" href="/delete/category/{{ category.id }}">Удалить</a>
+                        <a class="dcancel" onclick="RemoveDialog('{{category.id }}')">Отмена</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            function OpenDialog(category_id) {
+                document.getElementById(`di${category_id}`).classList.add("open")
+            }
 
+            function RemoveDialog(category_id) {
+                document.getElementById(`di${category_id}`).classList.remove("open")
+            }
+        </script>
         {% endif %}
     </div>
     <div class="dc">
@@ -67,7 +89,8 @@
 </div>
 {% endfor %}
 
-</div>
+
+
 
 <script>
     const ricon = document.getElementById("right");
@@ -99,6 +122,8 @@
     }
 </script>
 {% endif %}
+
+
 
 <script src="{{ url_for('static', filename='scripts/slider.js') }}"></script>
 {% endblock %}
