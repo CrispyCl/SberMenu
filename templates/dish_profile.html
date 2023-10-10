@@ -11,13 +11,7 @@
         <div class="container">
             <div class="ii">
                 <img class="image" src="{{ url_for('static', filename=dish.image) }}">
-                <textarea class="info" readonly>
-                    {% if dish.description == '' %}
-                    Описания нет
-                    {% else %}
-                    {{ dish.description }}
-                    {% endif %}
-                </textarea>
+                <textarea class="info" style="padding: 2px;" readonly>{% if dish.description == '' %}Описания нет{% else %}{{ dish.description }}{% endif %}</textarea>
             </div>
             {% if current_user.role == 0 %}
             <style>

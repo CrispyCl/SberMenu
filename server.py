@@ -534,11 +534,12 @@ def orders():
 
 
 @app.route("/profile/dish/<int:dish_id>")
-def profile(dish_id):
+def profile_dish(dish_id):
     db_sess = db_session.create_session()
     dish = db_sess.query(Dish).get(dish_id)
     if not dish:
         abort(404)
+    print([dish.description])
     return render_template("dish_profile.html", title=dish.title, message=ST_message, dish=dish)
 
 
