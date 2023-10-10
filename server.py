@@ -66,6 +66,22 @@ def add_dish(dish_id):
     return redirect("/")
 
 
+@app.route("/cancel_order/<int:order_id>")
+def cancel_order(order_id):
+    if not current_user.is_authenticated:
+        abort(404)
+    db_sess = db_session.create_session()
+    order = db_sess.query(Order).get(order_id)
+    if not order:
+        abort(404)
+    if current_user.role == 2 and current_user.id != order.user.id:
+        abort(404)
+    order.status = 0
+    db_sess.merge(order)
+    db_sess.commit()
+    return redirect(f"/orders#{order_id}")
+
+
 @app.route("/confirm_order", methods=["GET", "POST"])
 def confirm_order():
     if current_user.is_authenticated:
@@ -478,9 +494,11 @@ def orders():
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
     if current_user.role == 2:
-        orders = db_sess.query(Order).filter(Order.user_id == current_user.id).all()
+        orders = db_sess.query(Order).filter(Order.user_id == current_user.id).all()[::-1]
+    elif current_user.role == 1:
+        orders = db_sess.query(Order).filter(Order.status.in_([1, 2])).all()[::-1]
     else:
-        orders = db_sess.query(Order).all()
+        orders = db_sess.query(Order).all()[::-1]
     dishes = {}
     for order in orders:
         dishes[order.id] = list(

@@ -11,17 +11,20 @@
 
 <div class="wrapper">
     {% for order in orders %}
-    <div class="container">
+    <div class="container" id="{{ order.id }}">
         <div class="info">
             <div class="dish_number">Заказ №{{ order.id }}</div>
             <div class="status">Статус - {{ STATUS[order.status] }}</div>
             <div class="price">Цена - {{ order.price }}₽</div>
         </div>
+        <div>
+        {% if order.status in [1, 2] %}
         {% if current_user.role in [0, 1] %}
         <a class="edit_status">Изменить статус</a>
-        {% else %}
-        <a class="cancel_status">Отменить</a>
         {% endif %}
+        <a class="cancel_status" href="/cancel_order/{{ order.id }}">Отменить</a>
+        {% endif %}
+        </div>
     </div>
     <hr class="hr">
     <div class="dish">
