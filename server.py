@@ -100,7 +100,7 @@ def confirm_order():
         session["order"]["sum"] = sum(map(lambda v: dc[v]["count"] * dc[v]["price"] if v != "sum" else 0, dc))
 
         if not current_user.is_authenticated:
-            message = {"status": 0, "text": "Для оформления заказа авторизируйтесь"}
+            message = {"status": 2, "text": "Для оформления заказа авторизуйтесь"}
             session["message"] = dumps(message)
             return redirect("/login")
         if list(session["order"]) == ["sum"]:

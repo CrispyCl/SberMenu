@@ -36,14 +36,39 @@
 {% endif %}
 {% for category in categories %}
 <div class="dish_category">
-    <div class="category_title" id="{{ category.id }}">{{ category.title }}
+    <div class="category_title">{{ category.title }}
 
         {% if current_user.role == 0 %}
         <div class="category_btns">
             <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
-            <a class="del_dish" href="/delete/category/{{ category.id }}">Удалить</a>
+            <!-- <a class="del_dish" href="/delete/category/{{ category.id }}">Удалить</a> -->
+            <a class="del_dish" onclick="OpenDialog()">Удалить</a>
         </div>
+        <div class="dialog">
+            <div class="dwrapper">
+                <div class="dheader">Удаление категории!</div>
+                <div class="dmain">Вы хотите удалить категорию "{{ category.title }}" ?</div>
+                <hr class="dhr">
+                <div class="dfooter">
+                    <div class="dbtns">
+                        <a class="dremove" href="/delete/category/{{ category.id }}">Удалить</a>
+                        <a class="dcancel" onclick="RemoveDialog()">Отмена</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <script>
+            var dialog = document.getElementById(`{{ category.id }}`);
+            console.log(dialog)
 
+            function OpenDialog() {
+                dialog.classList.add("open")
+            }
+
+            function RemoveDialog() {
+                dialog.classList.remove("open")
+            }
+        </script> -->
         {% endif %}
     </div>
     <div class="dc">
@@ -67,7 +92,8 @@
 </div>
 {% endfor %}
 
-</div>
+
+
 
 <script>
     const ricon = document.getElementById("right");
@@ -99,6 +125,8 @@
     }
 </script>
 {% endif %}
+
+
 
 <script src="{{ url_for('static', filename='scripts/slider.js') }}"></script>
 {% endblock %}

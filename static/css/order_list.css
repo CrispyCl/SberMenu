@@ -1,0 +1,98 @@
+.wrapper {
+    align-self: center;
+    width: 100%;
+    max-width: 80%;
+    display: flex;
+    margin: 30px 0;
+    flex-direction: column;
+}
+
+.text-center {
+    text-align: center;
+    font-family: sans-serif;
+    margin: 2rem 0rem;
+    font-size: xxx-large;
+}
+
+.container {
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.info {
+    font-family: sans-serif;
+    font-size: xx-large;
+}
+
+.ta {
+    font-family: sans-serif;
+    font-size: xx-large;
+    color: #000;
+}
+
+.dish_number {}
+
+.status {}
+
+.price {}
+
+.edit_status {
+    border: 3px solid #BCDE36 !important;
+}
+
+.cancel_status,
+.edit_status {
+    margin-top: 1rem;
+    border: 3px solid red;
+    display: flex;
+    height: 3.125rem;
+    border-radius: 0.9375rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    color: #21201F;
+    font-family: sans-serif;
+    font-size: 1.3rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.dish {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.dish_image_price {
+    display: flex;
+}
+
+.dish_href {
+    width: 100%;
+    gap: 1rem;
+    display: flex;
+}
+
+.dish_img {
+    object-fit: cover;
+    width: 100%;
+    max-width: 15rem;
+    border-radius: 0.9375rem;
+    max-height: 207px;
+    min-height: 207px;
+}
+
+.dish_title {}
+
+.price_count {}
+
+.hr {
+    background: #cdcdcd;
+    height: 2px;
+    margin: 40px 0;
+}

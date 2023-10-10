@@ -3,36 +3,43 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/order_list.css') }}">
 
+{% if not orders %}
+<div class="text-center">В текущий момент нет незакрытых заказов</div>
+{% else %}
+<div class="text-center">Список заказов</div>
+{% endif %}
+
 <div class="wrapper">
-    <div class="text-center">Список заказов</div>
     {% for order in orders %}
     <div class="container">
-        <div class="dish_number">Заказ №{{ order.id }}</div>
-        <div class="price">Цена - {{ order.price }}</div>
-        <div class="status">Статус - {{ STATUS[order.status] }}</div>
+        <div class="info">
+            <div class="dish_number">Заказ №{{ order.id }}</div>
+            <div class="status">Статус - {{ STATUS[order.status] }}</div>
+            <div class="price">Цена - {{ order.price }}₽</div>
+        </div>
         {% if current_user.role in [0, 1] %}
-        <div class="edit_status">Изменить статус</div>
+        <a class="edit_status">Изменить статус</a>
         {% else %}
-        <div class="cancel_status">Отменить</div>
+        <a class="cancel_status">Отменить</a>
         {% endif %}
     </div>
-</div>
-
-{% for di in dishes[order.id] %}
-{% set dish = di[0] %}
-<div>
-    <a href="/profile/dish/{{ dish.id }}">
-        <div class="dish_name_and_price">
-            <div>{{ dish.title }}</div>
-            <div>{{ dish.price }}руб.</div>
-            <div>{{ di[1] }}</div>
+    <hr class="hr">
+    <div class="dish">
+        {% for di in dishes[order.id] %}
+        {% set dish = di[0] %}
+        <div class="dish_image_price">
+            <a class="dish_href" href="/profile/dish/{{ dish.id }}">
+                <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
+                <div class="ta">
+                    <div class="dish_title">{{ dish.title }}</div>
+                    <div class="price_count">{{ dish.price }}₽ x {{ di[1] }}</div>
+                </div>
+            </a>
         </div>
-    </a>
+    </div>
+    {% endfor %}
+    <hr class="hr">
+    {% endfor %}
 </div>
-{% endfor %}
 
-{% endfor %}
-{% if not orders %}
-<h2>В текущий момент нет незакрытых заказов</h2>
-{% endif %}
 {% endblock %}
