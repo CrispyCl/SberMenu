@@ -30,10 +30,9 @@
     </div>
     <i id="right" class='bx bx-right-arrow-alt'></i>
 </div>
-{% if current_user.role == 0 %}
-<div class="add_dish_wrapper"><a href="/create/dish" class="add_dish">Добавить блюдо</a></div>
-{% else %}<div></div>
-{% endif %}
+<div class="add_dish_wrapper">
+    <div class="text-center">Список блюд</div>
+</div>
 {% for category in categories %}
 <div class="dish_category">
     <div class="category_title" id="{{ category.id }}">{{ category.title }}
@@ -44,7 +43,7 @@
             <!-- <a class="del_dish" href="/delete/category/{{ category.id }}">Удалить</a> -->
             <a class="del_dish" onclick="OpenDialog('{{category.id }}')">Удалить</a>
         </div>
-        <div class="dialog" id="di{{ category.id }}">
+        <dialog id="di{{ category.id }}">
             <div class="dwrapper">
                 <div class="dheader">Удаление категории!</div>
                 <div class="dmain">Вы хотите удалить категорию "{{ category.title }}" ?</div>
@@ -56,14 +55,14 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </dialog>
         <script>
             function OpenDialog(category_id) {
-                document.getElementById(`di${category_id}`).classList.add("open")
+                document.getElementById(`di${category_id}`).showModal();
             }
 
             function RemoveDialog(category_id) {
-                document.getElementById(`di${category_id}`).classList.remove("open")
+                document.getElementById(`di${category_id}`).close();
             }
         </script>
         {% endif %}
