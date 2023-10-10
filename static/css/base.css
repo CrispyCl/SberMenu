@@ -631,7 +631,7 @@ main {
     }
 
     .category_title {
-        flex-direction: column;
+        /* flex-direction: column; */
     }
 
     .login_btn {

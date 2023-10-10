@@ -32,7 +32,14 @@
     color: #000;
 }
 
-.dish_number {}
+.dish_number {
+    display: flex;
+    font-family: sans-serif;
+    font-size: xx-large;
+    margin: 2rem 0rem;
+    align-items: center;
+    gap: 3rem;
+}
 
 .status {}
 

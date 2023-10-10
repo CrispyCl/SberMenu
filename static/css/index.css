@@ -108,10 +108,12 @@
 /* Dishes and category */
 
 .dish_category {
+    display: flex;
     min-width: 90%;
     margin-bottom: 5rem;
     align-self: center;
     max-width: 90%;
+    flex-direction: column;
 }
 
 .dc {
@@ -126,7 +128,7 @@
     font-size: xxx-large;
     margin: 2rem 0rem;
     align-items: center;
-    gap: 1rem;
+    gap: 3rem;
 }
 
 .dish {
@@ -326,4 +328,26 @@ dialog::backdrop {
 
 #addd {
     justify-content: center;
+}
+
+
+.category_title .fa.fa-caret-down {
+    transform: rotate(0deg);
+    transition: all 0.2s linear;
+}
+
+.category_title.active_rotate .fa.fa-caret-down {
+    transform: rotate(180deg);
+    transition: all 0.2s linear;
+}
+
+.items_of_table {
+    height: 0;
+    overflow: hidden;
+    transition: height .5s ease;
+}
+
+.items_of_table.active {
+    height: auto;
+    transform: translateY(0);
 }
