@@ -196,7 +196,7 @@ def create_dish():
                 order=session["order"],
                 categories=categories,
             )
-        dish = Dish(title=form.title.data, price=form.price.data, description=form.description.data)
+        dish = Dish(title=form.title.data, price=form.price.data, description=form.description.data.strip())
 
         dishes = db_sess.query(Dish).all()
         last_id = 1 if not dishes else dishes[-1].id + 1
@@ -286,7 +286,7 @@ def delete_dish(dish_id):
         db_sess.delete(i)
     db_sess.delete(db_sess.query(Dish).filter(Dish.id == dish_id).first())
     db_sess.commit()
-    return redirect("/")
+    return redirect("/dishes")
 
 
 @app.route("/dishes")
@@ -442,7 +442,7 @@ def edit_dish(dish_id):
             )
         dish.title = form.title.data
         dish.price = form.price.data
-        dish.description = form.description.data
+        dish.description = form.description.data.strip()
         db_sess.merge(dish)
         categories = request.form.getlist("categories")
         for category in checked:

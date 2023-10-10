@@ -34,13 +34,88 @@
     <div class="text-center">Список блюд</div>
 </div>
 {% for category in categories %}
-<div class="dish_category">
+<!-- внедряем -->
+
+
+
+
+
+<div class="dish_category" id="{{ category.id }}">
+    <div class="category_title">
+        <div class="category_title" id="t_h{{ category.id }}" style="cursor: pointer;">
+            <div>
+                {{ category.title }}
+                <i class="fa fa-caret-down" style="margin-left: 30px;"></i>
+            </div>
+
+        </div>
+        {% if current_user.role == 0 %}
+        <div class="category_btns">
+            <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
+            <a class="del_dish" onclick="OpenDialog('{{category.id }}')">Удалить</a>
+        </div>
+        <dialog id="di{{ category.id }}">
+            <div class="dwrapper">
+                <div class="dheader">Удаление категории!</div>
+                <div class="dmain">Вы хотите удалить категорию "{{ category.title }}" ?</div>
+                <hr class="dhr">
+                <div class="dfooter">
+                    <div class="dbtns">
+                        <a class="dremove" href="/delete/category/{{ category.id }}">Удалить</a>
+                        <a class="dcancel" onclick="RemoveDialog('{{category.id }}')">Отмена</a>
+                    </div>
+                </div>
+            </div>
+        </dialog>
+        <script>
+            function OpenDialog(category_id) {
+                document.getElementById(`di${category_id}`).showModal();
+            }
+
+            function RemoveDialog(category_id) {
+                document.getElementById(`di${category_id}`).close();
+            }
+        </script>
+        {% endif %}
+    </div>
+
+
+    <div class="items_of_table" id="i_t{{ category.id }}">
+
+        <div class="dc">
+            {% for dish in dishes[category.id] %}
+            <div class="dish">
+                <a href="/profile/dish/{{ dish.id }}">
+                    <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
+                </a>
+                <div class="dish_name_and_price">
+                    <div class="dish_name">{{ dish.title }}</div>
+                    <div class="dish_price">{{ dish.price }}₽</div>
+                </div>
+                {% if current_user.role not in [0, 1] %}
+                <a class="add_dish_to_basket" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+<!-- работает -->
+
+<!-- <div class="dish_category">
     <div class="category_title" id="{{ category.id }}">{{ category.title }}
 
         {% if current_user.role == 0 %}
         <div class="category_btns">
             <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
-            <!-- <a class="del_dish" href="/delete/category/{{ category.id }}">Удалить</a> -->
             <a class="del_dish" onclick="OpenDialog('{{category.id }}')">Удалить</a>
         </div>
         <dialog id="di{{ category.id }}">
@@ -68,7 +143,6 @@
         {% endif %}
     </div>
     <div class="dc">
-        <!-- <img  class="box" src="{{ url_for('static', filename=category.image) }}" width="300 px"> -->
         {% for dish in dishes[category.id] %}
         <div class="dish">
             <a href="/profile/dish/{{ dish.id }}">
@@ -85,7 +159,7 @@
         </div>
         {% endfor %}
     </div>
-</div>
+</div> -->
 {% endfor %}
 
 
@@ -122,7 +196,23 @@
 </script>
 {% endif %}
 
+<script>
+    {% for category in categories %}
+    const category_title_btn{{ category.id }} = document.querySelector("#t_h{{ category.id }}"),
+        items_of_table{{ category.id }} = document.querySelector("#i_t{{ category.id }}");
 
+    category_title_btn{{ category.id }}.addEventListener('click', () => {
+        if (items_of_table{{ category.id }}.classList.contains('active')) {
+            items_of_table{{ category.id }}.classList.remove('active');
+            category_title_btn{{ category.id }}.classList.remove('active_rotate')
+        }
+        else {
+            items_of_table{{ category.id }}.classList.add('active');
+            category_title_btn{{ category.id }}.classList.add('active_rotate')
+        }
+    })
+    {% endfor %}
+</script>
 
 <script src="{{ url_for('static', filename='scripts/slider.js') }}"></script>
 {% endblock %}

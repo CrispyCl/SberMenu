@@ -15,7 +15,134 @@
 
 <div class="wrapper">
     {% for order in orders %}
-    <div class="container" id="{{ order.id }}">
+    <!-- внедряем -->
+
+
+
+    <div class="dish_number" id="t_h{{ order.id }}" style="cursor: pointer;">Заказ №{{ order.id }}<i class="fa fa-caret-down"
+            style="margin-left: 30px;"></i></div>
+    <div class="all_order" id="i_t{{ order.id }}">
+
+
+        <div class="container" id="{{ order.id }}">
+            <div class="info">
+                {% if current_user.role != 2 %}
+                <div>Пользователь - {{ order.user.email }}</div>
+                {% endif %}
+                <div class="status">Статус - {{ STATUS[order.status] }}</div>
+                <div class="price">Цена - {{ order.price }}₽</div>
+            </div>
+            <div>
+                {% if order.status in [1, 2] %}
+                {% if current_user.role in [0, 1] %}
+                <a class="edit_status" onclick="OpenDialog('{{ order.id }}')">Изменить статус</a>
+                <dialog id="di{{ order.id }}">
+                    <div class="dwrapper">
+                        <div class="dheader">Изменение статуса</div>
+                        <div class="dmain">Вы хотите изменить статус на "{{ STATUS[order.status + 1] }}" ?</div>
+                        <hr class="dhr">
+                        <div class="dfooter">
+                            <div class="dbtns">
+                                <a class="dremove" href="/change_order/{{ order.id }}">Изменить</a>
+                                <a class="dcancel" onclick="RemoveDialog('{{ order.id }}')">Отмена</a>
+                            </div>
+                        </div>
+                    </div>
+                </dialog>
+                <script>
+                    function OpenDialog(order_id) {
+                        document.getElementById(`di${order_id}`).showModal();
+                    }
+
+                    function RemoveDialog(order_id) {
+                        document.getElementById(`di${order_id}`).close();
+                    }
+                </script>
+                {% endif %}
+                <a class="cancel_status" onclick="OpenDialog('{{ order.id }}')">Отменить</a>
+                <dialog id="di{{ order.id }}">
+                    <div class="dwrapper">
+                        <div class="dheader_remove">Отмена заказа</div>
+                        <div class="dmain">Вы хотите отменить заказ ?</div>
+                        <hr class="dhr">
+                        <div class="dfooter">
+                            <div class="dbtns">
+                                <a class="dremove_del" href="/cancel_order/{{ order.id }}">Да</a>
+                                <a class="dcancel" onclick="RemoveDialog('{{ order.id }}')">Нет</a>
+                            </div>
+                        </div>
+                    </div>
+                </dialog>
+                {% if current_user.role == 2 %}
+                <script>
+                    function OpenDialog(order_id) {
+                        document.getElementById(`di${order_id}`).showModal();
+                    }
+
+                    function RemoveDialog(order_id) {
+                        document.getElementById(`di${order_id}`).close();
+                    }
+                </script>
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+        <hr class="hr">
+        <div class="dish">
+            {% for di in dishes[order.id] %}
+            {% set dish = di[0] %}
+            <div class="dish_image_price">
+                <a class="dish_href" href="/profile/dish/{{ dish.id }}">
+                    <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
+                    <div class="ta">
+                        <div class="dish_title">{{ dish.title }}</div>
+                        <div class="price_count">{{ dish.price }}₽ x {{ di[1] }}</div>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+        <hr class="hr">
+    </div>
+
+
+
+
+
+<style>
+    .dish_number .fa.fa-caret-down {
+    transform: rotate(0deg);
+    transition: all 0.2s linear;
+    }
+
+    .dish_number.active_rotate .fa.fa-caret-down {
+        transform: rotate(180deg);
+        transition: all 0.2s linear;
+    }
+
+    .all_order {
+        height: 0;
+        overflow: hidden;
+        transition: height .5s ease;
+    }
+
+    .all_order.active {
+        height: auto;
+        transform: translateY(0);
+    }
+
+</style>
+
+
+
+
+
+
+
+
+
+    <!-- работает -->
+    <!-- <div class="container" id="{{ order.id }}">
         <div class="info">
             <div class="dish_number">Заказ №{{ order.id }}</div>
             {% if current_user.role != 2 %}<div>Пользователь - {{ order.user.email }}</div>{% endif %}
@@ -23,12 +150,58 @@
             <div class="price">Цена - {{ order.price }}₽</div>
         </div>
         <div>
-        {% if order.status in [1, 2] %}
-        {% if current_user.role in [0, 1] %}
-        <a class="edit_status"href="/change_order/{{ order.id }}">Изменить статус</a>
-        {% endif %}
-        <a class="cancel_status" href="/cancel_order/{{ order.id }}">Отменить</a>
-        {% endif %}
+            {% if order.status in [1, 2] %}
+            {% if current_user.role in [0, 1] %}
+            <a class="edit_status" onclick="OpenDialog('{{ order.id }}')">Изменить статус</a>
+            <dialog id="di{{ order.id }}">
+                <div class="dwrapper">
+                    <div class="dheader">Изменение статуса</div>
+                    <div class="dmain">Вы хотите изменить статус на "{{ STATUS[order.status + 1] }}" ?</div>
+                    <hr class="dhr">
+                    <div class="dfooter">
+                        <div class="dbtns">
+                            <a class="dremove" href="/change_order/{{ order.id }}">Изменить</a>
+                            <a class="dcancel" onclick="RemoveDialog('{{ order.id }}')">Отмена</a>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <script>
+                function OpenDialog(order_id) {
+                    document.getElementById(`di${order_id}`).showModal();
+                }
+
+                function RemoveDialog(order_id) {
+                    document.getElementById(`di${order_id}`).close();
+                }
+            </script>
+            {% endif %}
+            <a class="cancel_status" onclick="OpenDialog('{{ order.id }}')">Отменить</a>
+            <dialog id="di{{ order.id }}">
+                <div class="dwrapper">
+                    <div class="dheader_remove">Отмена заказа</div>
+                    <div class="dmain">Вы хотите отменить заказ ?</div>
+                    <hr class="dhr">
+                    <div class="dfooter">
+                        <div class="dbtns">
+                            <a class="dremove_del" href="/cancel_order/{{ order.id }}">Да</a>
+                            <a class="dcancel" onclick="RemoveDialog('{{ order.id }}')">Нет</a>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            {% if current_user.role == 2 %}
+            <script>
+                function OpenDialog(order_id) {
+                    document.getElementById(`di${order_id}`).showModal();
+                }
+
+                function RemoveDialog(order_id) {
+                    document.getElementById(`di${order_id}`).close();
+                }
+            </script>
+            {% endif %}
+            {% endif %}
         </div>
     </div>
     <hr class="hr">
@@ -46,14 +219,32 @@
         </div>
         {% endfor %}
     </div>
-    <hr class="hr">
+    <hr class="hr"> -->
     {% endfor %}
 </div>
 
 <style>
-    #dd_orders{
+    #dd_orders {
         display: none;
     }
 </style>
+
+<script>
+    {% for order in orders %}
+    const category_title_btn{{ order.id }} = document.querySelector("#t_h{{ order.id }}"),
+        items_of_table{{ order.id }} = document.querySelector("#i_t{{ order.id }}");
+
+    category_title_btn{{ order.id }}.addEventListener('click', () => {
+        if (items_of_table{{ order.id }}.classList.contains('active')) {
+            items_of_table{{ order.id }}.classList.remove('active');
+            category_title_btn{{ order.id }}.classList.remove('active_rotate')
+        }
+        else {
+            items_of_table{{ order.id }}.classList.add('active');
+            category_title_btn{{ order.id }}.classList.add('active_rotate')
+        }
+    })
+    {% endfor %}
+</script>
 
 {% endblock %}

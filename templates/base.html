@@ -38,9 +38,9 @@
                     <div class="menu">
                         <div class="user_info">
                             {% if current_user.role == 2 %}
-                            <div class="name">{{ current_user.name }} {{ current_user.surname }}</div>
+                            <div class="name" id="namea">{{ current_user.name }} {{ current_user.surname }}</div>
                             {% else %}
-                            <div class="name">{{ current_user.email }}</div>
+                            <div class="name" id="namea">{{ current_user.email }}</div>
                             {% endif %}
                         </div>
                         <hr>
@@ -168,7 +168,7 @@
                 <i class="fa-solid fa-question check"></i>
 
                 <div class="warning_alert_message">
-                    <span class="text text-1">??????</span>
+                    <span class="text text-1">Обратите внимание</span>
                     <span class="text text-2"></span>
                 </div>
             </div>

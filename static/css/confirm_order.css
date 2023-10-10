@@ -125,6 +125,11 @@
     justify-content: center;
 }
 
+.order_submit:hover {
+    background: #BCDE36;
+    color: #fff;
+}
+
 .all {
     display: flex;
     flex-direction: column;
@@ -161,6 +166,8 @@
 }
 
 
+
+
 @media screen and (max-width: 1050px) {
     .wc {
         flex-direction: column;
@@ -190,7 +197,9 @@
     }
 
     .order_info_mobile {
-        display: block;
+        display: flex;
+        gap: 1rem;
+        flex-direction: column;
     }
 
     .order_wrapper hr {
@@ -200,11 +209,17 @@
     .order_price_count {
         flex-direction: row;
         gap: 2rem;
+        align-items: flex-end;
     }
 
     .order_name {
         display: block;
         text-align: center;
+    }
+
+    .in {
+        display: flex;
+        flex-direction: row-reverse;
     }
 }
 
@@ -227,6 +242,18 @@ input[type=number]::-webkit-outer-spin-button {
     border: 2px solid #cdcdcd;
     border-radius: 0.9375rem;
     display: inline-flex;
+}
+
+.plus:hover {
+    background: #cdcdcd;
+    border-top-right-radius: 0.7rem;
+    border-bottom-right-radius: 0.7rem;
+}
+
+.minus:hover {
+    background: #cdcdcd;
+    border-top-left-radius: 0.7rem;
+    border-bottom-left-radius: 0.7rem;
 }
 
 .number-input,

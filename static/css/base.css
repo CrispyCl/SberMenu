@@ -222,6 +222,11 @@ main {
     justify-content: center;
 }
 
+.login_btn:hover {
+    color: #fff;
+
+}
+
 .dropdown-toggle {
     margin-right: 2.5rem;
 }
@@ -626,7 +631,7 @@ main {
     }
 
     .category_title {
-        flex-direction: column;
+        /* flex-direction: column; */
     }
 
     .login_btn {
@@ -721,6 +726,7 @@ main {
 
 .order_basket:hover {
     background: #BCDE36;
+    color: #fff
 }
 
 .ihr hr {
@@ -728,4 +734,17 @@ main {
     height: 2px !important;
     width: 100%;
     margin-top: 10px;
+}
+
+#namea {
+    height: auto;
+    border: none;
+    text-align: center;
+    width: auto;
+}
+
+.empty_basket {
+    margin-top: 10px;
+    font-family: sans-serif;
+    font-size: xx-large;
 }

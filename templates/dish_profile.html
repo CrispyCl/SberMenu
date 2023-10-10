@@ -36,7 +36,29 @@
             </style>
             <div class="btns">
                 <a class="edit" href="/edit/dish/{{ dish.id }}">Редактировать</a>
-                <a class="remove" href="/delete/dish/{{ dish.id }}">Удалить</a>
+                <a class="remove" onclick="OpenDialog('{{dish.id }}')">Удалить</a>
+                <dialog id="di{{ dish.id }}">
+                    <div class="dwrapper">
+                        <div class="dheader">Удаление блюда!</div>
+                        <div class="dmain">Вы хотите удалить блюдо "{{ dish.title }}" ?</div>
+                        <hr class="dhr">
+                        <div class="dfooter">
+                            <div class="dbtns">
+                                <a class="dremove" href="/delete/dish/{{ dish.id }}">Удалить</a>
+                                <a class="dcancel" onclick="RemoveDialog('{{dish.id }}')">Отмена</a>
+                            </div>
+                        </div>
+                    </div>
+                </dialog>
+                <script>
+                    function OpenDialog(dish_id) {
+                        document.getElementById(`di${dish_id}`).showModal();
+                    }
+
+                    function RemoveDialog(dish_id) {
+                        document.getElementById(`di${dish_id}`).close();
+                    }
+                </script>
             </div>
             {% endif %}
         </div>
