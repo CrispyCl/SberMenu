@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/confirm_order.css') }}">
+
+
+<div class="all">
+
+    <div class="text-center">Оформление заказа</div>
+    <form class="order" action="" method="post" enctype="multipart/form-data">
+        <div class="wc">
+            <div class="order_wrapper">
+                {% for k in order %}
+                {% if k != "sum" %}
+                {% set dish = order[k] %}
+                <div class="info">
+                    <div class="order_info">
+                        <img class="order_img" src="{{ url_for('static', filename=dish.image) }}">
+                        <div class="order_name">{{ dish.title }}</div>
+                        <div class="order_price_count">
+                            <div name="PricePC" class="price">{{ dish.price }}₽</div>
+
+                            <div class="number-input">
+                                <button
+                                    onclick="this.parentNode.querySelector('input[type=number]').stepDown(); SetSumPC()"></button>
+                                <input id="number_{{ dish.id }}" type="number" class="number quantity" name="rcounts"
+                                    min="0" max="99" value="{{ dish.count }}" />
+                                <button
+                                    onclick="this.parentNode.querySelector('input[type=number]').stepUp(); SetSumPC()"
+                                    class="plus"></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="order_info_mobile">
+                    <div class="in">
+                        <div class="order_name">{{ dish.title }}</div>
+                        <img class="order_img" src="{{ url_for('static', filename=dish.image) }}">
+                    </div>
+                    <div class="order_price_count">
+                        <div name="PriceMB" class="price">{{ dish.price }}₽</div>
+                        <div class="number-input">
+                            <button onclick="this.parentNode.querySelector('input[type=number]').stepDown(); SetSumPC('MB')"></button>
+                            <input id="number_{{ dish.id }}" type="number" class="number quantity" name="rrcounts"
+                                min="0" max="99" value="{{ dish.count }}"/>
+                            <button onclick="this.parentNode.querySelector('input[type=number]').stepUp(); SetSumPC('MB')"
+                                class="plus"></button>
+                        </div>
+                    </div>
+                </div>
+                <hr>
+
+                {% endif %}
+                {% endfor %}
+            </div>
+            {% if order %}
+            <div class="order_total">
+                <div class="tpos">
+
+                    <div class="total_price">
+                        <div id="TotalSum" class="text-center-total">Всего: {{ order["sum"] }}₽</div>
+                    </div>
+                    <input class="order_submit" type="submit" value="Заказать">
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        <input id="req_version" name="req_version" type="text" style="display: none;"/>
+    </form>
+</div>
+<style>
+    .number {
+        max-width: 30px;
+        text-align: center;
+    }
+
+    #basket,
+    .basket,
+    #mobile_basket{
+        display: none;
+    }
+</style>
+<script>
+    function SetSumPC(vers="PC") {
+        if (vers == "PC") {
+            var arr = document.getElementsByName('rcounts');
+            var arr2 = document.getElementsByName('PricePC');
+        }
+        else{
+            var arr = document.getElementsByName('rrcounts');
+            var arr2 = document.getElementsByName('PriceMB');
+        }
+        console.log(arr);
+        console.log(arr2);
+        let tot = 0;
+        for (let i = 0; i < arr.length; i++) {
+            console.log(parseInt(arr[i].value), parseInt(arr2[i].innerText.slice(0, -1)));
+            tot += parseInt(arr[i].value) * parseInt(arr2[i].innerText.slice(0, -1));
+        }
+        document.getElementById("TotalSum").innerHTML = `Всего: ${tot}₽`;
+    };
+    $('form').on('click', 'button:not([type="submit"])', function (e) {
+        e.preventDefault();
+    })
+
+
+
+
+    let details = navigator.userAgent;
+    let regexp = /android|iphone|kindle|ipad/i;
+    let isMobileDevice = regexp.test(details);
+    if (isMobileDevice) {
+        document.getElementById("req_version").value = "MB"
+    } else {
+        document.getElementById("req_version").value = "PC"
+    }
+</script>
+
+{% endblock %}

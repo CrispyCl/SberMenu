@@ -262,13 +262,17 @@ main {
 }
 
 .dd-menu {
+    gap: 2rem;
+    display: flex;
     border-radius: 0.9375rem;
-    height: 30rem;
+    min-height: 30rem;
     border: 2px solid #cdcdcd;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     background: #fff;
     padding: 1.25rem;
     margin: 0.625rem;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .dd-menu-wrap.show {
@@ -393,13 +397,30 @@ main {
     transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
 }
 
+.warning_alert_box {
+    z-index: 5;
+    position: fixed;
+    top: 25px;
+    right: 30px;
+    border-radius: 12px;
+    background-color: #fff;
+    padding: 20px 35px 20px 25px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+    border-left: 6px solid rgb(255, 225, 0);
+    overflow: hidden;
+    transform: translateX(calc(100% + 30px));
+    transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.35);
+}
+
 .good_alert_box.alert_show,
-.bad_alert_box.alert_show {
+.bad_alert_box.alert_show,
+.warning_alert_box.alert_show {
     transform: translateX(0%);
 }
 
 .good_alert_box .good_alert_box_content,
-.bad_alert_box .bad_alert_box_content {
+.bad_alert_box .bad_alert_box_content,
+.warning_alert_box .warning_alert_box_content {
     display: flex;
     align-items: center;
 }
@@ -433,15 +454,32 @@ main {
 
 }
 
+.warning_alert_box_content .check {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(255, 225, 0);
+    color: #fff;
+    font-size: 20px;
+    border-radius: 50%;
+    max-width: 35px;
+    max-height: 35px;
+    min-width: 35px;
+    min-height: 35px;
+
+}
+
 .good_alert_box_content .good_alert_message,
-.bad_alert_box_content .bad_alert_message {
+.bad_alert_box_content .bad_alert_message,
+.warning_alert_box_content .warning_alert_message {
     display: flex;
     flex-direction: column;
     margin: 0 20px;
 }
 
 .good_alert_message .text,
-.bad_alert_message .text {
+.bad_alert_message .text,
+.warning_alert_message .text {
     font-size: 20px;
     font-weight: 400;
     color: #666;
@@ -449,13 +487,15 @@ main {
 }
 
 .good_alert_message .text-1,
-.bad_alert_message .text-1 {
+.bad_alert_message .text-1,
+.warning_alert_message .text-1 {
     font-weight: 600;
     color: #333;
 }
 
 .good_alert_box .close,
-.bad_alert_box .close {
+.bad_alert_box .close,
+.warning_alert_box .close {
     position: absolute;
     top: 10px;
     right: 15px;
@@ -465,12 +505,14 @@ main {
 }
 
 .good_alert_box .close:hover,
-.bad_alert_box .close:hover {
+.bad_alert_box .close:hover,
+.warning_alert_box .close:hover {
     opacity: 1;
 }
 
 .good_alert_box .good_alert_progress,
-.bad_alert_box .bad_alert_progress {
+.bad_alert_box .bad_alert_progress,
+.warning_alert_box .warning_alert_progress {
     position: absolute;
     bottom: 0;
     left: 0;
@@ -499,8 +541,19 @@ main {
     background-color: red;
 }
 
+.warning_alert_box .warning_alert_progress:before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    height: 100%;
+    width: 100%;
+    background-color: rgb(255, 225, 0);
+}
+
 .good_alert_progress.active:before,
-.bad_alert_progress.active:before {
+.bad_alert_progress.active:before,
+.warning_alert_progress.active:before {
     animation: progress 5s linear forwards;
 }
 
@@ -518,7 +571,7 @@ main {
 }
 
 .github {
-    padding: 1rem;
+    padding: 0.5rem;
     display: flex;
     justify-content: center;
     flex-direction: column;
@@ -526,11 +579,15 @@ main {
 }
 
 .github a {
-    margin: 1rem;
+    margin: 0 1rem 1rem;
 }
 
 .githubicon {
     width: 50px;
+}
+
+#mobile_basket {
+    display: none;
 }
 
 @media screen and (max-width: 875px) {
@@ -549,6 +606,10 @@ main {
 
     .top_container .it:last-child {
         margin-right: 3rem;
+    }
+
+    #mobile_basket {
+        display: flex;
     }
 
     .basket {
@@ -595,4 +656,76 @@ main {
         max-width: 20rem !important;
         min-width: 20rem !important;
     }
+}
+
+
+
+/* basket */
+
+.basket_item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.item_img img {
+    border-radius: 0.9375rem;
+    width: 100px;
+    height: 100px !important;
+    object-fit: cover;
+}
+
+.item_info {
+    display: flex;
+    flex-direction: column;
+}
+
+
+.basket_bottom {}
+
+.bold {
+    margin-left: 3px;
+    font-weight: bolder;
+}
+
+.end_price,
+.item_dish_title,
+.item_dish_price,
+.item_dish_count {
+    display: flex;
+    font-family: sans-serif;
+    font-size: 1.3rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    color: #21201F;
+}
+
+.order_basket {
+    margin-top: 1rem;
+    border: 3px solid #BCDE36;
+    display: flex;
+    height: 3.125rem;
+    border-radius: 0.9375rem;
+    cursor: pointer;
+    color: #21201F;
+    font-family: sans-serif;
+    font-size: 1.3rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.order_basket:hover {
+    background: #BCDE36;
+}
+
+.ihr hr {
+    background: #CDCDCD;
+    height: 2px !important;
+    width: 100%;
+    margin-top: 10px;
 }

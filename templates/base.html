@@ -23,9 +23,11 @@
                 <div class="green">Sber</div>Menu
             </a>
             <div class="sba">
+                {% if current_user.role not in [0, 1] %}
                 <a class="basket" easy-toggle="#basket" easy-class="show" easy-rcoe>
                     <img src="/static/svg/basket-shopping-alt-svgrepo-com.svg">
                 </a>
+                {% endif %}
                 {% if current_user.is_authenticated %}
                 <a class="dropdown-toggle" easy-toggle="#dropdown" easy-class="show" easy-rcoe>
                     <img src="/static/svg/user-alt-1-svgrepo-com.svg">
@@ -35,14 +37,25 @@
                 <div class="dropdown-menu" id="dropdown">
                     <div class="menu">
                         <div class="user_info">
+                            {% if current_user.role == 2 %}
                             <div class="name">{{ current_user.name }} {{ current_user.surname }}</div>
+                            {% else %}
+                            <div class="name">{{ current_user.email }}</div>
+                            {% endif %}
                         </div>
                         <hr>
-                        <a href="/edit" class="menu_link">
+                        {% if current_user.role != 0 %}
+                        <a href="/edit/user/{{ current_user.id }}" class="menu_link">
                             <img class="menu_img" src="/static/svg/settings-svgrepo-com.svg">
                             <p>Редактировать профиль</p>
                             <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
                         </a>
+                        <a id="mobile_basket" href="/confirm_order" class="menu_link">
+                            <img class="menu_img" src="/static/svg/basket-shopping-alt-svgrepo-com.svg">
+                            <p>Моя корзина</p>
+                            <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
+                        </a>
+                        {% endif %}
                         <a href="/logout" class="menu_link">
                             <img class="menu_img" src="/static/svg/logout-svgrepo-com.svg">
                             <p>Выйти</p>
@@ -59,11 +72,37 @@
                 <!-- basket dropdown menu -->
                 <div class="dd-menu-wrap" id="basket">
                     <div class="dd-menu">
-                        {% for dish in order %}
-                        <p><a href="#"><img src="{{ url_for('static', filename=dish.image) }}"></a>
-                        <div>{{ dish.title }}</p>{{ dish.price }}</div>
-                        </p>
+                        {% if order %}
+                        {% for k in order %}
+                        {% if k != "sum" %}
+                        {% set dish = order[k] %}
+                        <div class="ihr">
+                            <div class="basket_item">
+                                <a class="item_img" href="#">
+                                    <img src="{{ url_for('static', filename=dish.image) }}">
+                                </a>
+                                <div class="item_info">
+                                    <div class="item_dish_title">{{ dish.title }}</div>
+                                    {% if dish.count > 1 %}
+                                    <div class="item_dish_price">Цена - {{ dish.price }}₽ за 1 шт.</div>
+                                    {% else %}
+                                    <div class="item_dish_price">Цена - {{ dish.price }}₽</div>
+                                    {% endif %}
+                                    <div class="item_dish_count">Количество - {{ dish.count }} шт.</div>
+                                </div>
+                            </div>
+                            <hr>
+                        </div>
+                        {% endif %}
                         {% endfor %}
+                        <div class="basket_bottom">
+                            <div class="end_price">Сумма заказа -<div class="bold">{{ order["sum"] }}₽</div>
+                            </div>
+                            <a class="order_basket" href="/confirm_order">Оформить заказ</a>
+                        </div>
+                        {% else %}
+                        <div class="empty_basket">Корзина пустая</div>
+                        {% endif %}
                     </div>
                 </div>
                 <!-- end basket dropdown menu -->
@@ -103,11 +142,26 @@
 
             <div class="bad_alert_progress"></div>
         </div>
+
+        <!-- Warning Alert Box -->
+        <div class="warning_alert_box">
+            <div class="warning_alert_box_content">
+                <i class="fa-solid fa-question check"></i>
+
+                <div class="warning_alert_message">
+                    <span class="text text-1">??????</span>
+                    <span class="text text-2"></span>
+                </div>
+            </div>
+            <i class="fa-solid fa-xmark close"></i>
+
+            <div class="warning_alert_progress"></div>
+        </div>
         {% block content %}{% endblock %}
     </main>
     <footer class="footer_PC">
         <div class="github">
-            <a href="https://github.com"><img class="githubicon" src="/static/svg/github-mark.svg"></a>
+            <a href="https://github.com/Gogasmerter/SberMenu"><img class="githubicon" src="/static/svg/github-mark.svg"></a>
             <div class="githubtext">© 2023 ChinaGrib Team</div>
         </div>
     </footer>

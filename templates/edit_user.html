@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/edit_user.css') }}">
+
+<div class="wrapper">
+    <form action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="container">
+            <div class="text">
+                <h1 class="text-center">Изменить профиль</h1>
+            </div>
+            {% if current_user.role == 2 %}
+            <!-- SurName -->
+            {{ form.surname(class="form-control namefiled", type="text",
+            placeholder="Фамилия", required='required') }}
+            {% for error in form.surname.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+
+            <!-- Name -->
+
+            {{ form.name(class="form-control namefiled", type="text",
+            placeholder="Имя", required='required') }}
+            {% for error in form.name.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+            {% endif %}
+            <!-- Email -->
+
+            {{ form.email(class="form-control email", type="email",
+            placeholder="E-mail") }}
+            {% for error in form.email.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+
+            <!-- Password -->
+
+            {{ form.password(class="form-control password", type="password",
+            placeholder="Новый пароль") }}
+            {% for error in form.password.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+
+            {{ form.password_again(class="form-control password", type="password",
+            placeholder="Повторите пароль") }}
+            {% for error in form.password_again.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+
+            <!-- Submit -->
+            {{ form.submit(class="submitbtn",value="Сохранить изменения") }}
+        </div>
+</div>
+{% endblock %}

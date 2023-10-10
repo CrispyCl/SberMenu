@@ -158,6 +158,7 @@ cython_debug/
 # Custom
 static/img/*/*.jpg
 static/img/*/!no-img.jpg
+.vscode/
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

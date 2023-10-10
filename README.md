@@ -1,4 +1,5 @@
-# SberMenu ![alt text](./static/svg/SberMenuLogo.svg)
+# SberMenu
+![alt text](./static/svg/SberMenuLogo.svg)
 ## Запуск проекта в dev-режиме
 ### Установите и активируйте виртуальное окружение
 * `python -m venv venv` или `python3 -m venv venv` (Зависит от системы)
@@ -20,9 +21,3 @@
 * `python server.py` или `python3 server.py` (Зависит от системы)
 
 # Комманда - ChinaGriB
-
-### Current branch status if ![example workflow](https://github.com/Gogasmerter/SberMenu/actions/workflows/python-package.yml/badge.svg)
-
-[![Python package](https://github.com/Gogasmerter/SberMenu/actions/workflows/python-package.yml/badge.svg)](https://github.com/Gogasmerter/SberMenu/actions/workflows/python-package.yml)
-
-![example branch parameter](https://github.com/Gogasmerter/SberMenu/actions/workflows/python-package.yml/badge.svg?branch=main)
