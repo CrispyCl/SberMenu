@@ -1,3 +1,4 @@
+import datetime
 from json import dumps
 
 from PIL import Image
@@ -14,7 +15,7 @@ from forms.category import CategoryForm
 from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.user import UserForm
-from static.python.functions import create_main_admin
+from static.python.functions import clear_db, create_main_admin
 
 
 app = Flask(__name__)
@@ -35,7 +36,7 @@ def index():
         session["order"] = {}
     if current_user.is_authenticated:
         if current_user.role == 1:
-            return redirect("/")
+            return redirect("/orders")
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
@@ -55,6 +56,8 @@ def add_dish(dish_id):
             return redirect("/")
     db_sess = db_session.create_session()
     dish = db_sess.query(Dish).get(dish_id)
+    if not dish:
+        return redirect("/")
     if not session.get("order"):
         session["order"] = {}
     if session["order"].get(str(dish_id)):
@@ -63,7 +66,44 @@ def add_dish(dish_id):
         session["order"][str(dish_id)] = dish.to_dict() | {"count": 1}
     dc = session["order"]
     session["order"]["sum"] = sum(map(lambda v: dc[v]["count"] * dc[v]["price"] if v != "sum" else 0, dc))
+    session["order"] = session["order"]
     return redirect("/")
+
+
+@app.route("/cancel_order/<int:order_id>")
+def cancel_order(order_id):
+    if not current_user.is_authenticated:
+        abort(404)
+    db_sess = db_session.create_session()
+    order = db_sess.query(Order).get(order_id)
+    if not order:
+        abort(404)
+    if current_user.role == 2 and current_user.id != order.user.id:
+        abort(404)
+    order.status = 0
+    order.edit_date = datetime.date.today()
+    db_sess.merge(order)
+    db_sess.commit()
+    return redirect(f"/orders#{order_id}")
+
+
+@app.route("/change_order/<int:order_id>")
+def change_order(order_id):
+    if not current_user.is_authenticated:
+        abort(404)
+    db_sess = db_session.create_session()
+    order = db_sess.query(Order).get(order_id)
+    if not order:
+        abort(404)
+    if order.status in [0, 3]:
+        abort(404)
+    if current_user.role == 2 and current_user.id != order.user.id:
+        abort(404)
+    order.status += 1
+    order.edit_date = datetime.date.today()
+    db_sess.merge(order)
+    db_sess.commit()
+    return redirect(f"/orders#{order_id}")
 
 
 @app.route("/confirm_order", methods=["GET", "POST"])
@@ -173,7 +213,7 @@ def create_dish():
         dish.image = f"img/dishes/{last_id}.jpg"
         db_sess.add(dish)
         db_sess.commit()
-        return redirect("/")
+        return redirect("/dishes")
     return render_template(
         "create_dish.html", title=title, form=form, message=smessage, order=session["order"], categories=categories
     )
@@ -329,7 +369,7 @@ def register_spec():
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
-        message = {"status": 1, "text": "Успешная авторизиция"}
+        message = {"status": 1, "text": "Специалист создан"}
         session["message"] = dumps(message)
         return redirect("/")
     return render_template("register_spec.html", title=title, form=form, message=smessage, order=session["order"])
@@ -478,9 +518,11 @@ def orders():
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
     if current_user.role == 2:
-        orders = db_sess.query(Order).filter(Order.user_id == current_user.id).all()
+        orders = db_sess.query(Order).filter(Order.user_id == current_user.id).all()[::-1]
+    elif current_user.role == 1:
+        orders = db_sess.query(Order).filter(Order.status.in_([1, 2])).all()[::-1]
     else:
-        orders = db_sess.query(Order).all()
+        orders = db_sess.query(Order).all()[::-1]
     dishes = {}
     for order in orders:
         dishes[order.id] = list(
@@ -538,4 +580,5 @@ def logout():
 if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
     create_main_admin(db_session.create_session())
+    clear_db(db_session.create_session())
     app.run(port=8080, host="127.0.0.1", debug=True)
