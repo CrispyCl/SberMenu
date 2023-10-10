@@ -213,7 +213,7 @@ def create_dish():
         dish.image = f"img/dishes/{last_id}.jpg"
         db_sess.add(dish)
         db_sess.commit()
-        return redirect("/")
+        return redirect("/dishes")
     return render_template(
         "create_dish.html", title=title, form=form, message=smessage, order=session["order"], categories=categories
     )
@@ -369,7 +369,7 @@ def register_spec():
         user.set_password(form.password.data)
         db_sess.add(user)
         db_sess.commit()
-        message = {"status": 1, "text": "Успешная авторизиция"}
+        message = {"status": 1, "text": "Специалист создан"}
         session["message"] = dumps(message)
         return redirect("/")
     return render_template("register_spec.html", title=title, form=form, message=smessage, order=session["order"])

@@ -50,11 +50,13 @@
                             <p>Редактировать профиль</p>
                             <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
                         </a>
+                        {% if current_user.role != 1 %}
                         <a id="mobile_basket" href="/confirm_order" class="menu_link">
                             <img class="menu_img" src="/static/svg/basket-shopping-alt-svgrepo-com.svg">
                             <p>Моя корзина</p>
                             <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
                         </a>
+                        {% endif %}
                         {% endif %}
                         {% if current_user.role == 0 %}
                         <a href="/register/spec" class="menu_link">
@@ -62,13 +64,13 @@
                             <p>Создать специалиста</p>
                             <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
                         </a>
-                        <a href="/dishes" class="menu_link">
+                        <a href="/dishes" class="menu_link" id="dd_dishes">
                             <img class="menu_img" src="/static/svg/list-svgrepo-com.svg">
                             <p>Блюда</p>
                             <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
                         </a>
                         {% endif %}
-                        <a href="/orders" class="menu_link">
+                        <a href="/orders" class="menu_link" id="dd_orders">
                             <img class="menu_img" src="/static/svg/list-svgrepo-com.svg">
                             <p>Заказы</p>
                             <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
