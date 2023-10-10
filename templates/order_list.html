@@ -22,8 +22,9 @@
     <div class="dish_number" id="t_h{{ order.id }}" style="cursor: pointer;justify-content: space-between;"><div class="di">Заказ №{{ order.id }}<i class="fa fa-caret-down"
             style="margin-left: 30px;"></i></div>
             {% if order.status in [1, 2] %}
+            <div>
             {% if current_user.role in [0, 1] %}
-            <div><a class="edit_status" onclick="OpenDialog('{{ order.id }}')">Изменить статус</a>
+            <a class="edit_status" onclick="OpenDialog('{{ order.id }}')">Изменить статус</a>
             <dialog id="di{{ order.id }}">
                 <div class="dwrapper">
                     <div class="dheader">Изменение статуса</div>

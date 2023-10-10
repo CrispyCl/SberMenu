@@ -114,8 +114,6 @@ def confirm_order():
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     title = "Подтвердите заказ"
-    if not session["order"]:
-        abort(404)
     if request.method == "GET":
         return render_template("confirm_order.html", title=title, message=smessage, order=session["order"])
     if request.method == "POST":
