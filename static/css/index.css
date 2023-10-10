@@ -123,8 +123,8 @@
 .category_title {
     display: flex;
     font-family: sans-serif;
-    margin: 2rem 0rem;
     font-size: xxx-large;
+    margin: 2rem 0rem;
     align-items: center;
     gap: 1rem;
 }
@@ -194,6 +194,13 @@
     padding: 1.5rem;
 }
 
+.add_dish_to_basket:hover,
+.edit_dish:hover,
+.del_dish:hover,
+.add_dish:hover {
+    color: #fff;
+}
+
 .edit_dish,
 .del_dish {
     margin: 0 !important;
@@ -243,6 +250,8 @@ dialog::backdrop {
 }
 
 .dwrapper {
+    font-family: sans-serif;
+    font-size: xxx-large;
     display: flex;
     height: 100%;
     flex-direction: column;
@@ -265,6 +274,11 @@ dialog::backdrop {
 .dbtns {
     display: flex;
     justify-content: flex-end;
+}
+
+.dremove:hover {
+    color: #fff;
+    background: red;
 }
 
 .dremove,
@@ -291,6 +305,11 @@ dialog::backdrop {
     border: 3px solid #cdcdcd;
 }
 
+.dcancel:hover {
+    background: #cdcdcd;
+    color: #fff;
+}
+
 
 @media screen and (max-width: 650px) {
     dialog {
@@ -307,10 +326,4 @@ dialog::backdrop {
 
 #addd {
     justify-content: center;
-}
-
-.empty_basket {
-    font-family: sans-serif;
-    margin-top: 10px;
-    font-size: xx-large;
 }
