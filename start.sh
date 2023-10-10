@@ -21,7 +21,7 @@ fi
 
 # Install the requirements
 $VIRTUALENV/bin/pip install -r requirements/prod.txt
-$VIRTUALENV/bin/pip install Werkzeug==2.3.0
+$VIRTUALENV/bin/pip install Werkzeug==2.2.3
 
 # Run your glorious application
 $VIRTUALENV/bin/python3 server.py
