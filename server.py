@@ -15,7 +15,7 @@ from forms.category import CategoryForm
 from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.user import UserForm
-from static.python.functions import create_main_admin
+from static.python.functions import clear_db, create_main_admin
 
 
 app = Flask(__name__)
@@ -580,4 +580,5 @@ def logout():
 if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
     create_main_admin(db_session.create_session())
+    clear_db(db_session.create_session())
     app.run(port=8080, host="127.0.0.1", debug=True)
