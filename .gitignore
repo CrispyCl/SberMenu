@@ -156,8 +156,8 @@ dmypy.json
 cython_debug/
 
 # Custom
-static/img/*/*.jpg
-static/img/*/!no-img.jpg
+# static/img/*/*.jpg
+# static/img/*/!no-img.jpg
 .vscode/
 
 # PyCharm

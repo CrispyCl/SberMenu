@@ -121,7 +121,6 @@ def confirm_order():
             counts = request.form.getlist("rcounts")
         else:
             counts = request.form.getlist("rrcounts")
-        print(request.form.get("req_version"))
         to_del = set()
         for i, k in enumerate(session["order"]):
             if k == "sum":
@@ -349,7 +348,6 @@ def register_spec():
     title = "Регистрация"
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            print("/")
             message = {"status": 0, "text": "Пароли не совпадают"}
             return render_template(
                 "register_spec.html", title=title, form=form, message=dumps(message), order=session["order"]
@@ -537,7 +535,6 @@ def profile_dish(dish_id):
     dish = db_sess.query(Dish).get(dish_id)
     if not dish:
         abort(404)
-    print([dish.description])
     return render_template("dish_profile.html", title=dish.title, message=ST_message, dish=dish)
 
 
