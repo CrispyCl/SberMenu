@@ -42,7 +42,7 @@
 
 <div class="dish_category" id="{{ category.id }}">
     <div class="category_title">
-        <div class="category_title" id="t_h{{ category.id }}" style="cursor: pointer;">
+        <div class="category_title active_rotate" id="t_h{{ category.id }}" style="cursor: pointer;">
             <div>
                 {{ category.title }}
                 <i class="fa fa-caret-down" style="margin-left: 30px;"></i>
@@ -80,7 +80,7 @@
     </div>
 
 
-    <div class="items_of_table" id="i_t{{ category.id }}">
+    <div class="items_of_table active" id="i_t{{ category.id }}">
 
         <div class="dc">
             {% for dish in dishes[category.id] %}
