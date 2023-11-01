@@ -19,8 +19,68 @@
 
 
 
-    <div class="dish_number" id="t_h{{ order.id }}" style="cursor: pointer;">Заказ №{{ order.id }}<i class="fa fa-caret-down"
+    <div class="dish_number" id="t_h{{ order.id }}" style="cursor: pointer;justify-content: space-between;"><div class="di">Заказ №{{ order.id }}<i class="fa fa-caret-down"
             style="margin-left: 30px;"></i></div>
+            {% if order.status in [1, 2] %}
+            <div>
+            {% if current_user.role in [0, 1] %}
+            <a class="edit_status" onclick="OpenDialog('{{ order.id }}')">Изменить статус</a>
+            <dialog id="di{{ order.id }}">
+                <div class="dwrapper">
+                    <div class="dheader">Изменение статуса</div>
+                    <div class="dmain">Вы хотите изменить статус на "{{ STATUS[order.status + 1] }}" ?</div>
+                    <hr class="dhr">
+                    <div class="dfooter">
+                        <div class="dbtns">
+                            <a class="dremove" href="/change_order/{{ order.id }}">Изменить</a>
+                            <a class="dcancel" onclick="RemoveDialog('{{ order.id }}')">Отмена</a>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            <script>
+                function OpenDialog(order_id) {
+                    document.getElementById(`di${order_id}`).showModal();
+                }
+
+                function RemoveDialog(order_id) {
+                    document.getElementById(`di${order_id}`).close();
+                }
+                function COpenDialog(order_id) {
+                    document.getElementById(`dic${order_id}`).showModal();
+                }
+
+                function CRemoveDialog(order_id) {
+                    document.getElementById(`dic${order_id}`).close();
+                }
+            </script>
+            {% endif %}
+            <a class="cancel_status" onclick="COpenDialog('{{ order.id }}')">Отменить</a></div>
+            <dialog id="dic{{ order.id }}">
+                <div class="dwrapper">
+                    <div class="dheader_remove">Отмена заказа</div>
+                    <div class="dmain">Вы хотите отменить заказ ?</div>
+                    <hr class="dhr">
+                    <div class="dfooter">
+                        <div class="dbtns">
+                            <a class="dremove_del" href="/cancel_order/{{ order.id }}">Да</a>
+                            <a class="dcancel" onclick="CRemoveDialog('{{ order.id }}')">Нет</a>
+                        </div>
+                    </div>
+                </div>
+            </dialog>
+            {% if current_user.role == 2 %}
+            <script>
+                function OpenDialog(order_id) {
+                    document.getElementById(`di${order_id}`).showModal();
+                }
+
+                function RemoveDialog(order_id) {
+                    document.getElementById(`di${order_id}`).close();
+                }
+            </script>
+            {% endif %}
+            {% endif %}</div>
     <div class="all_order" id="i_t{{ order.id }}">
 
 
@@ -33,58 +93,7 @@
                 <div class="price">Цена - {{ order.price }}₽</div>
             </div>
             <div>
-                {% if order.status in [1, 2] %}
-                {% if current_user.role in [0, 1] %}
-                <a class="edit_status" onclick="OpenDialog('{{ order.id }}')">Изменить статус</a>
-                <dialog id="di{{ order.id }}">
-                    <div class="dwrapper">
-                        <div class="dheader">Изменение статуса</div>
-                        <div class="dmain">Вы хотите изменить статус на "{{ STATUS[order.status + 1] }}" ?</div>
-                        <hr class="dhr">
-                        <div class="dfooter">
-                            <div class="dbtns">
-                                <a class="dremove" href="/change_order/{{ order.id }}">Изменить</a>
-                                <a class="dcancel" onclick="RemoveDialog('{{ order.id }}')">Отмена</a>
-                            </div>
-                        </div>
-                    </div>
-                </dialog>
-                <script>
-                    function OpenDialog(order_id) {
-                        document.getElementById(`di${order_id}`).showModal();
-                    }
 
-                    function RemoveDialog(order_id) {
-                        document.getElementById(`di${order_id}`).close();
-                    }
-                </script>
-                {% endif %}
-                <a class="cancel_status" onclick="OpenDialog('{{ order.id }}')">Отменить</a>
-                <dialog id="di{{ order.id }}">
-                    <div class="dwrapper">
-                        <div class="dheader_remove">Отмена заказа</div>
-                        <div class="dmain">Вы хотите отменить заказ ?</div>
-                        <hr class="dhr">
-                        <div class="dfooter">
-                            <div class="dbtns">
-                                <a class="dremove_del" href="/cancel_order/{{ order.id }}">Да</a>
-                                <a class="dcancel" onclick="RemoveDialog('{{ order.id }}')">Нет</a>
-                            </div>
-                        </div>
-                    </div>
-                </dialog>
-                {% if current_user.role == 2 %}
-                <script>
-                    function OpenDialog(order_id) {
-                        document.getElementById(`di${order_id}`).showModal();
-                    }
-
-                    function RemoveDialog(order_id) {
-                        document.getElementById(`di${order_id}`).close();
-                    }
-                </script>
-                {% endif %}
-                {% endif %}
             </div>
         </div>
         <hr class="hr">

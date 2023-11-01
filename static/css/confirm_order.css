@@ -182,7 +182,7 @@
 @media screen and (max-width: 760px) {
     .order_info {
         max-width: none;
-        min-width: 0;
+        min-width: 600px;
         gap: 1rem;
     }
 
@@ -191,7 +191,7 @@
     }
 }
 
-@media screen and (max-width: 510px) {
+@media screen and (max-width: 600px) {
     .order_info {
         display: none;
     }
@@ -216,10 +216,10 @@
         display: block;
         text-align: center;
     }
-
-    .in {
+    .in{
         display: flex;
-        flex-direction: row-reverse;
+        flex-direction: column-reverse;
+        align-items: center;
     }
 }
 

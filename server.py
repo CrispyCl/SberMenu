@@ -114,8 +114,6 @@ def confirm_order():
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     title = "Подтвердите заказ"
-    if not session["order"]:
-        abort(404)
     if request.method == "GET":
         return render_template("confirm_order.html", title=title, message=smessage, order=session["order"])
     if request.method == "POST":
@@ -123,7 +121,6 @@ def confirm_order():
             counts = request.form.getlist("rcounts")
         else:
             counts = request.form.getlist("rrcounts")
-        print(request.form.get("req_version"))
         to_del = set()
         for i, k in enumerate(session["order"]):
             if k == "sum":
@@ -351,7 +348,6 @@ def register_spec():
     title = "Регистрация"
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
-            print("/")
             message = {"status": 0, "text": "Пароли не совпадают"}
             return render_template(
                 "register_spec.html", title=title, form=form, message=dumps(message), order=session["order"]
@@ -534,7 +530,7 @@ def orders():
 
 
 @app.route("/profile/dish/<int:dish_id>")
-def profile(dish_id):
+def profile_dish(dish_id):
     db_sess = db_session.create_session()
     dish = db_sess.query(Dish).get(dish_id)
     if not dish:

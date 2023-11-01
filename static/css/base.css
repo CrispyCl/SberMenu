@@ -282,6 +282,7 @@ main {
 
 .dd-menu-wrap.show {
     max-height: 100%;
+    display: table;
 }
 
 .main_PC {
