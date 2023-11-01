@@ -19,7 +19,7 @@
         {% for category in categories %}
 
         <script>
-            console.log((a += 1))
+            a += 1;
         </script>
 
         <div class="it">
@@ -85,12 +85,14 @@
         <div class="dc">
             {% for dish in dishes[category.id] %}
             <div class="dish">
+                <div>
                 <a href="/profile/dish/{{ dish.id }}">
                     <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
                 </a>
                 <div class="dish_name_and_price">
                     <div class="dish_name">{{ dish.title }}</div>
                     <div class="dish_price">{{ dish.price }}₽</div>
+                </div>
                 </div>
                 {% if current_user.role not in [0, 1] %}
                 <a class="add_dish_to_basket" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
@@ -215,4 +217,5 @@
 </script>
 
 <script src="{{ url_for('static', filename='scripts/slider.js') }}"></script>
+
 {% endblock %}

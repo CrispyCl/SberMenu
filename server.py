@@ -63,7 +63,9 @@ def add_dish(dish_id):
     if session["order"].get(str(dish_id)):
         session["order"][str(dish_id)]["count"] += 1
     else:
-        session["order"][str(dish_id)] = dish.to_dict() | {"count": 1}
+        d1 = dish.to_dict()
+        d1["count"] = 1
+        session["order"][str(dish_id)] = d1
     dc = session["order"]
     session["order"]["sum"] = sum(map(lambda v: dc[v]["count"] * dc[v]["price"] if v != "sum" else 0, dc))
     session["order"] = session["order"]
