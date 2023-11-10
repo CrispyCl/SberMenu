@@ -24,3 +24,4 @@ class User(SqlAlchemyBase, UserMixin):
 
 
 orders = orm.relationship("Order", back_populates="user")
+comments = orm.relationship("Comment", back_populates="user")
