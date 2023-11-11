@@ -9,12 +9,15 @@ from data.dish_orders import DishOrder
 from data.dishes import Dish
 from data.orders import Order
 from data.users import User
+from data.dishes_lunch import DishLunch
+from data.lunches import Lunch
 from flask import Flask, abort, redirect, render_template, request, session
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from forms.category import CategoryForm
 from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.user import UserForm
+from forms.lunch import LunchForm
 from static.python.functions import clear_db, create_main_admin
 
 
@@ -529,6 +532,55 @@ def orders():
     return render_template(
         "order_list.html", message=smessage, order=session["order"], orders=orders, dishes=dishes, STATUS=STATUS
     )
+
+
+@app.route("/create/lunch", methods=["GET", "POST"])
+def create_lunch():
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
+        abort(404)
+    form = LunchForm()
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+
+    title = "Создание бизнесс-ланча"
+    db_sess = db_session.create_session()
+    categories = db_sess.query(Category).all()
+    #dishes = db_sess.query(Dish).all()
+    dishes = {}
+    for category in categories:
+        dishes[category.id] = list(
+            map(lambda di: di.dish, db_sess.query(DishCategory).filter(DishCategory.category_id == category.id).all())
+        )
+    if form.validate_on_submit():
+        if db_sess.query(Lunch).filter(Lunch.date == form.date.data).first():
+            message = {"status": 0, "text": "Бизнесс-ланч на этот день уже существует"}
+            return render_template(
+                "create_lunch.html",
+                title=title,
+                form=form,
+                message=dumps(message),
+                order=session["order"],
+                dishes=dishes,
+                categories=categories
+            )
+        lunch = Lunch(price=form.price.data, date=form.date.data)
+
+        lunches = db_sess.query(Lunch).all()
+        last_id = 1 if not lunches else lunches[-1].id + 1
+        chosen_dishes = request.form.getlist("dishes")
+        for dish in chosen_dishes:
+            d_lunch = DishLunch(dish_id=dish, lunch_id=last_id)
+            db_sess.add(d_lunch)
+            db_sess.commit()
+        db_sess.add(lunch)
+        db_sess.commit()
+        return redirect("/")
+    return render_template(
+        "create_lunch.html", title=title, form=form, message=smessage, order=session["order"], categories=categories, dishes=dishes
+    )
+
 
 
 @app.route("/profile/dish/<int:dish_id>")
