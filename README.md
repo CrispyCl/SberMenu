@@ -37,7 +37,4 @@ python server.py
 python3 server.py
 ```
 
-### Диаграма DB
-![DataBase](dtbase.jpg)
-
 # Комманда - ChinaGriB
