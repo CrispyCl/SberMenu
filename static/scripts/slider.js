@@ -2,6 +2,8 @@ const slider = document.querySelector('.top_container'),
     firstImg = document.querySelectorAll('.it')[0],
     arrowIcons = document.querySelectorAll('.wrapper i');
 
+
+
 let isMoveStart = false, prevPageX, prevScrollLeft;
 
 

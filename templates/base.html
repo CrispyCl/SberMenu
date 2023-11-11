@@ -37,17 +37,42 @@
                 <div class="dropdown-menu" id="dropdown">
                     <div class="menu">
                         <div class="user_info">
-                            <div class="name">{{ current_user.name }} {{ current_user.surname }}</div>
+                            {% if current_user.role == 2 %}
+                            <div class="name" id="namea">{{ current_user.name }} {{ current_user.surname }}</div>
+                            {% else %}
+                            <div class="name" id="namea">{{ current_user.email }}</div>
+                            {% endif %}
                         </div>
                         <hr>
+                        {% if current_user.role != 0 %}
                         <a href="/edit/user/{{ current_user.id }}" class="menu_link">
                             <img class="menu_img" src="/static/svg/settings-svgrepo-com.svg">
                             <p>Редактировать профиль</p>
                             <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
                         </a>
-                        <a id="mobile_basket" href="#" class="menu_link">
+                        {% if current_user.role != 1 %}
+                        <a id="mobile_basket" href="/confirm_order" class="menu_link">
                             <img class="menu_img" src="/static/svg/basket-shopping-alt-svgrepo-com.svg">
                             <p>Моя корзина</p>
+                            <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
+                        </a>
+                        {% endif %}
+                        {% endif %}
+                        {% if current_user.role == 0 %}
+                        <a href="/register/spec" class="menu_link">
+                            <img class="menu_img" src="/static/svg/user-alt-1-svgrepo-com.svg">
+                            <p>Создать специалиста</p>
+                            <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
+                        </a>
+                        <a href="/dishes" class="menu_link" id="dd_dishes">
+                            <img class="menu_img" src="/static/svg/list-svgrepo-com.svg">
+                            <p>Блюда</p>
+                            <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
+                        </a>
+                        {% endif %}
+                        <a href="/orders" class="menu_link" id="dd_orders">
+                            <img class="menu_img" src="/static/svg/list-svgrepo-com.svg">
+                            <p>Заказы</p>
                             <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
                         </a>
                         <a href="/logout" class="menu_link">
@@ -80,7 +105,7 @@
                                     {% if dish.count > 1 %}
                                     <div class="item_dish_price">Цена - {{ dish.price }}₽ за 1 шт.</div>
                                     {% else %}
-                                    <div class="item_dish_price">Цена - {{ dish.price }}</div>
+                                    <div class="item_dish_price">Цена - {{ dish.price }}₽</div>
                                     {% endif %}
                                     <div class="item_dish_count">Количество - {{ dish.count }} шт.</div>
                                 </div>
@@ -136,11 +161,27 @@
 
             <div class="bad_alert_progress"></div>
         </div>
+
+        <!-- Warning Alert Box -->
+        <div class="warning_alert_box">
+            <div class="warning_alert_box_content">
+                <i class="fa-solid fa-question check"></i>
+
+                <div class="warning_alert_message">
+                    <span class="text text-1">Обратите внимание</span>
+                    <span class="text text-2"></span>
+                </div>
+            </div>
+            <i class="fa-solid fa-xmark close"></i>
+
+            <div class="warning_alert_progress"></div>
+        </div>
         {% block content %}{% endblock %}
     </main>
     <footer class="footer_PC">
         <div class="github">
-            <a href="https://github.com"><img class="githubicon" src="/static/svg/github-mark.svg"></a>
+            <a href="https://github.com/Gogasmerter/SberMenu"><img class="githubicon"
+                    src="/static/svg/github-mark.svg"></a>
             <div class="githubtext">© 2023 ChinaGrib Team</div>
         </div>
     </footer>

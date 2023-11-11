@@ -125,6 +125,11 @@
     justify-content: center;
 }
 
+.order_submit:hover {
+    background: #BCDE36;
+    color: #fff;
+}
+
 .all {
     display: flex;
     flex-direction: column;
@@ -161,6 +166,8 @@
 }
 
 
+
+
 @media screen and (max-width: 1050px) {
     .wc {
         flex-direction: column;
@@ -175,7 +182,7 @@
 @media screen and (max-width: 760px) {
     .order_info {
         max-width: none;
-        min-width: 0;
+        min-width: 600px;
         gap: 1rem;
     }
 
@@ -184,13 +191,15 @@
     }
 }
 
-@media screen and (max-width: 510px) {
+@media screen and (max-width: 600px) {
     .order_info {
         display: none;
     }
 
     .order_info_mobile {
-        display: block;
+        display: flex;
+        gap: 1rem;
+        flex-direction: column;
     }
 
     .order_wrapper hr {
@@ -200,5 +209,94 @@
     .order_price_count {
         flex-direction: row;
         gap: 2rem;
+        align-items: flex-end;
     }
+
+    .order_name {
+        display: block;
+        text-align: center;
+    }
+    .in{
+        display: flex;
+        flex-direction: column-reverse;
+        align-items: center;
+    }
+}
+
+
+
+/* custom input buttons */
+
+input[type="number"] {
+    -webkit-appearance: textfield;
+    -moz-appearance: textfield;
+    appearance: textfield;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+.number-input {
+    border: 2px solid #cdcdcd;
+    border-radius: 0.9375rem;
+    display: inline-flex;
+}
+
+.plus:hover {
+    background: #cdcdcd;
+    border-top-right-radius: 0.7rem;
+    border-bottom-right-radius: 0.7rem;
+}
+
+.minus:hover {
+    background: #cdcdcd;
+    border-top-left-radius: 0.7rem;
+    border-bottom-left-radius: 0.7rem;
+}
+
+.number-input,
+.number-input * {
+    box-sizing: border-box;
+}
+
+.number-input button {
+    outline: none;
+    -webkit-appearance: none;
+    background-color: transparent;
+    border: none;
+    align-items: center;
+    justify-content: center;
+    width: 3rem;
+    height: 3rem;
+    cursor: pointer;
+    margin: 0;
+    position: relative;
+}
+
+.number-input button:before,
+.number-input button:after {
+    display: inline-block;
+    position: absolute;
+    content: '';
+    width: 1rem;
+    height: 2px;
+    background-color: #212121;
+    transform: translate(-50%, -50%);
+}
+
+.number-input button.plus:after {
+    transform: translate(-50%, -50%) rotate(90deg);
+}
+
+.number-input input[type=number] {
+    font-family: sans-serif;
+    max-width: 5rem;
+    padding: .5rem;
+    border: solid #ddd;
+    border-width: 0 2px;
+    font-size: 1.5rem;
+    height: 3rem;
+    text-align: center;
 }
