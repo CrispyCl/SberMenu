@@ -11,5 +11,6 @@ class DishOrder(SqlAlchemyBase):
     dish_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("dishes.id"))
     order_id = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     count = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
 
     dish = orm.relationship("Dish")

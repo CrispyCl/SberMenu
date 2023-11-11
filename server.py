@@ -158,10 +158,13 @@ def confirm_order():
         for k in session["order"]:
             if k == "sum":
                 continue
+            el = session["order"][k]
+
             dish_order = DishOrder(
                 dish_id=int(k),
                 order_id=last_id,
-                count=session["order"][k]["count"],
+                count=el["count"],
+                price=el["price"],
             )
             db_sess.add(dish_order)
         db_sess.commit()
@@ -524,7 +527,7 @@ def orders():
     dishes = {}
     for order in orders:
         dishes[order.id] = list(
-            map(lambda di: (di.dish, di.count), db_sess.query(DishOrder).filter(DishOrder.order_id == order.id).all())
+            map(lambda di: (di.dish, di.count, di.price), db_sess.query(DishOrder).filter(DishOrder.order_id == order.id).all())
         )
     return render_template(
         "order_list.html", message=smessage, order=session["order"], orders=orders, dishes=dishes, STATUS=STATUS
