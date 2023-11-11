@@ -22,6 +22,5 @@ class Dish(SqlAlchemyBase, SerializerMixin):
             "image": self.image,
         }
 
-
-orders = orm.relationship("DishOrder", back_populates="dish")
-categories = orm.relationship("DishCategory", back_populates="dish")
+    orders = orm.relationship("DishOrder", back_populates="dish", lazy="dynamic")
+    categories = orm.relationship("DishCategory", back_populates="dish", lazy="dynamic")
