@@ -22,6 +22,7 @@ class User(SqlAlchemyBase, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.hashed_password, password)
 
+    comments = orm.relationship("Comment", back_populates="user")
+
 
 orders = orm.relationship("Order", back_populates="user")
-comments = orm.relationship("Comment", back_populates="user")

@@ -545,12 +545,12 @@ def profile_dish(dish_id):
     if not dish:
         abort(404)
     dish_comments = db_sess.query(Comment).filter(Comment.dish_id == dish_id).all()
-    values = {}
+    valuations = {}
     for comment in dish_comments:
-        values[comment.id] = list(
-            map(lambda di: di.id, db_sess.query(Valuation).filter(Valuation.comment_id == comment.id).all())
+        valuations[comment.id] = list(
+            map(lambda di: di, db_sess.query(Valuation).filter(Valuation.comment_id == comment.id).all())
         )
-    print(values)
+    print(valuations)
     criterias = db_sess.query(Criteria).all()
     criteria_count = len(criterias)
     if form.validate_on_submit():
@@ -561,10 +561,9 @@ def profile_dish(dish_id):
             db_sess.add(valuation)
         db_sess.add(comment)
         db_sess.commit()
-        return render_template("dish_profile.html", title=dish.title, message=ST_message, dish=dish,
-                               criterias=criterias, form=form)
+        return redirect(f"/profile/dish/{dish_id}")
     return render_template("dish_profile.html", title=dish.title, message=ST_message, dish=dish, criterias=criterias,
-                           form=form)
+                           form=form, dish_comments=dish_comments, valuations=valuations)
 
 
 @app.route("/login", methods=["GET", "POST"])

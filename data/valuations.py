@@ -9,7 +9,7 @@ class Valuation(SqlAlchemyBase):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     criteria_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("criterias.id"))
-    comment_id = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    comment_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("comments.id"))
     value = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
 
-    criterias = orm.relationship("Criteria")
+    criteria = orm.relationship("Criteria")

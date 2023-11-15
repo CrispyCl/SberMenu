@@ -10,8 +10,8 @@ class Comment(SqlAlchemyBase, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     comment = sqlalchemy.Column(sqlalchemy.String, nullable=False)
-    user_id = sqlalchemy.Column(sqlalchemy.Integer)
-    dish_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("dishes.id"))
+    user_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("users.id"))
+    dish_id = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     datetime = sqlalchemy.Column(sqlalchemy.DATETIME, default=dt.datetime.now)
     rating = sqlalchemy.Column(sqlalchemy.Integer, default=0)
 
@@ -22,4 +22,4 @@ class Comment(SqlAlchemyBase, SerializerMixin):
             "user_id": self.user_id
         }
 
-    dish = orm.relationship("Dish")
+    user = orm.relationship("User", back_populates="comments")

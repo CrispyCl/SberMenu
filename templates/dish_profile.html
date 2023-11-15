@@ -97,7 +97,17 @@
                         <!-- Submit -->
                         {{ form.submit(class="submitbtn", value="Сохранить") }}
 
-
+        {% for comment in dish_comments %}
+        <div>
+            <p>{{ comment.user.surname }}{{ comment.user.name }}</p>
+            {% for valuation in valuations[comment.id] %}
+            <div>
+                <p>{{ valuation.criteria.title }}: {{ valuation.value }}</p>
+            </div>
+            {% endfor %}
+            <textarea disabled>{{ comment.comment }}</textarea>
+        </div>
+        {% endfor %}
 </div>
 
 {% endblock %}
