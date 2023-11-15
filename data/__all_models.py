@@ -6,4 +6,4 @@ from . import orders
 from . import users
 from . import criterias
 from . import comments
-from . import  valuation
+from . import  valuations
