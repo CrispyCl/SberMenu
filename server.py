@@ -1,7 +1,11 @@
 import datetime
 from json import dumps
 
+from flask import abort, Flask, redirect, render_template, request, session
+from flask_login import current_user, login_required, login_user, LoginManager, logout_user
 from PIL import Image
+from static.python.functions import clear_db, create_main_admin
+
 from data import db_session
 from data.categories import Category
 from data.dish_categories import DishCategory
@@ -11,14 +15,11 @@ from data.dishes_lunch import DishLunch
 from data.lunches import Lunch
 from data.orders import Order
 from data.users import User
-from flask import Flask, abort, redirect, render_template, request, session
-from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from forms.category import CategoryForm
 from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.lunch import LunchForm
 from forms.user import UserForm
-from static.python.functions import clear_db, create_main_admin
 
 
 app = Flask(__name__)

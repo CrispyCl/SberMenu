@@ -1,11 +1,10 @@
 import sqlalchemy
 from sqlalchemy import orm
-from sqlalchemy_serializer import SerializerMixin
 
 from .db_session import SqlAlchemyBase
 
 
-class Dish(SqlAlchemyBase, SerializerMixin):
+class Dish(SqlAlchemyBase):
     __tablename__ = "dishes"
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
@@ -23,7 +22,4 @@ class Dish(SqlAlchemyBase, SerializerMixin):
         }
 
     orders = orm.relationship("DishOrder", back_populates="dish", lazy="dynamic")
-    categories = orm.relationship("DishCategory", back_populates="dish", lazy="dynamic")
-
-
-lunch = orm.relationship("DishLunch", back_populates="dish")
+    categories = orm.relationship("DishCategory", back_populates="dish", lazy="dynamic", cascade="all, delete-orphan")
