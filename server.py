@@ -7,17 +7,17 @@ from data.categories import Category
 from data.dish_categories import DishCategory
 from data.dish_orders import DishOrder
 from data.dishes import Dish
-from data.orders import Order
-from data.users import User
 from data.dishes_lunch import DishLunch
 from data.lunches import Lunch
+from data.orders import Order
+from data.users import User
 from flask import Flask, abort, redirect, render_template, request, session
 from flask_login import LoginManager, current_user, login_required, login_user, logout_user
 from forms.category import CategoryForm
 from forms.dish import DishForm
 from forms.login import LoginForm
-from forms.user import UserForm
 from forms.lunch import LunchForm
+from forms.user import UserForm
 from static.python.functions import clear_db, create_main_admin
 
 
@@ -530,7 +530,10 @@ def orders():
     dishes = {}
     for order in orders:
         dishes[order.id] = list(
-            map(lambda di: (di.dish, di.count, di.price), db_sess.query(DishOrder).filter(DishOrder.order_id == order.id).all())
+            map(
+                lambda di: (di.dish, di.count, di.price),
+                db_sess.query(DishOrder).filter(DishOrder.order_id == order.id).all(),
+            )
         )
     return render_template(
         "order_list.html", message=smessage, order=session["order"], orders=orders, dishes=dishes, STATUS=STATUS
@@ -550,7 +553,7 @@ def create_lunch():
     title = "Создание бизнесс-ланча"
     db_sess = db_session.create_session()
     categories = db_sess.query(Category).all()
-    #dishes = db_sess.query(Dish).all()
+    # dishes = db_sess.query(Dish).all()
     dishes = {}
     for category in categories:
         dishes[category.id] = list(
@@ -566,7 +569,7 @@ def create_lunch():
                 message=dumps(message),
                 order=session["order"],
                 dishes=dishes,
-                categories=categories
+                categories=categories,
             )
         lunch = Lunch(price=form.price.data, date=form.date.data)
 
@@ -581,9 +584,14 @@ def create_lunch():
         db_sess.commit()
         return redirect("/")
     return render_template(
-        "create_lunch.html", title=title, form=form, message=smessage, order=session["order"], categories=categories, dishes=dishes
+        "create_lunch.html",
+        title=title,
+        form=form,
+        message=smessage,
+        order=session["order"],
+        categories=categories,
+        dishes=dishes,
     )
-
 
 
 @app.route("/profile/dish/<int:dish_id>")
