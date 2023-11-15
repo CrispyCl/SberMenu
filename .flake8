@@ -2,7 +2,8 @@
 exclude = .git,__pycache__,venv
 extend-ignore = F401,E501,C901
 max-complexity = 10
-import-order-style = pycharm
+import-order-style = google
+application-import-names = data, forms
 max-line-length = 88
 inline-quotes = "
 black-config = pyproject.toml
