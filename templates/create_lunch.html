@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+    <form class="dishform" action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+                    <!-- Date -->
+                    {{ form.date(class="form-control name", type="date",
+                    placeholder="Дата") }}
+                    {% for error in form.date.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                    {% endfor %}
+
+                    <!-- Price -->
+                    {{ form.price(class="form-control name", type="text",
+                    placeholder="Цена") }}
+                    {% for error in form.price.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                    {% endfor %}
+
+
+                {% for category in categories %}
+                <h3>{{category.title}}</h3>
+                {% for dish in dishes[category.id] %}
+                    <input id="myCheckbox{{ dish.id }}" type="checkbox" name="dishes" value="{{ dish.id }}">
+                    <label class="chekimg" for="myCheckbox{{ dish.id }}"><img class="category_image"
+                            src="{{ url_for('static', filename=dish.image) }}"></label>
+                    <p>{{ dish.title }}</p>
+
+                {% endfor %}
+                {% endfor %}
+
+
+            <!-- Submit -->
+            {{ form.submit(class="submitbtn", value="Добавить") }}
+
+    </form>
+
+
+{% endblock %}
