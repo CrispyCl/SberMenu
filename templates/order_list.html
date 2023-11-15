@@ -100,12 +100,16 @@
         <div class="dish">
             {% for di in dishes[order.id] %}
             {% set dish = di[0] %}
+            {% set price = di[2] %}
+            {% if price == 0 %}
+            {% set price = dish.price %}
+            {% endif %}
             <div class="dish_image_price">
                 <a class="dish_href" href="/profile/dish/{{ dish.id }}">
                     <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
                     <div class="ta">
                         <div class="dish_title">{{ dish.title }}</div>
-                        <div class="price_count">{{ dish.price }}₽ x {{ di[1] }}</div>
+                        <div class="price_count">{{ price }}₽ x {{ di[1] }}</div>
                     </div>
                 </a>
             </div>
