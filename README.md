@@ -12,7 +12,7 @@
   <img src="https://media.giphy.com/media/dWesBcTLavkZuG35MI/giphy.gif" width="500" height="300"/>
 </div>
 
-<div>
+<div align="center">
     <h1>
         <b> Комманда - ChinaGriB </b>
     </h1>
