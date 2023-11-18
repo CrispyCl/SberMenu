@@ -5,3 +5,6 @@ from . import orders
 from . import dish_categories
 from . import dish_orders
 from . import messages
+from . import criterias
+from . import comments
+from . import valuations

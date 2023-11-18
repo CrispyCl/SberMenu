@@ -1,31 +1,58 @@
 {% extends 'base.html' %}
 
 {% block content %}
-  <form class="dishform" action="" method="post" enctype="multipart/form-data">
-    {{ form.hidden_tag() }}
-    <!-- Date -->
-    {{ form.date(class = 'form-control name', type = 'date', placeholder = 'Дата') }}
-    {% for error in form.date.errors %}
-      <p class="alert alert-danger" role="alert">{{ error }}</p>
-    {% endfor %}
 
-    <!-- Price -->
-    {{ form.price(class = 'form-control name', type = 'text', placeholder = 'Цена') }}
-    {% for error in form.price.errors %}
-      <p class="alert alert-danger" role="alert">{{ error }}</p>
-    {% endfor %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create_lunch.css') }}">
 
-    {% for category in categories %}
-      <h3>{{ category.title }}</h3>
-      {% for di_o in category.dishes %}
-      {% set dish = di_o.dish %}
-        <input id="myCheckbox{{ dish.id }}" type="checkbox" name="dishes" value="{{ dish.id }}" />
-        <label class="chekimg" for="myCheckbox{{ dish.id }}"><img class="category_image" src="{{ url_for('static', filename = dish.image) }}" /></label>
-        <p>{{ dish.title }}</p>
-      {% endfor %}
-    {% endfor %}
+<div class="wrapper">
+    <form class="dishform" action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="container">
+            <div class="title">Создание бизнес-ланча</div>
+            <div class="text">
+                <!-- Date -->
+                {{ form.date(class="form-control name", type="date",
+                placeholder="Дата") }}
+                {% for error in form.date.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+                {% endfor %}
 
-    <!-- Submit -->
-    {{ form.submit(class = 'submitbtn', value = 'Добавить') }}
-  </form>
+
+                <!-- Price -->
+                {{ form.price(class="form-control name", type="text",
+                placeholder="Цена") }}
+                {% for error in form.price.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+                {% endfor %}
+            </div>
+
+            <div class="all_categories">
+                {% for category in categories %}
+                <div class="category">
+                    <div class="category_titlee">{{category.title}}</div>
+                    <div class="choose_checkbox">
+                      {% for di_o in category.dishes %}
+                      {% set dish = di_o.dish %}
+                        <div class="inc">
+                            <input id="myCheckbox{{ dish.id }}" type="checkbox" name="dishes" value="{{ dish.id }}">
+                            <label class="chekimg" for="myCheckbox{{ dish.id }}">
+                                <img class="category_image" src="{{ url_for('static', filename=dish.image) }}">
+                            </label>
+                            <div class="category_title">{{ dish.title }}</div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- Submit -->
+            {{ form.submit(class="submitbtn", value="Добавить") }}
+        </div>
+    </form>
+</div>
+
 {% endblock %}

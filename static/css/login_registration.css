@@ -120,7 +120,7 @@ legend {
     display: flex;
     height: 100%;
     width: 100%;
-    background-image: url(/static/img/login_background.jpg);
+    background-image: url(/static/img/login_background.png);
     justify-content: center;
     align-items: center;
     background-position: center;
@@ -333,5 +333,9 @@ input {
 }
 
 .basket {
+    display: none;
+}
+
+.login_btn {
     display: none;
 }
