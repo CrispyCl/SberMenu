@@ -549,6 +549,18 @@ def create_lunch():
     categories = db_sess.query(Category).join(DishCategory).all()
 
     if form.validate_on_submit():
+        if db_sess.query(Lunch).filter(Lunch.date == form.date.data).first():
+            message = {"status": 0, "text": "Бизнесс-ланч на этот день уже существует"}
+            return render_template(
+                "create_lunch.html",
+                title=title,
+                form=form,
+                message=dumps(message),
+                order=session["order"],
+                dishes=dishes,
+                categories=categories,
+            )
+
         lunch = Lunch(price=form.price.data, date=form.date.data)
         db_sess.add(lunch)
 
