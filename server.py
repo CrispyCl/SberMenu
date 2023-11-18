@@ -3,6 +3,7 @@ from json import dumps
 
 from flask import abort, Flask, redirect, render_template, request, session
 from flask_login import current_user, login_required, login_user, LoginManager, logout_user
+from flask_socketio import SocketIO
 from PIL import Image
 from static.python.functions import clear_db, create_main_admin
 
@@ -24,6 +25,8 @@ from forms.user import UserForm
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "very_secret_key"
+socketio = SocketIO(app)
+
 ST_message = {"status": 404, "text": ""}
 STATUS = {1: "В процессе", 2: "Приготовлен", 3: "Выдан", 0: "Отменён"}
 current_user.is_authenticated: bool
@@ -253,6 +256,21 @@ def create_category():
         db_sess.commit()
         return redirect("/")
     return render_template("create_category.html", title=title, form=form, message=smessage, order=session["order"])
+
+
+# @app.route("/chat/<int:user_id>")
+# def chat(user_id):
+#     if not current_user.is_authenticated:
+#         abort(404)
+#     if user_id == 0 and current_user.role != 2:
+#         abort(404)
+#     db_sess = db_session.create_session()
+#     user = db_sess.query(User).filter(User.id == user_id).first()
+#     if not user:
+#         abort(404)
+#     if user.role == current_user.role:
+#         abort(404)
+#     messages = db_sess.query(Message)
 
 
 @app.route("/delete/category/<int:categ_id>")
@@ -619,4 +637,4 @@ if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
     create_main_admin(db_session.create_session())
     clear_db(db_session.create_session())
-    app.run(port=8080, host="127.0.0.1", debug=True)
+    socketio.run(app, port=8080, host="127.0.0.1", debug=True)
