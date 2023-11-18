@@ -1,5 +1,5 @@
-import sqlalchemy
 from flask_login import UserMixin
+import sqlalchemy
 from sqlalchemy import orm
 from werkzeug.security import check_password_hash, generate_password_hash
 
@@ -22,5 +22,5 @@ class User(SqlAlchemyBase, UserMixin):
     def check_password(self, password):
         return check_password_hash(self.hashed_password, password)
 
-
-orders = orm.relationship("Order", back_populates="user")
+    orders = orm.relationship("Order", back_populates="user", lazy="dynamic", cascade="all, delete-orphan")
+    comments = orm.relationship("Comment", back_populates="user", lazy="dynamic")

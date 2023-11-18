@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 
 {% block content %}
 
@@ -35,7 +35,8 @@
                 <div class="category">
                     <div class="category_titlee">{{category.title}}</div>
                     <div class="choose_checkbox">
-                        {% for dish in dishes[category.id] %}
+                      {% for di_o in category.dishes %}
+                      {% set dish = di_o.dish %}
                         <div class="inc">
                             <input id="myCheckbox{{ dish.id }}" type="checkbox" name="dishes" value="{{ dish.id }}">
                             <label class="chekimg" for="myCheckbox{{ dish.id }}">

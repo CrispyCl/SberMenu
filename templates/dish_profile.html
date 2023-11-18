@@ -63,6 +63,52 @@
         </div>
         {% endif %}
     </div>
+    <hr>
+    <h3>Отзывы</h3>
+    <form method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+     <!-- About -->
+                    {{ form.comment(class="form-control txta", type="text",
+                    placeholder="Ваш отзыв") }}
+                    {% for error in form.comment.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                    {% endfor %}
+                    <div>
+                        {% for criteria in criterias %}
+
+                                <div>
+                                    <p>{{criteria.title}}</p>
+                                    <input type="radio" id="star-5" name={{criteria.title}} value="1">
+                                    <label for="star-5" title="Оценка «5»"></label>
+                                    <input type="radio" id="star-4" name={{criteria.title}} value="2">
+                                    <label for="star-4" title="Оценка «4»"></label>
+                                    <input type="radio" id="star-3" name={{criteria.title}} value="3">
+                                    <label for="star-3" title="Оценка «3»"></label>
+                                    <input type="radio" id="star-2" name={{criteria.title}} value="4">
+                                    <label for="star-2" title="Оценка «2»"></label>
+                                    <input type="radio" id="star-1" name={{criteria.title}} value="5">
+                                    <label for="star-1" title="Оценка «1»"></label>
+                                </div>
+
+                    </div>
+                        {% endfor %}
+                        <!-- Submit -->
+                        {{ form.submit(class="submitbtn", value="Сохранить") }}
+
+        {% for comment in dish_comments %}
+        <div>
+            <p>{{ comment.user.surname }}{{ comment.user.name }}</p>
+            {% for valuation in valuations[comment.id] %}
+            <div>
+                <p>{{ valuation.criteria.title }}: {{ valuation.value }}</p>
+            </div>
+            {% endfor %}
+            <textarea disabled>{{ comment.comment }}</textarea>
+        </div>
+        {% endfor %}
 </div>
 
 {% endblock %}
+

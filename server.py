@@ -1,24 +1,29 @@
 import datetime
 from json import dumps
 
+from flask import abort, Flask, redirect, render_template, request, session
+from flask_login import current_user, login_required, login_user, LoginManager, logout_user
 from PIL import Image
+from static.python.functions import clear_db, create_main_admin
+
 from data import db_session
 from data.categories import Category
+from data.comments import Comment
+from data.criterias import Criteria
 from data.dish_categories import DishCategory
 from data.dish_orders import DishOrder
 from data.dishes import Dish
-from data.orders import Order
-from data.users import User
 from data.dishes_lunch import DishLunch
 from data.lunches import Lunch
-from flask import Flask, abort, redirect, render_template, request, session
-from flask_login import LoginManager, current_user, login_required, login_user, logout_user
+from data.orders import Order
+from data.users import User
+from data.valuations import Valuation
 from forms.category import CategoryForm
+from forms.comment import CommentForm
 from forms.dish import DishForm
 from forms.login import LoginForm
-from forms.user import UserForm
 from forms.lunch import LunchForm
-from static.python.functions import clear_db, create_main_admin
+from forms.user import UserForm
 
 
 app = Flask(__name__)
@@ -43,13 +48,9 @@ def index():
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
-    categories = db_sess.query(Category).all()
-    dishes = {}
-    for category in categories:
-        dishes[category.id] = list(
-            map(lambda di: di.dish, db_sess.query(DishCategory).filter(DishCategory.category_id == category.id).all())
-        )
-    return render_template("index.html", message=smessage, order=session["order"], categories=categories, dishes=dishes)
+    categories = db_sess.query(Category).join(DishCategory).all()
+
+    return render_template("index.html", message=smessage, order=session["order"], categories=categories)
 
 
 @app.route("/add_dish/<int:dish_id>")
@@ -265,10 +266,10 @@ def delete_category(categ_id):
     if current_user.role != 0:
         abort(404)
     db_sess = db_session.create_session()
-    dish_categories = db_sess.query(DishCategory).filter(DishCategory.category_id == categ_id).all()
-    for i in dish_categories:
-        db_sess.delete(i)
-    db_sess.delete(db_sess.query(Category).filter(Category.id == categ_id).first())
+    category = db_sess.query(Category).filter(Category.id == categ_id).first()
+    if not category:
+        abort(404)
+    db_sess.delete(category)
     db_sess.commit()
     return redirect("/")
 
@@ -280,16 +281,16 @@ def delete_dish(dish_id):
     if current_user.role != 0:
         abort(404)
     db_sess = db_session.create_session()
-    dish_categories = db_sess.query(DishCategory).filter(DishCategory.dish_id == dish_id).all()
-    for i in dish_categories:
-        db_sess.delete(i)
+    dish = db_sess.query(Dish).filter(Dish.id == dish_id).first()
+    if not dish:
+        abort(404)
     dish_orders = db_sess.query(DishOrder).filter(DishOrder.dish_id == dish_id).all()
-    for i in dish_orders:
-        order = db_sess.query(Order).get(i.order_id)
+    for di_o in dish_orders:
+        order = di_o.order
         order.status = 0
-        db_sess.merge(i)
-        db_sess.delete(i)
-    db_sess.delete(db_sess.query(Dish).filter(Dish.id == dish_id).first())
+        db_sess.merge(di_o)
+        db_sess.merge(order)
+    db_sess.delete(dish)
     db_sess.commit()
     return redirect("/dishes")
 
@@ -522,18 +523,18 @@ def orders():
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
     if current_user.role == 2:
-        orders = db_sess.query(Order).filter(Order.user_id == current_user.id).all()[::-1]
+        orders = db_sess.query(Order).filter(Order.user_id == current_user.id).join(DishOrder).all()[::-1]
     elif current_user.role == 1:
-        orders = db_sess.query(Order).filter(Order.status.in_([1, 2])).all()[::-1]
+        orders = db_sess.query(Order).filter(Order.status.in_([1, 2])).join(DishOrder).all()[::-1]
     else:
-        orders = db_sess.query(Order).all()[::-1]
-    dishes = {}
-    for order in orders:
-        dishes[order.id] = list(
-            map(lambda di: (di.dish, di.count, di.price), db_sess.query(DishOrder).filter(DishOrder.order_id == order.id).all())
-        )
+        orders = db_sess.query(Order).join(DishOrder).all()[::-1]
+
     return render_template(
-        "order_list.html", message=smessage, order=session["order"], orders=orders, dishes=dishes, STATUS=STATUS
+        "order_list.html",
+        message=smessage,
+        order=session["order"],
+        orders=orders,
+        STATUS=STATUS,
     )
 
 
@@ -549,13 +550,8 @@ def create_lunch():
 
     title = "Создание бизнесс-ланча"
     db_sess = db_session.create_session()
-    categories = db_sess.query(Category).all()
-    #dishes = db_sess.query(Dish).all()
-    dishes = {}
-    for category in categories:
-        dishes[category.id] = list(
-            map(lambda di: di.dish, db_sess.query(DishCategory).filter(DishCategory.category_id == category.id).all())
-        )
+    categories = db_sess.query(Category).join(DishCategory).all()
+
     if form.validate_on_submit():
         if db_sess.query(Lunch).filter(Lunch.date == form.date.data).first():
             message = {"status": 0, "text": "Бизнесс-ланч на этот день уже существует"}
@@ -566,33 +562,72 @@ def create_lunch():
                 message=dumps(message),
                 order=session["order"],
                 dishes=dishes,
-                categories=categories
+                categories=categories,
             )
-        lunch = Lunch(price=form.price.data, date=form.date.data)
 
-        lunches = db_sess.query(Lunch).all()
-        last_id = 1 if not lunches else lunches[-1].id + 1
+        lunch = Lunch(price=form.price.data, date=form.date.data)
+        db_sess.add(lunch)
+
         chosen_dishes = request.form.getlist("dishes")
         for dish in chosen_dishes:
-            d_lunch = DishLunch(dish_id=dish, lunch_id=last_id)
+            d_lunch = DishLunch(dish_id=dish)
+            d_lunch.lunch = lunch
             db_sess.add(d_lunch)
-            db_sess.commit()
-        db_sess.add(lunch)
         db_sess.commit()
+        message = {"status": 1, "text": "Бизнесс-ланч создан"}
+        session["message"] = dumps(message)
         return redirect("/")
     return render_template(
-        "create_lunch.html", title=title, form=form, message=smessage, order=session["order"], categories=categories, dishes=dishes
+        "create_lunch.html",
+        title=title,
+        form=form,
+        message=smessage,
+        order=session["order"],
+        categories=categories,
     )
 
 
-
-@app.route("/profile/dish/<int:dish_id>")
+@app.route("/profile/dish/<int:dish_id>", methods=["GET", "POST"])
 def profile_dish(dish_id):
     db_sess = db_session.create_session()
-    dish = db_sess.query(Dish).get(dish_id)
+    dish = db_sess.query(Dish).filter(Dish.id == dish_id).first()
+    form = CommentForm()
+    comments = db_sess.query(Comment).all()
+    last_id = 1 if not comments else comments[-1].id + 1
     if not dish:
         abort(404)
-    return render_template("dish_profile.html", title=dish.title, message=ST_message, dish=dish)
+    dish_comments = db_sess.query(Comment).filter(Comment.dish_id == dish_id).all()
+    valuations = {}
+    for comment in dish_comments:
+        valuations[comment.id] = list(
+            map(lambda di: di, db_sess.query(Valuation).filter(Valuation.comment_id == comment.id).all())
+        )
+    print(valuations)
+    criterias = db_sess.query(Criteria).all()
+    criteria_count = len(criterias)
+    if form.validate_on_submit():
+        print(1)
+        comment = Comment(comment=form.comment.data, user_id=current_user.id, dish_id=dish_id)
+        for i in range(criteria_count):
+            valuation = Valuation(
+                criteria_id=criterias[i].id,
+                comment_id=last_id,
+                value=int(request.form[criterias[i].title]),
+            )
+            db_sess.add(valuation)
+        db_sess.add(comment)
+        db_sess.commit()
+        return redirect(f"/profile/dish/{dish_id}")
+    return render_template(
+        "dish_profile.html",
+        title=dish.title,
+        message=ST_message,
+        dish=dish,
+        criterias=criterias,
+        form=form,
+        dish_comments=dish_comments,
+        valuations=valuations,
+    )
 
 
 @app.route("/login", methods=["GET", "POST"])
