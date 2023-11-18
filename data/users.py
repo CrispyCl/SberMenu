@@ -23,3 +23,4 @@ class User(SqlAlchemyBase, UserMixin):
         return check_password_hash(self.hashed_password, password)
 
     orders = orm.relationship("Order", back_populates="user", lazy="dynamic", cascade="all, delete-orphan")
+    comments = orm.relationship("Comment", back_populates="user", lazy="dynamic")

@@ -8,6 +8,8 @@ from static.python.functions import clear_db, create_main_admin
 
 from data import db_session
 from data.categories import Category
+from data.comments import Comment
+from data.criterias import Criteria
 from data.dish_categories import DishCategory
 from data.dish_orders import DishOrder
 from data.dishes import Dish
@@ -15,7 +17,9 @@ from data.dishes_lunch import DishLunch
 from data.lunches import Lunch
 from data.orders import Order
 from data.users import User
+from data.valuations import Valuation
 from forms.category import CategoryForm
+from forms.comment import CommentForm
 from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.lunch import LunchForm
@@ -583,13 +587,47 @@ def create_lunch():
     )
 
 
-@app.route("/profile/dish/<int:dish_id>")
+@app.route("/profile/dish/<int:dish_id>", methods=["GET", "POST"])
 def profile_dish(dish_id):
     db_sess = db_session.create_session()
-    dish = db_sess.query(Dish).get(dish_id)
+    dish = db_sess.query(Dish).filter(Dish.id == dish_id).first()
+    form = CommentForm()
+    comments = db_sess.query(Comment).all()
+    last_id = 1 if not comments else comments[-1].id + 1
     if not dish:
         abort(404)
-    return render_template("dish_profile.html", title=dish.title, message=ST_message, dish=dish)
+    dish_comments = db_sess.query(Comment).filter(Comment.dish_id == dish_id).all()
+    valuations = {}
+    for comment in dish_comments:
+        valuations[comment.id] = list(
+            map(lambda di: di, db_sess.query(Valuation).filter(Valuation.comment_id == comment.id).all())
+        )
+    print(valuations)
+    criterias = db_sess.query(Criteria).all()
+    criteria_count = len(criterias)
+    if form.validate_on_submit():
+        print(1)
+        comment = Comment(comment=form.comment.data, user_id=current_user.id, dish_id=dish_id)
+        for i in range(criteria_count):
+            valuation = Valuation(
+                criteria_id=criterias[i].id,
+                comment_id=last_id,
+                value=int(request.form[criterias[i].title]),
+            )
+            db_sess.add(valuation)
+        db_sess.add(comment)
+        db_sess.commit()
+        return redirect(f"/profile/dish/{dish_id}")
+    return render_template(
+        "dish_profile.html",
+        title=dish.title,
+        message=ST_message,
+        dish=dish,
+        criterias=criterias,
+        form=form,
+        dish_comments=dish_comments,
+        valuations=valuations,
+    )
 
 
 @app.route("/login", methods=["GET", "POST"])
