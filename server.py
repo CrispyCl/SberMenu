@@ -44,13 +44,9 @@ def index():
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
-    categories = db_sess.query(Category).all()
-    dishes = {}
-    for category in categories:
-        dishes[category.id] = list(
-            map(lambda di: di.dish, db_sess.query(DishCategory).filter(DishCategory.category_id == category.id).all())
-        )
-    return render_template("index.html", message=smessage, order=session["order"], categories=categories, dishes=dishes)
+    categories = db_sess.query(Category).join(DishCategory).all()
+
+    return render_template("index.html", message=smessage, order=session["order"], categories=categories)
 
 
 @app.route("/add_dish/<int:dish_id>")
@@ -266,10 +262,10 @@ def delete_category(categ_id):
     if current_user.role != 0:
         abort(404)
     db_sess = db_session.create_session()
-    dish_categories = db_sess.query(DishCategory).filter(DishCategory.category_id == categ_id).all()
-    for i in dish_categories:
-        db_sess.delete(i)
-    db_sess.delete(db_sess.query(Category).filter(Category.id == categ_id).first())
+    category = db_sess.query(Category).filter(Category.id == categ_id).first()
+    if not category:
+        abort(404)
+    db_sess.delete(category)
     db_sess.commit()
     return redirect("/")
 
@@ -281,16 +277,16 @@ def delete_dish(dish_id):
     if current_user.role != 0:
         abort(404)
     db_sess = db_session.create_session()
-    dish_categories = db_sess.query(DishCategory).filter(DishCategory.dish_id == dish_id).all()
-    for i in dish_categories:
-        db_sess.delete(i)
+    dish = db_sess.query(Dish).filter(Dish.id == dish_id).first()
+    if not dish:
+        abort(404)
     dish_orders = db_sess.query(DishOrder).filter(DishOrder.dish_id == dish_id).all()
-    for i in dish_orders:
-        order = db_sess.query(Order).get(i.order_id)
+    for di_o in dish_orders:
+        order = di_o.order
         order.status = 0
-        db_sess.merge(i)
-        db_sess.delete(i)
-    db_sess.delete(db_sess.query(Dish).filter(Dish.id == dish_id).first())
+        db_sess.merge(di_o)
+        db_sess.merge(order)
+    db_sess.delete(dish)
     db_sess.commit()
     return redirect("/dishes")
 
@@ -523,21 +519,18 @@ def orders():
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
     if current_user.role == 2:
-        orders = db_sess.query(Order).filter(Order.user_id == current_user.id).all()[::-1]
+        orders = db_sess.query(Order).filter(Order.user_id == current_user.id).join(DishOrder).all()[::-1]
     elif current_user.role == 1:
-        orders = db_sess.query(Order).filter(Order.status.in_([1, 2])).all()[::-1]
+        orders = db_sess.query(Order).filter(Order.status.in_([1, 2])).join(DishOrder).all()[::-1]
     else:
-        orders = db_sess.query(Order).all()[::-1]
-    dishes = {}
-    for order in orders:
-        dishes[order.id] = list(
-            map(
-                lambda di: (di.dish, di.count, di.price),
-                db_sess.query(DishOrder).filter(DishOrder.order_id == order.id).all(),
-            )
-        )
+        orders = db_sess.query(Order).join(DishOrder).all()[::-1]
+
     return render_template(
-        "order_list.html", message=smessage, order=session["order"], orders=orders, dishes=dishes, STATUS=STATUS
+        "order_list.html",
+        message=smessage,
+        order=session["order"],
+        orders=orders,
+        STATUS=STATUS,
     )
 
 
@@ -553,36 +546,20 @@ def create_lunch():
 
     title = "Создание бизнесс-ланча"
     db_sess = db_session.create_session()
-    categories = db_sess.query(Category).all()
-    # dishes = db_sess.query(Dish).all()
-    dishes = {}
-    for category in categories:
-        dishes[category.id] = list(
-            map(lambda di: di.dish, db_sess.query(DishCategory).filter(DishCategory.category_id == category.id).all())
-        )
-    if form.validate_on_submit():
-        if db_sess.query(Lunch).filter(Lunch.date == form.date.data).first():
-            message = {"status": 0, "text": "Бизнесс-ланч на этот день уже существует"}
-            return render_template(
-                "create_lunch.html",
-                title=title,
-                form=form,
-                message=dumps(message),
-                order=session["order"],
-                dishes=dishes,
-                categories=categories,
-            )
-        lunch = Lunch(price=form.price.data, date=form.date.data)
+    categories = db_sess.query(Category).join(DishCategory).all()
 
-        lunches = db_sess.query(Lunch).all()
-        last_id = 1 if not lunches else lunches[-1].id + 1
+    if form.validate_on_submit():
+        lunch = Lunch(price=form.price.data, date=form.date.data)
+        db_sess.add(lunch)
+
         chosen_dishes = request.form.getlist("dishes")
         for dish in chosen_dishes:
-            d_lunch = DishLunch(dish_id=dish, lunch_id=last_id)
+            d_lunch = DishLunch(dish_id=dish)
+            d_lunch.lunch = lunch
             db_sess.add(d_lunch)
-            db_sess.commit()
-        db_sess.add(lunch)
         db_sess.commit()
+        message = {"status": 1, "text": "Бизнесс-ланч создан"}
+        session["message"] = dumps(message)
         return redirect("/")
     return render_template(
         "create_lunch.html",
@@ -591,7 +568,6 @@ def create_lunch():
         message=smessage,
         order=session["order"],
         categories=categories,
-        dishes=dishes,
     )
 
 
