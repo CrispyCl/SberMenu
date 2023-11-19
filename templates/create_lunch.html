@@ -42,6 +42,7 @@
                             <label class="chekimg" for="myCheckbox{{ dish.id }}">
                                 <img class="category_image" src="{{ url_for('static', filename=dish.image) }}">
                             </label>
+                            <input id="priceChange{{ dish.id }}" type="number" name="p_change{{ dish.id }}" value="0">
                             <div class="category_title">{{ dish.title }}</div>
                         </div>
                         {% endfor %}

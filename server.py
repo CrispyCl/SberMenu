@@ -571,6 +571,7 @@ def create_lunch():
         chosen_dishes = request.form.getlist("dishes")
         for dish in chosen_dishes:
             d_lunch = DishLunch(dish_id=dish)
+            d_lunch.price_change = int(request.form.getlist(f"p_change{dish}")[0])
             d_lunch.lunch = lunch
             db_sess.add(d_lunch)
         db_sess.commit()
