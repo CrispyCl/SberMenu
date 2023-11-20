@@ -33,13 +33,8 @@
 <div class="add_dish_wrapper">
     <div class="text-center">Меню</div>
 </div>
+
 {% for category in categories %}
-<!-- внедряем -->
-
-
-
-
-
 <div class="dish_category" id="{{ category.id }}">
     <div class="category_title">
         <div class="category_title active_rotate" id="t_h{{ category.id }}" style="cursor: pointer;">
@@ -83,7 +78,8 @@
     <div class="items_of_table active" id="i_t{{ category.id }}">
 
         <div class="dc">
-            {% for dish in dishes[category.id] %}
+            {% for cdish in category.dishes %}
+            {% set dish = cdish.dish %}
             <div class="dish">
                 <div>
                 <a href="/profile/dish/{{ dish.id }}">
@@ -102,70 +98,7 @@
         </div>
     </div>
 </div>
-
-
-
-
-
-
-
-
-<!-- работает -->
-
-<!-- <div class="dish_category">
-    <div class="category_title" id="{{ category.id }}">{{ category.title }}
-
-        {% if current_user.role == 0 %}
-        <div class="category_btns">
-            <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
-            <a class="del_dish" onclick="OpenDialog('{{category.id }}')">Удалить</a>
-        </div>
-        <dialog id="di{{ category.id }}">
-            <div class="dwrapper">
-                <div class="dheader">Удаление категории!</div>
-                <div class="dmain">Вы хотите удалить категорию "{{ category.title }}" ?</div>
-                <hr class="dhr">
-                <div class="dfooter">
-                    <div class="dbtns">
-                        <a class="dremove" href="/delete/category/{{ category.id }}">Удалить</a>
-                        <a class="dcancel" onclick="RemoveDialog('{{category.id }}')">Отмена</a>
-                    </div>
-                </div>
-            </div>
-        </dialog>
-        <script>
-            function OpenDialog(category_id) {
-                document.getElementById(`di${category_id}`).showModal();
-            }
-
-            function RemoveDialog(category_id) {
-                document.getElementById(`di${category_id}`).close();
-            }
-        </script>
-        {% endif %}
-    </div>
-    <div class="dc">
-        {% for dish in dishes[category.id] %}
-        <div class="dish">
-            <a href="/profile/dish/{{ dish.id }}">
-                <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
-            </a>
-            <div class="dish_name_and_price">
-                <div class="dish_name">{{ dish.title }}</div>
-                <div class="dish_price">{{ dish.price }}₽</div>
-            </div>
-            {% if current_user.role not in [0, 1] %}
-            <a class="add_dish_to_basket" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
-            {% endif %}
-
-        </div>
-        {% endfor %}
-    </div>
-</div> -->
 {% endfor %}
-
-
-
 
 <script>
     const ricon = document.getElementById("right");

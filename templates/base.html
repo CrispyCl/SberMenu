@@ -3,12 +3,14 @@
 
 <head>
     <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+    <script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mobile-detect@1.4.5/mobile-detect.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <meta charset="UTF-8">
     <link rel="icon" type="image/svg+xml" href="/static/svg/SberMenuLogo.svg">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SberMenu | Добро пожаловать</title>
+    <title>SberMenu | {{ title }}</title>
 </head>
 
 <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
@@ -67,6 +69,11 @@
                         <a href="/dishes" class="menu_link" id="dd_dishes">
                             <img class="menu_img" src="/static/svg/list-svgrepo-com.svg">
                             <p>Блюда</p>
+                            <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
+                        </a>
+                        <a href="/create/lunch" class="menu_link" id="dd_dishes">
+                            <img class="menu_img" src="static/svg/food-2-svgrepo-com.svg">
+                            <p>Создать бизнес-ланч</p>
                             <span><img src="/static/svg/right-chevron-svgrepo-com.svg"></span>
                         </a>
                         {% endif %}
