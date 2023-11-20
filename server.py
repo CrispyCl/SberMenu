@@ -454,8 +454,7 @@ def edit_dish(dish_id):
     session["message"] = dumps(ST_message)
     title = "Редактирование блюда"
     categories = db_sess.query(Category).all()
-    checked = set(di.category_id for di in db_sess.query(DishCategory.category_id).filter(DishCategory.dish_id == dish_id))
-    print(checked)
+    checked = {di.category_id for di in db_sess.query(DishCategory.category_id).filter(DishCategory.dish_id == dish_id)}
     if request.method == "GET":
         form.title.data = dish.title
         form.description.data = dish.description
@@ -476,14 +475,14 @@ def edit_dish(dish_id):
         dish.price = form.price.data
         dish.description = form.description.data.strip()
         db_sess.merge(dish)
-        categories = request.form.getlist("categories")
-        for category in checked:
+        categories = {int(ct) for ct in request.form.getlist("categories")}
+        for category in checked - categories:
             db_sess.delete(
                 db_sess.query(DishCategory)
                 .filter(DishCategory.dish_id == dish_id, DishCategory.category_id == category)
                 .first(),
             )
-        for category in categories:
+        for category in categories - checked:
             db_sess.add(DishCategory(dish_id=dish_id, category_id=category))
         if form.image.data:
             img1 = form.image.data
