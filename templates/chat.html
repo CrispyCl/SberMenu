@@ -1,0 +1,98 @@
+<ul id="message-list">
+  {% for mes in messages %}
+      <li class="
+      {% if current_user.id == mes.user_id or juser.id != mes.user_id and current_user.role in [0, 1] %}
+        sender
+      {% else %}
+        recipient
+      {% endif %}">
+      <p>
+        {% if mes.user.role == 0 %}
+        admin
+        {% else %}
+        {{ mes.user.name }} {{ mes.user.surname }}
+        {% endif %}
+      </p>
+      <p>{{ mes.text }}</p>
+      </li>
+  {% endfor %}
+</ul>
+<div>
+  <input type="text" id="message" placeholder="Type a message...">
+  <input type="button" id="send" value="Send">
+</div>
+<style>
+  .sender{
+    color: green;
+  }
+  .recipient{
+    color: red;
+  }
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
+<script type="text/javascript">
+  var currus_id = {{ current_user.id }};
+  var currus_role = {{ current_user.role }};
+  var tous_id = {{ to_user_id }};
+  var just_user_id = {{ juser.id }};
+  var current_room = just_user_id;
+  document.addEventListener('DOMContentLoaded', function () {
+      console.log(currus_id);
+      var socket = io.connect("/");
+
+      socket.on('connect', function() {
+          socket.emit('join', {room: current_room});
+      });
+
+      socket.on('message', function(msg) {
+          console.log(msg);
+          let node = document.createElement("LI");
+          let username = document.createElement("p");
+          if (currus_id == msg.from || (just_user_id != msg.from && currus_role == 0)) {
+            node.classList.add("sender")
+            if (currus_role == 0) {
+              username.appendChild(document.createTextNode("admin"));
+            }
+            else if (currus_role == 1) {
+              username.appendChild(document.createTextNode("{{ current_user.email }}"));
+            }
+
+            else {
+              username.appendChild(document.createTextNode("{{ current_user.name }} {{ current_user.surname }}"));
+            }
+          }
+          else {
+            node.classList.add("recipient");
+            if (currus_role == 2) {
+              username.appendChild(document.createTextNode("admin"));
+            }
+            else {
+              username.appendChild(document.createTextNode("{{ juser.name }} {{ juser.surname }}"));
+            }
+          }
+          let span = document.createElement("p");
+          span.appendChild(document.createTextNode(msg.text));
+          node.appendChild(username);
+          node.appendChild(span);
+          document.getElementById("message-list").appendChild(node);
+      });
+      document.getElementById('send').onclick = function() {
+          let text = document.getElementById('message').value
+          if (text == "") {
+            return
+          }
+          document.getElementById('message').value = ""
+          let message = {
+            "from": currus_id,
+            "to": tous_id,
+            "text": text,
+          };
+          console.log(message);
+          socket.emit('message', {room: current_room, message: message});
+      };
+
+      socket.on('disconnect', function() {
+          socket.emit('leave', {room: current_room});
+      });
+  });
+</script>
