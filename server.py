@@ -106,7 +106,7 @@ def change_order(order_id):
     if not order:
         abort(404)
     if order.status in [0, 3]:
-        abort(404)
+        return redirect(f"/orders#{order_id}")
     if current_user.role == 2 and current_user.id != order.user.id:
         abort(404)
     order.status += 1
