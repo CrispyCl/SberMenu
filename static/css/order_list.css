@@ -32,7 +32,14 @@
     color: #000;
 }
 
-.dish_number {}
+.dish_number {
+    display: flex;
+    font-family: sans-serif;
+    font-size: xx-large;
+    margin: 2rem 0rem;
+    align-items: center;
+    gap: 3rem;
+}
 
 .status {}
 
@@ -64,11 +71,13 @@
 
 .dish {
     display: flex;
+    justify-content: space-around;
     flex-wrap: wrap;
-    gap: 2rem;
+    gap: 2rem 0;
 }
 
 .dish_image_price {
+    width: 450px;
     display: flex;
 }
 
@@ -95,4 +104,117 @@
     background: #cdcdcd;
     height: 2px;
     margin: 40px 0;
+}
+
+
+dialog {
+    border-radius: 0.9375rem;
+    align-self: center;
+    margin: auto;
+    height: 40%;
+    z-index: 999;
+}
+
+dialog::backdrop {
+    background: rgba(0, 0, 0, 0.7);
+}
+
+.dwrapper {
+    font-family: sans-serif;
+    font-size: xxx-large;
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.dheader,
+.dheader_remove {
+    padding: 20px;
+    background: #BCDE36;
+    color: #fff;
+}
+
+.dheader_remove {
+    background: red;
+}
+
+.dmain {
+    font-size: xx-large;
+    padding: 20px;
+}
+
+.dfooter {}
+
+.dbtns {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.dremove:hover {
+    color: #fff;
+    background: #BCDE36;
+}
+
+.dremove_del {
+    border: 3px solid red !important;
+}
+
+.dremove_del:hover {
+    color: #fff;
+    background: red;
+}
+
+.dremove,
+.dcancel,
+.dremove_del {
+    margin: 10px;
+    border: 3px solid #BCDE36;
+    display: flex;
+    height: 3.125rem;
+    border-radius: 0.9375rem;
+    flex-shrink: 0;
+    cursor: pointer;
+    color: #21201F;
+    font-family: sans-serif;
+    font-size: 1.3rem;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.dcancel {
+    border: 3px solid #cdcdcd;
+}
+
+.dcancel:hover {
+    background: #cdcdcd;
+    color: #fff;
+}
+
+
+@media screen and (max-width: 900px) {
+    .dish_href{
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .wrapper{
+        max-width: 90%;
+    }
+}
+
+@media screen and (max-width: 650px) {
+    dialog {
+        margin: auto 0;
+        min-width: 100%;
+        min-height: 60%;
+    }
+
+    .dmain {
+        /* font-size: xx-large; */
+    }
 }

@@ -6,7 +6,7 @@
 
 
 <div class="all">
-
+    {% if order %}
     <div class="text-center">Оформление заказа</div>
     <form class="order" action="" method="post" enctype="multipart/form-data">
         <div class="wc">
@@ -22,7 +22,7 @@
                             <div name="PricePC" class="price">{{ dish.price }}₽</div>
 
                             <div class="number-input">
-                                <button
+                                <button class="minus"
                                     onclick="this.parentNode.querySelector('input[type=number]').stepDown(); SetSumPC()"></button>
                                 <input id="number_{{ dish.id }}" type="number" class="number quantity" name="rcounts"
                                     min="0" max="99" value="{{ dish.count }}" />
@@ -41,10 +41,12 @@
                     <div class="order_price_count">
                         <div name="PriceMB" class="price">{{ dish.price }}₽</div>
                         <div class="number-input">
-                            <button onclick="this.parentNode.querySelector('input[type=number]').stepDown(); SetSumPC('MB')"></button>
+                            <button
+                                onclick="this.parentNode.querySelector('input[type=number]').stepDown(); SetSumPC('MB')"></button>
                             <input id="number_{{ dish.id }}" type="number" class="number quantity" name="rrcounts"
-                                min="0" max="99" value="{{ dish.count }}"/>
-                            <button onclick="this.parentNode.querySelector('input[type=number]').stepUp(); SetSumPC('MB')"
+                                min="0" max="99" value="{{ dish.count }}" />
+                            <button
+                                onclick="this.parentNode.querySelector('input[type=number]').stepUp(); SetSumPC('MB')"
                                 class="plus"></button>
                         </div>
                     </div>
@@ -66,8 +68,11 @@
             </div>
             {% endif %}
         </div>
-        <input id="req_version" name="req_version" type="text" style="display: none;"/>
+        <input id="req_version" name="req_version" type="text" style="display: none;" />
     </form>
+    {% else %}
+    <div class="text-center">Корзина пустая</div>
+    {% endif %}
 </div>
 <style>
     .number {
@@ -77,17 +82,17 @@
 
     #basket,
     .basket,
-    #mobile_basket{
+    #mobile_basket {
         display: none;
     }
 </style>
 <script>
-    function SetSumPC(vers="PC") {
+    function SetSumPC(vers = "PC") {
         if (vers == "PC") {
             var arr = document.getElementsByName('rcounts');
             var arr2 = document.getElementsByName('PricePC');
         }
-        else{
+        else {
             var arr = document.getElementsByName('rrcounts');
             var arr2 = document.getElementsByName('PriceMB');
         }

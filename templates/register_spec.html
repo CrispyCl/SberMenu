@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+
 <link rel="stylesheet" href="{{ url_for('static', filename='css/login_registration.css') }}">
 <form action="" method="post" enctype="multipart/form-data">
     {{ form.hidden_tag() }}
@@ -42,8 +43,7 @@
 
                         <!-- Submit -->
                         <div class="lg">
-                            {{ form.submit(class="register", value="Создать") }}
-                            <a class="Login" href="/login">Войти</a>
+                            {{ form.submit(class="Login", value="Создать") }}
                         </div>
                     </div>
                 </div>
@@ -57,4 +57,5 @@
         text-align: center;
     }
 </style>
+
 {% endblock %}

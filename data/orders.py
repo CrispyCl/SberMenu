@@ -3,7 +3,7 @@ import datetime
 import sqlalchemy
 from sqlalchemy import orm
 
-from .db_session import SqlAlchemyBase
+from data.db_session import SqlAlchemyBase
 
 
 class Order(SqlAlchemyBase):
@@ -15,4 +15,6 @@ class Order(SqlAlchemyBase):
     price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     edit_date = sqlalchemy.Column(sqlalchemy.DATE, nullable=False, default=datetime.date.today())
 
-    user = orm.relationship("User")
+    user = orm.relationship("User", back_populates="orders")
+
+    dishes = orm.relationship("DishOrder", back_populates="order", lazy="dynamic", cascade="all, delete-orphan")
