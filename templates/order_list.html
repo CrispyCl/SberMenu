@@ -18,14 +18,15 @@
     <!-- внедряем -->
     <div class="dish_number" id="t_h{{ order.id }}" style="cursor: pointer;justify-content: space-between;"><div class="di">Заказ №{{ order.id }}<i class="fa fa-caret-down"
             style="margin-left: 30px;"></i></div>
-            {% if order.status in [1, 2] %}
+            {% if order.status in [1, 2, 4] %}
             <div>
             {% if current_user.role in [0, 1] %}
             <a class="edit_status" onclick="OpenDialog('{{ order.id }}')">Изменить статус</a>
             <dialog id="di{{ order.id }}">
                 <div class="dwrapper">
+                    {% set feature_status = 4 if order.status == 2 and order.is_delivery else order.status + 1 %}
                     <div class="dheader">Изменение статуса</div>
-                    <div class="dmain">Вы хотите изменить статус на "{{ STATUS[order.status + 1] }}" ?</div>
+                    <div class="dmain">Вы хотите изменить статус на "{{ STATUS[feature_status] }}" ?</div>
                     <hr class="dhr">
                     <div class="dfooter">
                         <div class="dbtns">
@@ -88,6 +89,10 @@
                 {% endif %}
                 <div class="status">Статус - {{ STATUS[order.status] }}</div>
                 <div class="price">Цена - {{ order.price }}₽</div>
+                {% if order.is_delivery %}
+                <div class="price">Требуется доставка на:</div>
+                <div>{{ order.delivery_address }}</div>
+                {% endif %}
             </div>
             <div>
 

@@ -55,6 +55,17 @@
 
                 {% endif %}
                 {% endfor %}
+                <div>
+                    <div>Укажите способ получения:</div>
+                    <select name="is_delivery" id="is_delivery" onchange="IsDeliveryChange()">
+                        <option value="false">Самовывоз</option>
+                        <option value="true">Доставка на рабочее место</option>
+                    </select>
+                </div>
+                <div id="delivery_comment" style="display: none;">
+                    <p title="При указании некорректного места, заказ будет отменён">Укажите ваше рабочее место:</p>
+                    <input id="delivery_address" name="delivery_address" type="text">
+                </div>
             </div>
             {% if order %}
             <div class="order_total">
@@ -63,7 +74,7 @@
                     <div class="total_price">
                         <div id="TotalSum" class="text-center-total">Всего: {{ order["sum"] }}₽</div>
                     </div>
-                    <input class="order_submit" type="submit" value="Заказать">
+                    <input class="order_submit" type="submit" value="Оплатить">
                 </div>
             </div>
             {% endif %}
@@ -87,6 +98,20 @@
     }
 </style>
 <script>
+    function IsDeliveryChange() {
+        let combobox = document.getElementById("is_delivery");
+        let div = document.getElementById("delivery_comment");
+        let input = document.getElementById("delivery_address");
+        console.log(combobox);
+        if (combobox.value == "true") {
+            div.style.display = "";
+            input.required  = true;
+        }
+        else {
+            div.style.display = "none";
+            input.required  = false;
+        }
+    }
     function SetSumPC(vers = "PC") {
         if (vers == "PC") {
             var arr = document.getElementsByName('rcounts');
@@ -121,5 +146,4 @@
         document.getElementById("req_version").value = "PC"
     }
 </script>
-
 {% endblock %}
