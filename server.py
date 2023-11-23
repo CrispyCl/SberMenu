@@ -19,6 +19,7 @@ from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.user import UserForm
 from forms.comment import CommentForm
+from forms.criteria import CriteriaForm
 from static.python.functions import clear_db, create_main_admin
 
 
@@ -585,6 +586,31 @@ def login():
         message = {"status": 0, "text": "Неверный логин или пароль"}
         return render_template("login.html", title=title, form=form, message=dumps(message), order=session["order"])
     return render_template("login.html", title=title, form=form, message=smessage, order=session["order"])
+
+
+@app.route("/create/criteria", methods=["GET", "POST"])
+def create_criteria():
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
+        abort(404)
+    form = CriteriaForm()
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+
+    title = "Создание критерия"
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        if db_sess.query(Criteria).filter(Criteria.title == form.title.data).first():
+            message = {"status": 0, "text": "Критерий с таким названием уже есть"}
+            return render_template(
+                "create_criteria.html", title=title, form=form, message=dumps(message), order=session["order"]
+            )
+        criteria = Criteria(title=form.title.data)
+        db_sess.add(criteria)
+        db_sess.commit()
+        return redirect("/")
+    return render_template("create_criteria.html", title=title, form=form, message=smessage, order=session["order"])
 
 
 @login_manager.user_loader
