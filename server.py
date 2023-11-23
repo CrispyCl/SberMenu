@@ -3,7 +3,9 @@ from json import dumps
 
 from flask import abort, Flask, redirect, render_template, request, session
 from flask_login import current_user, login_required, login_user, LoginManager, logout_user
+from flask_socketio import join_room, leave_room, send, SocketIO
 from PIL import Image
+from sqlalchemy import or_, and_
 from static.python.functions import clear_db, create_main_admin
 
 from data import db_session
@@ -15,6 +17,7 @@ from data.dish_orders import DishOrder
 from data.dishes import Dish
 from data.dishes_lunch import DishLunch
 from data.lunches import Lunch
+from data.messages import Message
 from data.orders import Order
 from data.users import User
 from data.valuations import Valuation
@@ -28,6 +31,8 @@ from forms.user import UserForm
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "very_secret_key"
+socketio = SocketIO(app)
+
 ST_message = {"status": 404, "text": ""}
 STATUS = {1: "В процессе", 2: "Приготовлен", 3: "Выдан", 0: "Отменён"}
 
@@ -101,7 +106,7 @@ def change_order(order_id):
     if not order:
         abort(404)
     if order.status in [0, 3]:
-        abort(404)
+        return redirect(f"/orders#{order_id}")
     if current_user.role == 2 and current_user.id != order.user.id:
         abort(404)
     order.status += 1
@@ -695,8 +700,81 @@ def logout():
     return redirect("/")
 
 
+@app.route("/chat/<int:user_id>")
+def chat(user_id):
+    title = "Чат"
+
+    if not current_user.is_authenticated:
+        abort(404)
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+
+    db_sess = db_session.create_session()
+    user = db_sess.query(User).filter(User.id == user_id).first()
+    if not user:
+        abort(404)
+    admin, juser = sorted([user, current_user], key=lambda u: u.role)
+    if admin.role not in [0, 1]:
+        abort(404)
+    if juser.role != 2:
+        abort(404)
+    if current_user.role in [0, 1]:
+        messages = db_sess.query(Message).filter(
+            or_(
+                Message.to == user.id,
+                Message.user_id == user.id,
+            ),
+        )
+    else:
+        messages = db_sess.query(Message).filter(
+            or_(
+                Message.to == current_user.id,
+                Message.user_id == current_user.id,
+            ),
+        )
+    return render_template(
+        "chat.html",
+        title=title,
+        message=smessage,
+        order=session["order"],
+        messages=messages,
+        to_user_id=user_id,
+        juser=juser,
+    )
+
+
+@socketio.on("join")
+def on_join(data):
+    room = data["room"]
+    print(f"{current_user.email} was join to {room}")
+    join_room(room)
+
+
+@socketio.on("leave")
+def on_leave(data):
+    room = data["room"]
+    print(f"{current_user.email} was leave to {room}")
+    leave_room(room)
+
+
+@socketio.on("message")
+def handle_message(data):
+    room = data["room"]
+    message = data["message"]
+    send(message, room=room)
+    db_sess = db_session.create_session()
+    db_sess.add(
+        Message(
+            user_id=message["from"],
+            to=message["to"],
+            text=message["text"],
+        ),
+    )
+    db_sess.commit()
+
+
 if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
     create_main_admin(db_session.create_session())
     clear_db(db_session.create_session())
-    app.run(port=8080, host="127.0.0.1", debug=True)
+    socketio.run(app, port=8080, host="127.0.0.1", debug=True)
