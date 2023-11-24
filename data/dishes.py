@@ -23,3 +23,4 @@ class Dish(SqlAlchemyBase):
 
     orders = orm.relationship("DishOrder", back_populates="dish", lazy="dynamic")
     categories = orm.relationship("DishCategory", back_populates="dish", lazy="dynamic", cascade="all, delete-orphan")
+    votes = orm.relationship("Vote", back_populates="dish", lazy="dynamic", cascade="all, delete-orphan")

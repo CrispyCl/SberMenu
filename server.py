@@ -20,6 +20,7 @@ from data.lunches import Lunch
 from data.messages import Message
 from data.orders import Order
 from data.users import User
+from data.votes import Vote
 from data.valuations import Valuation
 from forms.category import CategoryForm
 from forms.comment import CommentForm
@@ -710,6 +711,25 @@ def login():
     return render_template("login.html", title=title, form=form, message=smessage, order=session["order"])
 
 
+@app.route("/vote/<int:dish_id>")
+def vote(dish_id):
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 2:
+        abort(404)
+    db_sess = db_session.create_session()
+    dish = db_sess.query(Dish).filter(Dish.id == dish_id).first()
+    if not dish:
+        abort(404)
+    votes = db_sess.query(Vote).filter(Vote.user_id == current_user.id).all()
+    dishes = [vote.dish_id for vote in votes]
+    if dish.id in dishes:
+        abort(404)
+    db_sess.add(Vote(dish_id=dish.id, user_id=current_user.id))
+    db_sess.commit()
+    return redirect(f"/profile/dish/{dish_id}")
+
+
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
@@ -799,4 +819,4 @@ if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
     create_main_admin(db_session.create_session())
     clear_db(db_session.create_session())
-    socketio.run(app, port=8080, host="127.0.0.1", debug=True)
+    socketio.run(app, port=8080, host="127.0.0.1", debug=True, allow_unsafe_werkzeug=True)
