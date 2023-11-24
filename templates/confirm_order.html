@@ -55,6 +55,19 @@
 
                 {% endif %}
                 {% endfor %}
+                <div>
+                    <div>Укажите способ получения:</div>
+                    <select name="is_delivery" id="is_delivery" onchange="IsDeliveryChange()">
+                        <option value="false">Самовывоз</option>
+                        <option value="true">Доставка на рабочее место</option>
+                    </select>
+                </div>
+                <div id="delivery_comment" style="display: none;">
+                    <p title="При указании некорректного места, заказ будет отменён">Укажите ваше рабочее место:</p>
+                    <input id="delivery_address" name="delivery_address" type="text">
+                    <p>Укажите желаемое время доставки:</p>
+                    <input id="delivery_time" name="delivery_time" type="time" onchange="TimeValidator()">
+                </div>
             </div>
             {% if order %}
             <div class="order_total">
@@ -63,7 +76,7 @@
                     <div class="total_price">
                         <div id="TotalSum" class="text-center-total">Всего: {{ order["sum"] }}₽</div>
                     </div>
-                    <input class="order_submit" type="submit" value="Заказать">
+                    <input class="order_submit" type="submit" value="Оплатить">
                 </div>
             </div>
             {% endif %}
@@ -87,6 +100,34 @@
     }
 </style>
 <script>
+    function TimeValidator() {
+        let input = document.getElementById("delivery_time").value;
+        let time = input.split(":");
+        let hours = time[0];
+        let minutes = time[1];
+        let date = new Date();
+        let now_hours = date.getHours();
+        let now_minutes = date.getMinutes();
+        let delta = (hours - now_hours) * 60 + (minutes - now_minutes);
+        if (delta < 15) {
+            var mes = {"status": 2, "text": "Доставка требует минимум 15 минут"}
+            AddMessage(mes, close_time=3000);
+        }
+    }
+    function IsDeliveryChange() {
+        let combobox = document.getElementById("is_delivery");
+        let div = document.getElementById("delivery_comment");
+        let input = document.getElementById("delivery_address");
+        console.log(combobox);
+        if (combobox.value == "true") {
+            div.style.display = "";
+            input.required  = true;
+        }
+        else {
+            div.style.display = "none";
+            input.required  = false;
+        }
+    }
     function SetSumPC(vers = "PC") {
         if (vers == "PC") {
             var arr = document.getElementsByName('rcounts');
@@ -121,5 +162,4 @@
         document.getElementById("req_version").value = "PC"
     }
 </script>
-
 {% endblock %}

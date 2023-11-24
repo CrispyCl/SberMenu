@@ -1,8 +1,10 @@
+import datetime as dt
+
 import sqlalchemy
 from sqlalchemy import orm
 from sqlalchemy_serializer import SerializerMixin
-import datetime as dt
-from .db_session import SqlAlchemyBase
+
+from data.db_session import SqlAlchemyBase
 
 
 class Comment(SqlAlchemyBase, SerializerMixin):
