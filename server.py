@@ -6,8 +6,6 @@ from flask_login import current_user, login_required, login_user, LoginManager, 
 from flask_socketio import join_room, leave_room, send, SocketIO
 from PIL import Image
 from sqlalchemy import or_
-from data.normalized_categories import NormalizedCategory
-from forms.normalized_category import NormalizedCategoryForm
 from static.python.functions import fill_db
 
 from data import db_session
@@ -20,6 +18,7 @@ from data.dishes import Dish
 from data.dishes_lunch import DishLunch
 from data.lunches import Lunch
 from data.messages import Message
+from data.normalized_categories import NormalizedCategory
 from data.orders import Order
 from data.users import User
 from data.valuations import Valuation
@@ -28,6 +27,7 @@ from forms.comment import CommentForm
 from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.lunch import LunchForm
+from forms.normalized_category import NormalizedCategoryForm
 from forms.user import UserForm
 
 
@@ -221,6 +221,9 @@ def create_dish():
 
     title = "Создание блюда"
     db_sess = db_session.create_session()
+    if not form.main_category.choices:
+        normolized_categories = db_sess.query(NormalizedCategory).all()
+        form.main_category.choices = [(cat.id, cat.title) for cat in normolized_categories]
     categories = db_sess.query(Category).all()
     if form.validate_on_submit():
         if db_sess.query(Dish).filter(Dish.title == form.title.data).first():
@@ -233,7 +236,12 @@ def create_dish():
                 order=session["order"],
                 categories=categories,
             )
-        dish = Dish(title=form.title.data, price=form.price.data, description=form.description.data.strip())
+        dish = Dish(
+            title=form.title.data,
+            price=form.price.data,
+            description=form.description.data.strip(),
+            normalized_category_id=form.main_category.data,
+        )
 
         dishes = db_sess.query(Dish).all()
         last_id = 1 if not dishes else dishes[-1].id + 1
@@ -537,10 +545,14 @@ def edit_dish(dish_id):
     title = "Редактирование блюда"
     categories = db_sess.query(Category).all()
     checked = {di.category_id for di in db_sess.query(DishCategory.category_id).filter(DishCategory.dish_id == dish_id)}
+    if not form.main_category.choices:
+        normolized_categories = db_sess.query(NormalizedCategory).all()
+        form.main_category.choices = [(cat.id, cat.title) for cat in normolized_categories]
     if request.method == "GET":
         form.title.data = dish.title
         form.description.data = dish.description
         form.price.data = dish.price
+        form.main_category.data = str(dish.normalized_category_id)
     if form.validate_on_submit():
         if db_sess.query(Dish).filter(Dish.title == form.title.data, dish_id != Dish.id).first():
             message = {"status": 0, "text": "Такое блюдо уже есть в меню"}
@@ -556,6 +568,7 @@ def edit_dish(dish_id):
         dish.title = form.title.data
         dish.price = form.price.data
         dish.description = form.description.data.strip()
+        dish.normalized_category_id = form.main_category.data
         db_sess.merge(dish)
         categories = {int(ct) for ct in request.form.getlist("categories")}
         for category in checked - categories:
@@ -666,7 +679,7 @@ def create_lunch():
 
     title = "Создание бизнес-ланча"
     db_sess = db_session.create_session()
-    categories = db_sess.query(Category).join(DishCategory).all()
+    categories = db_sess.query(NormalizedCategory).join(Category).join(DishCategory).all()
 
     if form.validate_on_submit():
         if db_sess.query(Lunch).filter(Lunch.date == form.date.data).first():

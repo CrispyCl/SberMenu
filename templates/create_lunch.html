@@ -31,12 +31,11 @@
             </div>
 
             <div class="all_categories">
-                {% for category in categories %}
+                {% for category in categories if category.dishes %}
                 <div class="category">
                     <div class="category_titlee">{{category.title}}</div>
                     <div class="choose_checkbox">
-                      {% for di_o in category.dishes %}
-                      {% set dish = di_o.dish %}
+                        {% for dish in category.dishes %}
                         <div class="inc">
                             <input id="myCheckbox{{ dish.id }}" type="checkbox" name="dishes" value="{{ dish.id }}">
                             <label class="chekimg" for="myCheckbox{{ dish.id }}">

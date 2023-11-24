@@ -5,6 +5,6 @@ from wtforms.validators import DataRequired
 
 class CategoryForm(FlaskForm):
     title = StringField("Название", validators=[DataRequired()])
-    main_category = SelectField(u"", choices=())
+    main_category = SelectField("", choices=())
     image = FileField()
     submit = SubmitField("Добавить")
