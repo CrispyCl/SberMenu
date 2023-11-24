@@ -53,8 +53,9 @@ def index():
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
     categories = db_sess.query(Category).join(DishCategory).all()
+    lunch = db_sess.query(Lunch).filter(Lunch.date == datetime.date.today()).first()
 
-    return render_template("index.html", message=smessage, order=session["order"], categories=categories)
+    return render_template("index.html", message=smessage, order=session["order"], categories=categories, lunch=lunch)
 
 
 @app.route("/add_dish/<int:dish_id>")
@@ -627,11 +628,22 @@ def create_lunch():
                 dishes=dishes,
                 categories=categories,
             )
+        chosen_dishes = request.form.getlist("dishes")
+        if not chosen_dishes:
+            message = {"status": 0, "text": "Добавьте блюда"}
+            return render_template(
+                "create_lunch.html",
+                title=title,
+                form=form,
+                message=dumps(message),
+                order=session["order"],
+                dishes=dishes,
+                categories=categories,
+            )
 
         lunch = Lunch(price=form.price.data, date=form.date.data)
         db_sess.add(lunch)
 
-        chosen_dishes = request.form.getlist("dishes")
         for dish in chosen_dishes:
             d_lunch = DishLunch(dish_id=dish)
             d_lunch.price_change = int(request.form.getlist(f"p_change{dish}")[0])
@@ -649,6 +661,24 @@ def create_lunch():
         order=session["order"],
         categories=categories,
     )
+
+
+@app.route("/lunch_list")
+def lunch_list():
+    title = "Бизнесс-ланча"
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+
+    db_sess = db_session.create_session()
+    lunches = db_sess.query(Lunch).order_by(Lunch.date).all()[::-1]
+
+    return render_template(
+        "lunch_list.html",
+        title=title,
+        message=smessage,
+        lunches=lunches,
+    )
+
 
 
 @app.route("/profile/dish/<int:dish_id>", methods=["GET", "POST"])
@@ -702,16 +732,16 @@ def order_lunch():
     lunch = db_sess.query(Lunch).filter(Lunch.date == datetime.date.today()).first()
     categories = db_sess.query(Category).join(DishCategory).all()
     lunch_dishes = [i.dish for i in lunch.dishes]
-    DISHES = {}
+    dishes = {}
     for category in categories:
         for dish in category.dishes:
             if dish.dish in lunch_dishes:
-                if not DISHES.get(category.id):
-                    DISHES[category.id] = []
-                DISHES[category.id].append(dish.dish)
-    PRICE_CHANGES = {}
+                if not dishes.get(category.id):
+                    dishes[category.id] = []
+                dishes[category.id].append(dish.dish)
+    price_changes = {}
     for dish in lunch.dishes:
-        PRICE_CHANGES[dish.dish_id] = dish.price_change
+        price_changes[dish.dish_id] = dish.price_change
     if form.validate_on_submit():
         chosen_dishes = request.form.getlist("dishes")
         for dish in chosen_dishes:
@@ -730,8 +760,8 @@ def order_lunch():
         message=smessage,
         order=session["order"],
         categories=categories,
-        DISHES=DISHES,
-        PRICE_CHANGES=PRICE_CHANGES
+        DISHES=dishes,
+        PRICE_CHANGES=price_changes,
     )
 
 

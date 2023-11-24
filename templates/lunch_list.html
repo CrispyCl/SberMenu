@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<a href="/create/lunch">Создать бизнесс-ланч</a>
+{% for lunch in lunches %}
+  <div>
+    <div>Дата: {{ lunch.date }}</div>
+    <div>Стандартная цена: {{ lunch.price }}</div>
+    <div>
+       Макс, вот это нужно стрелочкой своравичать
+      {% for di_l in lunch.dishes %}
+        {% set dish = di_l.dish %}
+        Вот сюда вставить блюда(как в dish_list.html:24)
+        <div>
+          Отклонение в цене: {{ di_l.price_change }}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endfor %}
+
+{% endblock %}

@@ -10,7 +10,7 @@ class DishLunch(SqlAlchemyBase):
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     dish_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("dishes.id"))
     lunch_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey("lunches.id"))
-    price_change = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
+    price_change = sqlalchemy.Column(sqlalchemy.Integer, nullable=False, default=0)
 
     dish = orm.relationship("Dish", backref="lunches")
     lunch = orm.relationship("Lunch", back_populates="dishes")
