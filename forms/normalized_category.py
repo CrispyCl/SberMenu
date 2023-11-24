@@ -1,10 +1,8 @@
 from flask_wtf import FlaskForm
-from wtforms import FileField, SelectField, StringField, SubmitField
+from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
 
 
-class CategoryForm(FlaskForm):
+class NormalizedCategoryForm(FlaskForm):
     title = StringField("Название", validators=[DataRequired()])
-    main_category = SelectField(u"", choices=())
-    image = FileField()
     submit = SubmitField("Добавить")

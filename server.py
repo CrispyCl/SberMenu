@@ -6,6 +6,8 @@ from flask_login import current_user, login_required, login_user, LoginManager, 
 from flask_socketio import join_room, leave_room, send, SocketIO
 from PIL import Image
 from sqlalchemy import or_
+from data.normalized_categories import NormalizedCategory
+from forms.normalized_category import NormalizedCategoryForm
 from static.python.functions import fill_db
 
 from data import db_session
@@ -270,8 +272,11 @@ def create_category():
     session["message"] = dumps(ST_message)
 
     title = "Создание категории"
+    db_sess = db_session.create_session()
+    if not form.main_category.choices:
+        normolized_categories = db_sess.query(NormalizedCategory).all()
+        form.main_category.choices = [(cat.id, cat.title) for cat in normolized_categories]
     if form.validate_on_submit():
-        db_sess = db_session.create_session()
         if db_sess.query(Category).filter(Category.title == form.title.data).first():
             message = {"status": 0, "text": "Категория с таким названием уже есть"}
             return render_template(
@@ -281,7 +286,10 @@ def create_category():
                 message=dumps(message),
                 order=session["order"],
             )
-        category = Category(title=form.title.data)
+        category = Category(
+            title=form.title.data,
+            normalized_category_id=form.main_category.data,
+        )
 
         categories = db_sess.query(Category).all()
         last_id = 1 if not categories else categories[-1].id + 1
@@ -293,6 +301,8 @@ def create_category():
         category.image = f"img/categories/{last_id}.jpg"
         db_sess.add(category)
         db_sess.commit()
+        message = {"status": 1, "text": "Категория создана"}
+        session["message"] = dumps(message)
         return redirect("/")
     return render_template("create_category.html", title=title, form=form, message=smessage, order=session["order"])
 
@@ -449,8 +459,13 @@ def edit_category(category_id):
     session["message"] = dumps(ST_message)
 
     title = "Изменение категории"
+    if not form.main_category.choices:
+        normolized_categories = db_sess.query(NormalizedCategory).all()
+        form.main_category.choices = [(cat.id, cat.title) for cat in normolized_categories]
     if request.method == "GET":
         form.title.data = category.title
+        form.main_category.data = str(category.normalized_category_id)
+
     if form.validate_on_submit():
         if db_sess.query(Category).filter(Category.title == form.title.data, Category.id != category_id).first():
             message = {"status": 0, "text": "Категория с таким названием уже есть"}
@@ -462,11 +477,48 @@ def edit_category(category_id):
                 order=session["order"],
             )
         category.title = form.title.data
+        category.normalized_category_id = form.main_category.data
         if form.image.data:
             form.image.data.save(f"static/img/categories/{category_id}.jpg")
         db_sess.commit()
         return redirect("/")
     return render_template("edit_category.html", title=title, form=form, message=smessage, order=session["order"])
+
+
+@app.route("/create/normalized_category", methods=["GET", "POST"])
+def create_normalize_category():
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
+        abort(404)
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    title = "Создание главной категории"
+    form = NormalizedCategoryForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        if db_sess.query(NormalizedCategory).filter(NormalizedCategory.title == form.title.data).first():
+            message = {"status": 0, "text": "Категория с таким названием уже есть"}
+            return render_template(
+                "create_normalized_category.html",
+                title=title,
+                form=form,
+                message=message,
+            )
+        category = NormalizedCategory(
+            title=form.title.data,
+        )
+        db_sess.add(category)
+        db_sess.commit()
+        message = {"status": 1, "text": "Категория создана"}
+        session["message"] = dumps(message)
+        return redirect("/")
+    return render_template(
+        "create_normalized_category.html",
+        title=title,
+        form=form,
+        message=smessage,
+    )
 
 
 @app.route("/edit/dish/<int:dish_id>", methods=["GET", "POST"])
