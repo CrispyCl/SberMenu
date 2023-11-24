@@ -8,3 +8,4 @@ from . import messages
 from . import criterias
 from . import comments
 from . import valuations
+from . import  stats

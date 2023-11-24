@@ -19,9 +19,11 @@ from data.dishes_lunch import DishLunch
 from data.lunches import Lunch
 from data.messages import Message
 from data.orders import Order
+from data.stats import Stat
 from data.users import User
 from data.valuations import Valuation
 from forms.category import CategoryForm
+from forms.stat import StatForm
 from forms.comment import CommentForm
 from forms.criteria import CriteriaForm
 from forms.dish import DishForm
@@ -199,6 +201,12 @@ def confirm_order():
                 price=el["price"],
             )
             db_sess.add(dish_order)
+            if not db_sess.query(Stat).filter(Stat.dish_id == int(k)).filter(Stat.date == datetime.date.today()).first():
+                stat = Stat(dish_id=int(k), date=datetime.date.today(), count=el["count"])
+            else:
+                stat = db_sess.query(Stat).filter(Stat.dish_id == int(k)).filter(Stat.date == datetime.date.today()).first()
+                stat.count += el["count"]
+            db_sess.add(stat)
         db_sess.commit()
         message = {"status": 1, "text": "Заказ оформлен"}
         session["message"] = dumps(message)
@@ -739,6 +747,88 @@ def create_criteria():
     return render_template("create_criteria.html", title=title, form=form, message=smessage, order=session["order"])
 
 
+@app.route("/stats/<int:dish_id>/<string:date>", methods=["GET", "POST"])
+def stats(dish_id, date):
+    title = "Статистика"
+    smessage = session["message"]
+    form = StatForm(dish=dish_id, coerce=int)
+    session["message"] = dumps(ST_message)
+    db_sess = db_session.create_session()
+    dishes = db_sess.query(Dish).all()
+    for dish in dishes:
+        form.dish.choices.append((dish.id, dish.title))
+    date = date.split("-")
+    date = datetime.date(year=int(date[0]), month=int(date[1]), day=int(date[2]))
+    stats = {}
+
+    dish_stats = db_sess.query(Stat).filter(Stat.dish_id == dish_id).all()
+    for stat in dish_stats:
+        if stat.date == date:
+            stats["now"] = stat.count
+        if stat.date == date - datetime.timedelta(days=1):
+            stats["yesterday"] = stat.count
+        if stat.date == date - datetime.timedelta(days=7):
+            stats["week"] = stat.count
+        if stat.date == date - datetime.timedelta(days=30):
+            stats["month"] = stat.count
+        if stat.date == date - datetime.timedelta(days=365):
+            stats["years"] = stat.count
+    if not stats.get("yesterday"):
+        stats["yesterday"] = stats["now"]
+    if not stats.get("week"):
+        stats["week"] = stats["yesterday"]
+    if not stats.get("month"):
+        stats["month"] = stats["week"]
+    if not stats.get("year"):
+        stats["year"] = stats["month"]
+    predict = stats["yesterday"] * 0.3 + stats["week"] * 0.3 + stats["month"] * 0.2 + stats["year"] * 0.2
+    predict = int(str(predict).split(".")[0])
+
+    stats_show = {}
+
+    print(date)
+    dish_stats = db_sess.query(Stat).filter(Stat.dish_id == dish_id).all()
+    for stat in dish_stats:
+        if stat.date == date:
+            stats_show["now"] = stat.count
+        if stat.date == date - datetime.timedelta(days=1):
+            stats_show["yesterday"] = stat.count
+        if stat.date >= date - datetime.timedelta(days=7):
+            if not stats_show.get("week"):
+                stats_show["week"] = stat.count
+            else:
+                stats_show["week"] += stat.count
+        if stat.date >= date - datetime.timedelta(days=30):
+            if not stats_show.get("month"):
+                stats_show["month"] = stat.count
+            else:
+                stats_show["month"] += stat.count
+        if stat.date >= date - datetime.timedelta(days=365):
+            if not stats_show.get("year"):
+                stats_show["year"] = stat.count
+            else:
+                stats_show["year"] += stat.count
+    if not stats_show.get("now"):
+        stats_show["now"] = 0
+    if not stats_show.get("yesterday"):
+        stats_show["yesterday"] = 0
+    if not stats_show.get("week"):
+        stats_show["week"] = 0
+    if not stats_show.get("month"):
+        stats_show["month"] = 0
+    if not stats_show.get("year"):
+        stats_show["year"] = 0
+    print(stats_show)
+    if request.method == "GET":
+        form.dish.default = dish_id
+        form.date.data = date
+        form.data.setdefault(date)
+    if form.validate_on_submit():
+        dish = form.dish.data
+        return redirect(f"/stats/{dish}/{form.date.data}")
+    return render_template("stats.html", title=title, form=form, message=smessage, order=session["order"], stats=stats_show, predict=predict)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
@@ -828,4 +918,4 @@ if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
     create_main_admin(db_session.create_session())
     clear_db(db_session.create_session())
-    socketio.run(app, port=8080, host="127.0.0.1", debug=True)
+    socketio.run(app, port=8080, host="127.0.0.1", debug=True, allow_unsafe_werkzeug=True)

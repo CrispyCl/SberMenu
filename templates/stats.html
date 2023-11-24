@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<div>
+    <form method="post" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+
+        {{ form.dish(class="form-control name", type="text",
+            placeholder="Выберите блюдо") }}
+            {% for error in form.dish.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+
+        {{ form.date(class="form-control name", type="date",
+            placeholder="Дата") }}
+            {% for error in form.date.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+        <!-- Submit -->
+            {{ form.submit(class="submitbtn", value="Вывести") }}
+    </form>
+    <div>
+        Предполагаемое количество - {{ predict }}
+    </div>
+    <div>
+        В этот день -{{ stats["now"] }}
+    </div>
+    <div>
+        Предыдущий день - {{ stats["yesterday"] }}
+    </div>
+    <div>
+        За неделю - {{ stats["week"] }}
+    </div>
+    <div>
+        За месяц - {{ stats["month"] }}
+    </div>
+    <div>
+        За год - {{ stats["year"] }}
+    </div>
+</div>
+{% endblock %}
