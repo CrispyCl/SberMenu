@@ -7,7 +7,7 @@ from flask_socketio import join_room, leave_room, send, SocketIO
 from PIL import Image
 from sqlalchemy import or_, and_
 from static.python.functions import clear_db, create_main_admin
-
+from data.posts import Post
 from data import db_session
 from data.categories import Category
 from data.comments import Comment
@@ -27,6 +27,7 @@ from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.lunch import LunchForm
 from forms.user import UserForm
+from forms.post import PostForm
 
 
 app = Flask(__name__)
@@ -686,6 +687,45 @@ def login():
     return render_template("login.html", title=title, form=form, message=smessage, order=session["order"])
 
 
+@app.route("/create/post", methods=["GET", "POST"])
+def create_post():
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
+        abort(404)
+    form = PostForm()
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+
+    title = "Создание новости"
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        post = Post(title=form.title.data, text=form.text.data)
+
+        posts = db_sess.query(Post).all()
+        last_id = 1 if not posts else posts[-1].id + 1
+        if form.image.data:
+            img1 = form.image.data
+            img1.save(f"static/img/posts/{last_id}.jpg")
+        else:
+            post.image=None
+        post.image = f"img/posts/{last_id}.jpg"
+        db_sess.add(post)
+        db_sess.commit()
+        return redirect("/")
+    return render_template("create_post.html", title=title, form=form, message=smessage, order=session["order"])
+
+
+@app.route("/news")
+def news():
+    title = "Новости"
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    db_sess = db_session.create_session()
+    posts = db_sess.query(Post).all()
+    return render_template("news.html", title=title, message=smessage, order=session["order"], posts=posts)
+
+
 @login_manager.user_loader
 def load_user(user_id):
     db_sess = db_session.create_session()
@@ -777,4 +817,4 @@ if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
     create_main_admin(db_session.create_session())
     clear_db(db_session.create_session())
-    socketio.run(app, port=8080, host="127.0.0.1", debug=True)
+    socketio.run(app, port=8080, host="127.0.0.1", debug=True, allow_unsafe_werkzeug=True)
