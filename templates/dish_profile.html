@@ -13,6 +13,14 @@
                 <img class="image" src="{{ url_for('static', filename=dish.image) }}">
                 <textarea class="info" style="padding: 2px;" readonly>{% if dish.description == '' %}Описания нет{% else %}{{ dish.description }}{% endif %}</textarea>
             </div>
+            <div>
+                <div>Оценка блюда</div>
+                <div>
+                    {% for criteria in criterias %}
+                    <div>{{ criteria.title }}: {% if criteria_valuations.get(criteria.title) %}{{ criteria_valuations[criteria.title] }} {% else %}-{% endif %}</div>
+                    {% endfor %}
+                </div>
+            </div>
             {% if current_user.role == 0 %}
             <style>
                 .dish_buy {
@@ -100,7 +108,7 @@
         {% for comment in dish_comments %}
         <div>
             <p>{{ comment.user.surname }}{{ comment.user.name }}</p>
-            {% for valuation in valuations[comment.id] %}
+            {% for valuation in com_valuations[comment.id] %}
             <div>
                 <p>{{ valuation.criteria.title }}: {{ valuation.value }}</p>
             </div>

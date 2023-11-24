@@ -660,9 +660,18 @@ def profile_dish(dish_id):
     if not dish:
         abort(404)
     dish_comments = db_sess.query(Comment).filter(Comment.dish_id == dish_id).all()
-    valuations = {}
+    com_valuations = {}
+    criteria_valuations = {}
     for comment in dish_comments:
-        valuations[comment.id] = db_sess.query(Valuation).filter(Valuation.comment_id == comment.id).all()
+        com_valuations[comment.id] = db_sess.query(Valuation).filter(Valuation.comment_id == comment.id).all()
+        values = com_valuations[comment.id]
+        if len(values) > 0:
+            for value in values:
+                if not criteria_valuations.get(value.criteria.title):
+                    criteria_valuations[value.criteria.title] = []
+                criteria_valuations[value.criteria.title].append(value.value)
+    for i in criteria_valuations:
+        criteria_valuations[i] = float(str(sum(criteria_valuations[i]) / len(criteria_valuations[i]))[:3])
     criterias = db_sess.query(Criteria).all()
     criteria_count = len(criterias)
     if form.validate_on_submit():
@@ -685,7 +694,8 @@ def profile_dish(dish_id):
         criterias=criterias,
         form=form,
         dish_comments=dish_comments,
-        valuations=valuations,
+        com_valuations=com_valuations,
+        criteria_valuations=criteria_valuations
     )
 
 
@@ -828,4 +838,4 @@ if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
     create_main_admin(db_session.create_session())
     clear_db(db_session.create_session())
-    socketio.run(app, port=8080, host="127.0.0.1", debug=True)
+    socketio.run(app, port=8080, host="127.0.0.1", debug=True, allow_unsafe_werkzeug=True)
