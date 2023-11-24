@@ -5,7 +5,7 @@ from flask import abort, Flask, redirect, render_template, request, session
 from flask_login import current_user, login_required, login_user, LoginManager, logout_user
 from flask_socketio import join_room, leave_room, send, SocketIO
 from PIL import Image
-from sqlalchemy import or_, and_
+from sqlalchemy import or_
 from static.python.functions import clear_db, create_main_admin
 
 from data import db_session
@@ -19,22 +19,24 @@ from data.dishes_lunch import DishLunch
 from data.lunches import Lunch
 from data.messages import Message
 from data.orders import Order
+from data.posts import Post
 from data.users import User
 from data.valuations import Valuation
 from forms.category import CategoryForm
 from forms.comment import CommentForm
+from forms.criteria import CriteriaForm
 from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.lunch import LunchForm
+from forms.post import PostForm
 from forms.user import UserForm
-
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "very_secret_key"
 socketio = SocketIO(app)
 
 ST_message = {"status": 404, "text": ""}
-STATUS = {1: "В процессе", 2: "Приготовлен", 3: "Выдан", 0: "Отменён"}
+STATUS = {1: "В процессе", 2: "Приготовлен", 3: "Выдан", 4: "Передан в доставку", 5: "Доставлен", 0: "Отменён"}
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -53,9 +55,15 @@ def index():
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
     categories = db_sess.query(Category).join(DishCategory).all()
+    posts = db_sess.query(Post).order_by(Post.date).all()[::-1][0:3]
 
     return render_template(
-        "index.html", message=smessage, order=session["order"], categories=categories, title="Добро пожаловать"
+        "index.html",
+        title="Добро пожаловать",
+        message=smessage,
+        order=session["order"],
+        categories=categories,
+        posts=posts,
     )
 
 
@@ -107,10 +115,12 @@ def change_order(order_id):
     order = db_sess.query(Order).get(order_id)
     if not order:
         abort(404)
-    if order.status in [0, 3]:
+    if order.status in [0, 3, 5]:
         return redirect(f"/orders#{order_id}")
-    if current_user.role == 2 and current_user.id != order.user.id:
+    if current_user.role == 2:
         abort(404)
+    if order.status == 2 and order.is_delivery:
+        order.status += 1
     order.status += 1
     order.edit_date = datetime.date.today()
     db_sess.merge(order)
@@ -151,10 +161,26 @@ def confirm_order():
             session["message"] = dumps(message)
             return redirect("/login")
         if list(session["order"]) == ["sum"]:
-            message = {"status": 1, "text": "Заказ отменён"}
+            message = {"status": 0, "text": "Корзина пустая"}
             session["message"] = dumps(message)
             session["order"] = {}
             return redirect("/")
+        is_delivery = request.form.get("is_delivery") == "true"
+        if is_delivery:
+            address = request.form.get("delivery_address")
+            if not address:
+                message = {"status": 0, "text": "Укажите место доставки"}
+                session["message"] = dumps(message)
+                return redirect("/confirm_order")
+            delivery_time = request.form.get("delivery_time")
+            if delivery_time:
+                delivery_time = datetime.datetime.strptime(delivery_time, "%H:%M").time()
+                now = datetime.datetime.now().time()
+                delta = (delivery_time.hour - now.hour) * 60 + (delivery_time.minute - now.minute)
+                if delta < 15:
+                    message = {"status": 0, "text": "Доставка требует минимум 15 минут"}
+                    session["message"] = dumps(message)
+                    return redirect("/confirm_order")
         db_sess = db_session.create_session()
         orders = db_sess.query(Order).all()
         last_id = 1 if not orders else orders[-1].id + 1
@@ -164,6 +190,12 @@ def confirm_order():
             status=1,
             price=session["order"]["sum"],
         )
+        if is_delivery:
+            order.is_delivery = True
+            order.delivery_address = address
+            if delivery_time:
+                order.delivery_time = delivery_time
+
         db_sess.add(order)
         for k in session["order"]:
             if k == "sum":
@@ -178,7 +210,7 @@ def confirm_order():
             )
             db_sess.add(dish_order)
         db_sess.commit()
-        message = {"status": 1, "text": "Заказ создан"}
+        message = {"status": 1, "text": "Заказ оформлен"}
         session["message"] = dumps(message)
         session["order"] = {}
     return redirect("/")
@@ -566,7 +598,7 @@ def orders():
     if current_user.role == 2:
         orders = db_sess.query(Order).filter(Order.user_id == current_user.id).join(DishOrder).all()[::-1]
     elif current_user.role == 1:
-        orders = db_sess.query(Order).filter(Order.status.in_([1, 2])).join(DishOrder).all()[::-1]
+        orders = db_sess.query(Order).filter(Order.status.in_([1, 2, 4])).join(DishOrder).all()[::-1]
     else:
         orders = db_sess.query(Order).join(DishOrder).all()[::-1]
 
@@ -638,9 +670,18 @@ def profile_dish(dish_id):
     if not dish:
         abort(404)
     dish_comments = db_sess.query(Comment).filter(Comment.dish_id == dish_id).all()
-    valuations = {}
+    com_valuations = {}
+    criteria_valuations = {}
     for comment in dish_comments:
-        valuations[comment.id] = db_sess.query(Valuation).filter(Valuation.comment_id == comment.id).all()
+        com_valuations[comment.id] = db_sess.query(Valuation).filter(Valuation.comment_id == comment.id).all()
+        values = com_valuations[comment.id]
+        if len(values) > 0:
+            for value in values:
+                if not criteria_valuations.get(value.criteria.title):
+                    criteria_valuations[value.criteria.title] = []
+                criteria_valuations[value.criteria.title].append(value.value)
+    for i in criteria_valuations:
+        criteria_valuations[i] = float(str(sum(criteria_valuations[i]) / len(criteria_valuations[i]))[:3])
     criterias = db_sess.query(Criteria).all()
     criteria_count = len(criterias)
     if form.validate_on_submit():
@@ -663,7 +704,8 @@ def profile_dish(dish_id):
         criterias=criterias,
         form=form,
         dish_comments=dish_comments,
-        valuations=valuations,
+        com_valuations=com_valuations,
+        criteria_valuations=criteria_valuations,
     )
 
 
@@ -686,6 +728,74 @@ def login():
         message = {"status": 0, "text": "Неверный логин или пароль"}
         return render_template("login.html", title=title, form=form, message=dumps(message), order=session["order"])
     return render_template("login.html", title=title, form=form, message=smessage, order=session["order"])
+
+
+@app.route("/create/post", methods=["GET", "POST"])
+def create_post():
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
+        abort(404)
+    form = PostForm()
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+
+    title = "Создание новости"
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        post = Post(title=form.title.data, text=form.text.data)
+
+        posts = db_sess.query(Post).all()
+        last_id = 1 if not posts else posts[-1].id + 1
+        if form.image.data:
+            img1 = form.image.data
+            img1.save(f"static/img/posts/{last_id}.jpg")
+        else:
+            post.image = None
+        post.image = f"img/posts/{last_id}.jpg"
+        db_sess.add(post)
+        db_sess.commit()
+        return redirect("/")
+    return render_template("create_post.html", title=title, form=form, message=smessage, order=session["order"])
+
+
+@app.route("/news")
+def news():
+    title = "Новости"
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    db_sess = db_session.create_session()
+    posts = db_sess.query(Post).all()
+    return render_template("news.html", title=title, message=smessage, order=session["order"], posts=posts)
+
+
+@app.route("/create/criteria", methods=["GET", "POST"])
+def create_criteria():
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
+        abort(404)
+    form = CriteriaForm()
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+
+    title = "Создание критерия"
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        if db_sess.query(Criteria).filter(Criteria.title == form.title.data).first():
+            message = {"status": 0, "text": "Критерий с таким названием уже есть"}
+            return render_template(
+                "create_criteria.html",
+                title=title,
+                form=form,
+                message=dumps(message),
+                order=session["order"],
+            )
+        criteria = Criteria(title=form.title.data)
+        db_sess.add(criteria)
+        db_sess.commit()
+        return redirect("/")
+    return render_template("create_criteria.html", title=title, form=form, message=smessage, order=session["order"])
 
 
 @login_manager.user_loader
@@ -748,14 +858,12 @@ def chat(user_id):
 @socketio.on("join")
 def on_join(data):
     room = data["room"]
-    print(f"{current_user.email} was join to {room}")
     join_room(room)
 
 
 @socketio.on("leave")
 def on_leave(data):
     room = data["room"]
-    print(f"{current_user.email} was leave to {room}")
     leave_room(room)
 
 
@@ -779,4 +887,4 @@ if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
     create_main_admin(db_session.create_session())
     clear_db(db_session.create_session())
-    socketio.run(app, port=8080, host="127.0.0.1", debug=True)
+    socketio.run(app, port=8080, host="127.0.0.1", debug=True, allow_unsafe_werkzeug=True)

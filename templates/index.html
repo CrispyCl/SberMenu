@@ -33,7 +33,20 @@
 <div class="add_dish_wrapper">
     <div class="text-center">Меню</div>
 </div>
-
+<div>
+    <div>
+        {% for post in posts %}
+        <div>
+            <div>{{ post.title }}</div>
+            {% if post.image %}
+        <div><img src="{{ url_for('static', filename=post.image) }}"></div>
+            {% endif %}
+            <div>{{ post.text }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    <a href="/news">Все новости</a>
+</div>
 {% for category in categories %}
 <div class="dish_category" id="{{ category.id }}">
     <div class="category_title">

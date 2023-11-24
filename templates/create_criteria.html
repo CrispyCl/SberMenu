@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+
+    <form action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+            <!-- title -->
+            {{ form.title(class="form-control name", type="text",
+            placeholder="Название") }}
+            {% for error in form.title.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+
+            <!-- Submit -->
+            {{ form.submit(class="submitbtn", value="Добавить") }}
+    </form>
+
+
+<script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+<script src="{{ url_for('static', filename='scripts/create_category.js') }}"></script>
+
+
+{% endblock %}
