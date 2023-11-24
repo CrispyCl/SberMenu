@@ -5,7 +5,7 @@ from flask import abort, Flask, redirect, render_template, request, session
 from flask_login import current_user, login_required, login_user, LoginManager, logout_user
 from flask_socketio import join_room, leave_room, send, SocketIO
 from PIL import Image
-from sqlalchemy import or_, and_
+from sqlalchemy import or_
 from static.python.functions import clear_db, create_main_admin
 
 from data import db_session
@@ -34,7 +34,7 @@ app.config["SECRET_KEY"] = "very_secret_key"
 socketio = SocketIO(app)
 
 ST_message = {"status": 404, "text": ""}
-STATUS = {1: "В процессе", 2: "Приготовлен", 3: "Выдан", 0: "Отменён"}
+STATUS = {1: "В процессе", 2: "Приготовлен", 3: "Выдан", 4: "Передан в доставку", 5: "Доставлен", 0: "Отменён"}
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -105,10 +105,12 @@ def change_order(order_id):
     order = db_sess.query(Order).get(order_id)
     if not order:
         abort(404)
-    if order.status in [0, 3]:
+    if order.status in [0, 3, 5]:
         return redirect(f"/orders#{order_id}")
-    if current_user.role == 2 and current_user.id != order.user.id:
+    if current_user.role == 2:
         abort(404)
+    if order.status == 2 and order.is_delivery:
+        order.status += 1
     order.status += 1
     order.edit_date = datetime.date.today()
     db_sess.merge(order)
@@ -149,10 +151,26 @@ def confirm_order():
             session["message"] = dumps(message)
             return redirect("/login")
         if list(session["order"]) == ["sum"]:
-            message = {"status": 1, "text": "Заказ отменён"}
+            message = {"status": 0, "text": "Корзина пустая"}
             session["message"] = dumps(message)
             session["order"] = {}
             return redirect("/")
+        is_delivery = request.form.get("is_delivery") == "true"
+        if is_delivery:
+            address = request.form.get("delivery_address")
+            if not address:
+                message = {"status": 0, "text": "Укажите место доставки"}
+                session["message"] = dumps(message)
+                return redirect("/confirm_order")
+            delivery_time = request.form.get("delivery_time")
+            if delivery_time:
+                delivery_time = datetime.datetime.strptime(delivery_time, "%H:%M").time()
+                now = datetime.datetime.now().time()
+                delta = (delivery_time.hour - now.hour) * 60 + (delivery_time.minute - now.minute)
+                if delta < 15:
+                    message = {"status": 0, "text": "Доставка требует минимум 15 минут"}
+                    session["message"] = dumps(message)
+                    return redirect("/confirm_order")
         db_sess = db_session.create_session()
         orders = db_sess.query(Order).all()
         last_id = 1 if not orders else orders[-1].id + 1
@@ -162,6 +180,12 @@ def confirm_order():
             status=1,
             price=session["order"]["sum"],
         )
+        if is_delivery:
+            order.is_delivery = True
+            order.delivery_address = address
+            if delivery_time:
+                order.delivery_time = delivery_time
+
         db_sess.add(order)
         for k in session["order"]:
             if k == "sum":
@@ -176,7 +200,7 @@ def confirm_order():
             )
             db_sess.add(dish_order)
         db_sess.commit()
-        message = {"status": 1, "text": "Заказ создан"}
+        message = {"status": 1, "text": "Заказ оформлен"}
         session["message"] = dumps(message)
         session["order"] = {}
     return redirect("/")
@@ -564,7 +588,7 @@ def orders():
     if current_user.role == 2:
         orders = db_sess.query(Order).filter(Order.user_id == current_user.id).join(DishOrder).all()[::-1]
     elif current_user.role == 1:
-        orders = db_sess.query(Order).filter(Order.status.in_([1, 2])).join(DishOrder).all()[::-1]
+        orders = db_sess.query(Order).filter(Order.status.in_([1, 2, 4])).join(DishOrder).all()[::-1]
     else:
         orders = db_sess.query(Order).join(DishOrder).all()[::-1]
 
@@ -746,14 +770,12 @@ def chat(user_id):
 @socketio.on("join")
 def on_join(data):
     room = data["room"]
-    print(f"{current_user.email} was join to {room}")
     join_room(room)
 
 
 @socketio.on("leave")
 def on_leave(data):
     room = data["room"]
-    print(f"{current_user.email} was leave to {room}")
     leave_room(room)
 
 
