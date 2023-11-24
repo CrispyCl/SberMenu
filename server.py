@@ -57,7 +57,14 @@ def index():
     categories = db_sess.query(Category).join(DishCategory).all()
     posts = db_sess.query(Post).order_by(Post.date).all()[::-1][0:3]
 
-    return render_template("index.html", message=smessage, order=session["order"], categories=categories, posts=posts)
+    return render_template(
+        "index.html",
+        title="Добро пожаловать",
+        message=smessage,
+        order=session["order"],
+        categories=categories,
+        posts=posts,
+    )
 
 
 @app.route("/add_dish/<int:dish_id>")
@@ -698,7 +705,7 @@ def profile_dish(dish_id):
         form=form,
         dish_comments=dish_comments,
         com_valuations=com_valuations,
-        criteria_valuations=criteria_valuations
+        criteria_valuations=criteria_valuations,
     )
 
 
