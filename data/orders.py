@@ -15,6 +15,7 @@ class Order(SqlAlchemyBase):
     price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     is_delivery = sqlalchemy.Column(sqlalchemy.Boolean, nullable=False, default=0)
     delivery_address = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    delivery_time = sqlalchemy.Column(sqlalchemy.Time, nullable=True)
     edit_date = sqlalchemy.Column(sqlalchemy.DATE, nullable=False, default=datetime.date.today())
 
     user = orm.relationship("User", back_populates="orders")

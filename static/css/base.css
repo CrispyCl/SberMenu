@@ -118,6 +118,7 @@ body {
   min-height: 100%;
   display: flex;
   flex-direction: column;
+  --message_time: 5s;
 }
 
 main {
@@ -553,7 +554,7 @@ main {
 .good_alert_progress.active:before,
 .bad_alert_progress.active:before,
 .warning_alert_progress.active:before {
-  animation: progress 5s linear forwards;
+  animation: progress var(--message_time) linear forwards;
 }
 
 @keyframes progress {

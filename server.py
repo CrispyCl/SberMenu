@@ -162,6 +162,15 @@ def confirm_order():
                 message = {"status": 0, "text": "Укажите место доставки"}
                 session["message"] = dumps(message)
                 return redirect("/confirm_order")
+            delivery_time = request.form.get("delivery_time")
+            if delivery_time:
+                delivery_time = datetime.datetime.strptime(delivery_time, "%H:%M").time()
+                now = datetime.datetime.now().time()
+                delta = (delivery_time.hour - now.hour) * 60 + (delivery_time.minute - now.minute)
+                if delta < 15:
+                    message = {"status": 0, "text": "Доставка требует минимум 15 минут"}
+                    session["message"] = dumps(message)
+                    return redirect("/confirm_order")
         db_sess = db_session.create_session()
         orders = db_sess.query(Order).all()
         last_id = 1 if not orders else orders[-1].id + 1
@@ -174,6 +183,9 @@ def confirm_order():
         if is_delivery:
             order.is_delivery = True
             order.delivery_address = address
+            if delivery_time:
+                order.delivery_time = delivery_time
+
         db_sess.add(order)
         for k in session["order"]:
             if k == "sum":

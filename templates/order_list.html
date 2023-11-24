@@ -90,8 +90,14 @@
                 <div class="status">Статус - {{ STATUS[order.status] }}</div>
                 <div class="price">Цена - {{ order.price }}₽</div>
                 {% if order.is_delivery %}
-                <div class="price">Требуется доставка на:</div>
+                <div>Требуется доставка на:</div>
                 <div>{{ order.delivery_address }}</div>
+                <div>Желаемое время доставки:</div>
+                {% if order.delivery_time %}
+                    <div>{{ order.delivery_time.strftime("%H:%M") }}</div>
+                {% else %}
+                    <div>Не указано</div>
+                {% endif %}
                 {% endif %}
             </div>
             <div>
