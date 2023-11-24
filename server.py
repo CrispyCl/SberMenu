@@ -724,6 +724,8 @@ def create_lunch():
             d_lunch = DishLunch(dish_id=dish)
             d_lunch.price_change = int(request.form.getlist(f"p_change{dish}")[0])
             d_lunch.lunch = lunch
+            dish = db_sess.query(Dish).get(dish)
+            d_lunch.category_id = dish.normalized_category_id
             db_sess.add(d_lunch)
         db_sess.commit()
         message = {"status": 1, "text": "Бизнес-ланч создан"}
@@ -768,10 +770,17 @@ def confirm_lanch(lunch_id):
         return redirect("/")
     if not session.get("order"):
         session["order"] = {}
+    categories = {di.category for di in db_sess.query(DishLunch).filter(DishLunch.lunch_id == lunch_id)}
     smessage = session["message"]
     session["message"] = dumps(ST_message)
 
-    return render_template("confirm_lunch.html", title=title, message=smessage, lunch=lunch)
+    return render_template(
+        "confirm_lunch.html",
+        title=title,
+        message=smessage,
+        lunch=lunch,
+        categories=categories,
+    )
 
 
 @app.route("/profile/dish/<int:dish_id>", methods=["GET", "POST"])

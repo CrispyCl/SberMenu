@@ -1,5 +1,7 @@
 import sqlalchemy
-from sqlalchemy import orm
+from sqlalchemy import event, orm
+from sqlalchemy.orm import object_session
+
 
 from data.db_session import SqlAlchemyBase
 
