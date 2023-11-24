@@ -23,6 +23,14 @@
                     </p>
                     {% endfor %}
 
+                    <!-- Category -->
+                    {{ form.main_category(class="form-control") }}
+                    {% for error in form.main_category.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                    {% endfor %}
+
                     <!-- Price -->
                     {{ form.price(class="form-control name", type="text",
                     placeholder="Цена") }}

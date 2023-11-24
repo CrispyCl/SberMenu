@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<form action="" method="post">
+    <div class="text">
+        <h1 class="text-center">Добавить главную категорию</h1>
+    </div>
+    <div>
+        Укажите название:
+    </div>
+    {{ form.hidden_tag() }}
+    {{ form.title(class="form-control", type="text", placeholder="Название") }}
+    {% for error in form.title.errors %}
+    <p class="alert alert-danger" role="alert">
+        {{ error }}
+    </p>
+    {% endfor %}
+    <div>
+        {{ form.submit(class="submitbtn", value="Создать") }}
+    </div>
+
+</form>
+
+{% endblock %}
