@@ -16,6 +16,9 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
+{% if not order %}
+    {% set order = session["order"] %}
+{% endif %}
 
 <div class="PC">
     <header class="header_PC">

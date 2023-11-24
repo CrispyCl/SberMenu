@@ -612,13 +612,13 @@ def create_lunch():
     smessage = session["message"]
     session["message"] = dumps(ST_message)
 
-    title = "Создание бизнесс-ланча"
+    title = "Создание бизнес-ланча"
     db_sess = db_session.create_session()
     categories = db_sess.query(Category).join(DishCategory).all()
 
     if form.validate_on_submit():
         if db_sess.query(Lunch).filter(Lunch.date == form.date.data).first():
-            message = {"status": 0, "text": "Бизнесс-ланч на этот день уже существует"}
+            message = {"status": 0, "text": "Бизнес-ланч на этот день уже существует"}
             return render_template(
                 "create_lunch.html",
                 title=title,
@@ -650,7 +650,7 @@ def create_lunch():
             d_lunch.lunch = lunch
             db_sess.add(d_lunch)
         db_sess.commit()
-        message = {"status": 1, "text": "Бизнесс-ланч создан"}
+        message = {"status": 1, "text": "Бизнес-ланч создан"}
         session["message"] = dumps(message)
         return redirect("/")
     return render_template(
@@ -665,7 +665,7 @@ def create_lunch():
 
 @app.route("/lunch_list")
 def lunch_list():
-    title = "Бизнесс-ланча"
+    title = "Бизнес-ланча"
     smessage = session["message"]
     session["message"] = dumps(ST_message)
 
@@ -679,6 +679,23 @@ def lunch_list():
         lunches=lunches,
     )
 
+
+@app.route("/confirm/lunch/<int:lunch_id>")
+def confirm_lanch(lunch_id):
+    title = "Базнес-ланч"
+    if current_user.is_authenticated:
+        if current_user.role in [0, 1]:
+            return redirect("/")
+    db_sess = db_session.create_session()
+    lunch = db_sess.query(Lunch).get(lunch_id)
+    if not lunch:
+        return redirect("/")
+    if not session.get("order"):
+        session["order"] = {}
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+
+    return render_template("confirm_lunch.html", title=title, message=smessage, lunch=lunch)
 
 
 @app.route("/profile/dish/<int:dish_id>", methods=["GET", "POST"])
@@ -727,7 +744,7 @@ def order_lunch():
     form = LunchForm()
     smessage = session["message"]
     session["message"] = dumps(ST_message)
-    title = "Заказ бизнесс-ланча"
+    title = "Заказ бизнес-ланча"
     db_sess = db_session.create_session()
     lunch = db_sess.query(Lunch).filter(Lunch.date == datetime.date.today()).first()
     categories = db_sess.query(Category).join(DishCategory).all()
@@ -750,7 +767,7 @@ def order_lunch():
             d_lunch.lunch = lunch
             db_sess.add(d_lunch)
         db_sess.commit()
-        message = {"status": 1, "text": "Бизнесс-ланч заказан"}
+        message = {"status": 1, "text": "Бизнес-ланч заказан"}
         session["message"] = dumps(message)
         return redirect("/")
     return render_template(

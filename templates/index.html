@@ -33,10 +33,12 @@
 
 {% if lunch %}
 <div class="add_dish_wrapper">
-    <div class="text-center">Безнесс-ланч</div>
+    <div class="text-center">Бизнес-ланч</div>
 </div>
 <div>
-    По нажатью редирект на оформление ланча
+    {% if current_user.role == 2 %}
+      <a href="confirm/lunch/{{ lunch.id }}">Заказать</a>
+    {% endif %}
     <div>Дата: {{ lunch.date }}</div>
     <div>Стандартная цена: {{ lunch.price }}</div>
     <div>
