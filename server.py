@@ -19,6 +19,7 @@ from data.dishes_lunch import DishLunch
 from data.lunches import Lunch
 from data.messages import Message
 from data.orders import Order
+from data.posts import Post
 from data.users import User
 from data.valuations import Valuation
 from forms.category import CategoryForm
@@ -27,6 +28,7 @@ from forms.criteria import CriteriaForm
 from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.lunch import LunchForm
+from forms.post import PostForm
 from forms.user import UserForm
 
 app = Flask(__name__)
@@ -53,8 +55,9 @@ def index():
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
     categories = db_sess.query(Category).join(DishCategory).all()
+    posts = db_sess.query(Post).order_by(Post.date).all()[::-1][0:3]
 
-    return render_template("index.html", message=smessage, order=session["order"], categories=categories)
+    return render_template("index.html", message=smessage, order=session["order"], categories=categories, posts=posts)
 
 
 @app.route("/add_dish/<int:dish_id>")
@@ -708,6 +711,45 @@ def login():
         message = {"status": 0, "text": "Неверный логин или пароль"}
         return render_template("login.html", title=title, form=form, message=dumps(message), order=session["order"])
     return render_template("login.html", title=title, form=form, message=smessage, order=session["order"])
+
+
+@app.route("/create/post", methods=["GET", "POST"])
+def create_post():
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
+        abort(404)
+    form = PostForm()
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+
+    title = "Создание новости"
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        post = Post(title=form.title.data, text=form.text.data)
+
+        posts = db_sess.query(Post).all()
+        last_id = 1 if not posts else posts[-1].id + 1
+        if form.image.data:
+            img1 = form.image.data
+            img1.save(f"static/img/posts/{last_id}.jpg")
+        else:
+            post.image = None
+        post.image = f"img/posts/{last_id}.jpg"
+        db_sess.add(post)
+        db_sess.commit()
+        return redirect("/")
+    return render_template("create_post.html", title=title, form=form, message=smessage, order=session["order"])
+
+
+@app.route("/news")
+def news():
+    title = "Новости"
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    db_sess = db_session.create_session()
+    posts = db_sess.query(Post).all()
+    return render_template("news.html", title=title, message=smessage, order=session["order"], posts=posts)
 
 
 @app.route("/create/criteria", methods=["GET", "POST"])
