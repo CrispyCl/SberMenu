@@ -6,7 +6,7 @@ from flask_login import current_user, login_required, login_user, LoginManager, 
 from flask_socketio import join_room, leave_room, send, SocketIO
 from PIL import Image
 from sqlalchemy import or_
-from static.python.functions import clear_db, create_main_admin
+from static.python.functions import fill_db
 
 from data import db_session
 from data.categories import Category
@@ -890,6 +890,5 @@ def handle_message(data):
 
 if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
-    create_main_admin(db_session.create_session())
-    clear_db(db_session.create_session())
+    fill_db(db_session.create_session())
     socketio.run(app, port=8080, host="127.0.0.1", debug=True)
