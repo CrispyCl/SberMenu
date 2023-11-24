@@ -12,6 +12,11 @@ class Dish(SqlAlchemyBase):
     description = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     image = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    normalized_category_id = sqlalchemy.Column(
+        sqlalchemy.Integer,
+        sqlalchemy.ForeignKey("normalized_categories.id"),
+        default=1,
+    )
 
     def to_dict(self):
         return {
@@ -23,3 +28,4 @@ class Dish(SqlAlchemyBase):
 
     orders = orm.relationship("DishOrder", back_populates="dish", lazy="dynamic")
     categories = orm.relationship("DishCategory", back_populates="dish", lazy="dynamic", cascade="all, delete-orphan")
+    normalized_category = orm.relationship("NormalizedCategory", back_populates="dishes")

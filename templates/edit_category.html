@@ -22,6 +22,14 @@
             </p>
             {% endfor %}
 
+            <!-- Category -->
+            {{ form.main_category(class="form-control") }}
+            {% for error in form.main_category.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+
             <!-- Photo -->
             <label for="images" class="drop-container" id="dropcontainer">
                 <img id="show_img">

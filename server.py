@@ -6,7 +6,7 @@ from flask_login import current_user, login_required, login_user, LoginManager, 
 from flask_socketio import join_room, leave_room, send, SocketIO
 from PIL import Image
 from sqlalchemy import or_
-from static.python.functions import clear_db, create_main_admin
+from static.python.functions import fill_db
 
 from data import db_session
 from data.categories import Category
@@ -18,6 +18,7 @@ from data.dishes import Dish
 from data.dishes_lunch import DishLunch
 from data.lunches import Lunch
 from data.messages import Message
+from data.normalized_categories import NormalizedCategory
 from data.orders import Order
 from data.posts import Post
 from data.users import User
@@ -28,6 +29,7 @@ from forms.criteria import CriteriaForm
 from forms.dish import DishForm
 from forms.login import LoginForm
 from forms.lunch import LunchForm
+from forms.normalized_category import NormalizedCategoryForm
 from forms.post import PostForm
 from forms.user import UserForm
 
@@ -56,6 +58,7 @@ def index():
     db_sess = db_session.create_session()
     categories = db_sess.query(Category).join(DishCategory).all()
     posts = db_sess.query(Post).order_by(Post.date).all()[::-1][0:3]
+    lunch = db_sess.query(Lunch).filter(Lunch.date == datetime.date.today()).first()
 
     return render_template(
         "index.html",
@@ -64,6 +67,7 @@ def index():
         order=session["order"],
         categories=categories,
         posts=posts,
+        lunch=lunch,
     )
 
 
@@ -228,6 +232,9 @@ def create_dish():
 
     title = "Создание блюда"
     db_sess = db_session.create_session()
+    if not form.main_category.choices:
+        normolized_categories = db_sess.query(NormalizedCategory).all()
+        form.main_category.choices = [(cat.id, cat.title) for cat in normolized_categories]
     categories = db_sess.query(Category).all()
     if form.validate_on_submit():
         if db_sess.query(Dish).filter(Dish.title == form.title.data).first():
@@ -240,7 +247,12 @@ def create_dish():
                 order=session["order"],
                 categories=categories,
             )
-        dish = Dish(title=form.title.data, price=form.price.data, description=form.description.data.strip())
+        dish = Dish(
+            title=form.title.data,
+            price=form.price.data,
+            description=form.description.data.strip(),
+            normalized_category_id=form.main_category.data,
+        )
 
         dishes = db_sess.query(Dish).all()
         last_id = 1 if not dishes else dishes[-1].id + 1
@@ -279,8 +291,11 @@ def create_category():
     session["message"] = dumps(ST_message)
 
     title = "Создание категории"
+    db_sess = db_session.create_session()
+    if not form.main_category.choices:
+        normolized_categories = db_sess.query(NormalizedCategory).all()
+        form.main_category.choices = [(cat.id, cat.title) for cat in normolized_categories]
     if form.validate_on_submit():
-        db_sess = db_session.create_session()
         if db_sess.query(Category).filter(Category.title == form.title.data).first():
             message = {"status": 0, "text": "Категория с таким названием уже есть"}
             return render_template(
@@ -290,7 +305,10 @@ def create_category():
                 message=dumps(message),
                 order=session["order"],
             )
-        category = Category(title=form.title.data)
+        category = Category(
+            title=form.title.data,
+            normalized_category_id=form.main_category.data,
+        )
 
         categories = db_sess.query(Category).all()
         last_id = 1 if not categories else categories[-1].id + 1
@@ -302,6 +320,8 @@ def create_category():
         category.image = f"img/categories/{last_id}.jpg"
         db_sess.add(category)
         db_sess.commit()
+        message = {"status": 1, "text": "Категория создана"}
+        session["message"] = dumps(message)
         return redirect("/")
     return render_template("create_category.html", title=title, form=form, message=smessage, order=session["order"])
 
@@ -458,8 +478,13 @@ def edit_category(category_id):
     session["message"] = dumps(ST_message)
 
     title = "Изменение категории"
+    if not form.main_category.choices:
+        normolized_categories = db_sess.query(NormalizedCategory).all()
+        form.main_category.choices = [(cat.id, cat.title) for cat in normolized_categories]
     if request.method == "GET":
         form.title.data = category.title
+        form.main_category.data = str(category.normalized_category_id)
+
     if form.validate_on_submit():
         if db_sess.query(Category).filter(Category.title == form.title.data, Category.id != category_id).first():
             message = {"status": 0, "text": "Категория с таким названием уже есть"}
@@ -471,11 +496,48 @@ def edit_category(category_id):
                 order=session["order"],
             )
         category.title = form.title.data
+        category.normalized_category_id = form.main_category.data
         if form.image.data:
             form.image.data.save(f"static/img/categories/{category_id}.jpg")
         db_sess.commit()
         return redirect("/")
     return render_template("edit_category.html", title=title, form=form, message=smessage, order=session["order"])
+
+
+@app.route("/create/normalized_category", methods=["GET", "POST"])
+def create_normalize_category():
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 0:
+        abort(404)
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    title = "Создание главной категории"
+    form = NormalizedCategoryForm()
+    if form.validate_on_submit():
+        db_sess = db_session.create_session()
+        if db_sess.query(NormalizedCategory).filter(NormalizedCategory.title == form.title.data).first():
+            message = {"status": 0, "text": "Категория с таким названием уже есть"}
+            return render_template(
+                "create_normalized_category.html",
+                title=title,
+                form=form,
+                message=message,
+            )
+        category = NormalizedCategory(
+            title=form.title.data,
+        )
+        db_sess.add(category)
+        db_sess.commit()
+        message = {"status": 1, "text": "Категория создана"}
+        session["message"] = dumps(message)
+        return redirect("/")
+    return render_template(
+        "create_normalized_category.html",
+        title=title,
+        form=form,
+        message=smessage,
+    )
 
 
 @app.route("/edit/dish/<int:dish_id>", methods=["GET", "POST"])
@@ -494,10 +556,14 @@ def edit_dish(dish_id):
     title = "Редактирование блюда"
     categories = db_sess.query(Category).all()
     checked = {di.category_id for di in db_sess.query(DishCategory.category_id).filter(DishCategory.dish_id == dish_id)}
+    if not form.main_category.choices:
+        normolized_categories = db_sess.query(NormalizedCategory).all()
+        form.main_category.choices = [(cat.id, cat.title) for cat in normolized_categories]
     if request.method == "GET":
         form.title.data = dish.title
         form.description.data = dish.description
         form.price.data = dish.price
+        form.main_category.data = str(dish.normalized_category_id)
     if form.validate_on_submit():
         if db_sess.query(Dish).filter(Dish.title == form.title.data, dish_id != Dish.id).first():
             message = {"status": 0, "text": "Такое блюдо уже есть в меню"}
@@ -513,6 +579,7 @@ def edit_dish(dish_id):
         dish.title = form.title.data
         dish.price = form.price.data
         dish.description = form.description.data.strip()
+        dish.normalized_category_id = form.main_category.data
         db_sess.merge(dish)
         categories = {int(ct) for ct in request.form.getlist("categories")}
         for category in checked - categories:
@@ -621,13 +688,25 @@ def create_lunch():
     smessage = session["message"]
     session["message"] = dumps(ST_message)
 
-    title = "Создание бизнесс-ланча"
+    title = "Создание бизнес-ланча"
     db_sess = db_session.create_session()
-    categories = db_sess.query(Category).join(DishCategory).all()
+    categories = db_sess.query(NormalizedCategory).join(Category).join(DishCategory).all()
 
     if form.validate_on_submit():
         if db_sess.query(Lunch).filter(Lunch.date == form.date.data).first():
-            message = {"status": 0, "text": "Бизнесс-ланч на этот день уже существует"}
+            message = {"status": 0, "text": "Бизнес-ланч на этот день уже существует"}
+            return render_template(
+                "create_lunch.html",
+                title=title,
+                form=form,
+                message=dumps(message),
+                order=session["order"],
+                dishes=dishes,
+                categories=categories,
+            )
+        chosen_dishes = request.form.getlist("dishes")
+        if not chosen_dishes:
+            message = {"status": 0, "text": "Добавьте блюда"}
             return render_template(
                 "create_lunch.html",
                 title=title,
@@ -641,13 +720,13 @@ def create_lunch():
         lunch = Lunch(price=form.price.data, date=form.date.data)
         db_sess.add(lunch)
 
-        chosen_dishes = request.form.getlist("dishes")
         for dish in chosen_dishes:
             d_lunch = DishLunch(dish_id=dish)
+            d_lunch.price_change = int(request.form.getlist(f"p_change{dish}")[0])
             d_lunch.lunch = lunch
             db_sess.add(d_lunch)
         db_sess.commit()
-        message = {"status": 1, "text": "Бизнесс-ланч создан"}
+        message = {"status": 1, "text": "Бизнес-ланч создан"}
         session["message"] = dumps(message)
         return redirect("/")
     return render_template(
@@ -658,6 +737,41 @@ def create_lunch():
         order=session["order"],
         categories=categories,
     )
+
+
+@app.route("/lunch_list")
+def lunch_list():
+    title = "Бизнес-ланча"
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+
+    db_sess = db_session.create_session()
+    lunches = db_sess.query(Lunch).order_by(Lunch.date).all()[::-1]
+
+    return render_template(
+        "lunch_list.html",
+        title=title,
+        message=smessage,
+        lunches=lunches,
+    )
+
+
+@app.route("/confirm/lunch/<int:lunch_id>")
+def confirm_lanch(lunch_id):
+    title = "Базнес-ланч"
+    if current_user.is_authenticated:
+        if current_user.role in [0, 1]:
+            return redirect("/")
+    db_sess = db_session.create_session()
+    lunch = db_sess.query(Lunch).get(lunch_id)
+    if not lunch:
+        return redirect("/")
+    if not session.get("order"):
+        session["order"] = {}
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+
+    return render_template("confirm_lunch.html", title=title, message=smessage, lunch=lunch)
 
 
 @app.route("/profile/dish/<int:dish_id>", methods=["GET", "POST"])
@@ -706,6 +820,51 @@ def profile_dish(dish_id):
         dish_comments=dish_comments,
         com_valuations=com_valuations,
         criteria_valuations=criteria_valuations,
+    )
+
+
+@app.route("/order_lunch", methods=["GET", "POST"])
+def order_lunch():
+    if not current_user.is_authenticated:
+        abort(404)
+    form = LunchForm()
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    title = "Заказ бизнес-ланча"
+    db_sess = db_session.create_session()
+    lunch = db_sess.query(Lunch).filter(Lunch.date == datetime.date.today()).first()
+    categories = db_sess.query(Category).join(DishCategory).all()
+    lunch_dishes = [i.dish for i in lunch.dishes]
+    dishes = {}
+    for category in categories:
+        for dish in category.dishes:
+            if dish.dish in lunch_dishes:
+                if not dishes.get(category.id):
+                    dishes[category.id] = []
+                dishes[category.id].append(dish.dish)
+    price_changes = {}
+    for dish in lunch.dishes:
+        price_changes[dish.dish_id] = dish.price_change
+    if form.validate_on_submit():
+        chosen_dishes = request.form.getlist("dishes")
+        for dish in chosen_dishes:
+            d_lunch = DishLunch(dish_id=dish)
+            d_lunch.price_change = int(request.form.getlist(f"p_change{dish}")[0])
+            d_lunch.lunch = lunch
+            db_sess.add(d_lunch)
+        db_sess.commit()
+        message = {"status": 1, "text": "Бизнес-ланч заказан"}
+        session["message"] = dumps(message)
+        return redirect("/")
+    return render_template(
+        "order_lunch.html",
+        title=title,
+        form=form,
+        message=smessage,
+        order=session["order"],
+        categories=categories,
+        DISHES=dishes,
+        PRICE_CHANGES=price_changes,
     )
 
 
@@ -885,6 +1044,5 @@ def handle_message(data):
 
 if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
-    create_main_admin(db_session.create_session())
-    clear_db(db_session.create_session())
-    socketio.run(app, port=8080, host="127.0.0.1", debug=True, allow_unsafe_werkzeug=True)
+    fill_db(db_session.create_session())
+    socketio.run(app, port=8080, host="127.0.0.1", debug=True)

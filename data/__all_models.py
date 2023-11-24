@@ -1,4 +1,5 @@
 from . import users
+from . import normalized_categories
 from . import categories
 from . import dishes
 from . import orders

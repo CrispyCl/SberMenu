@@ -17,6 +17,9 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
+{% if not order %}
+    {% set order = session["order"] %}
+{% endif %}
 
 <div class="PC">
     <header class="header_PC">
@@ -79,11 +82,10 @@
                             <span><img
                                     src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>
-                        <a href="/create/lunch" class="menu_link" id="dd_dishes">
+                        <a href="/lunch_list" class="menu_link" id="dd_dishes">
                             <img class="menu_img" src="{{ url_for('static', filename='svg/food-2-svgrepo-com.svg') }}">
-                            <p>Создать бизнес-ланч</p>
-                            <span><img
-                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
+                            <p>Бизнес-ланчи</p>
+                            <span><img src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>
                         {% endif %}
                         <a href="/orders" class="menu_link" id="dd_orders">
