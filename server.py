@@ -54,8 +54,9 @@ def index():
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
     categories = db_sess.query(Category).join(DishCategory).all()
+    posts = db_sess.query(Post).order_by(Post.date).all()[::-1][0:3]
 
-    return render_template("index.html", message=smessage, order=session["order"], categories=categories)
+    return render_template("index.html", message=smessage, order=session["order"], categories=categories, posts=posts)
 
 
 @app.route("/add_dish/<int:dish_id>")
