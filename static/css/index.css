@@ -217,13 +217,35 @@
     background: #bcde36;
 }
 
-.add_dish_wrapper {
+.title_wrapper {
     display: flex;
     align-self: center;
-    margin-top: 2rem;
-    font-size: 2.7rem;
-    font-family: sans-serif;
 }
+
+.news_wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.posts {
+    display: flex;
+}
+
+.post {}
+
+.postimg {}
+
+.posttitle {}
+
+.posttext {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 300px;
+}
+
 
 .add_dish {
     border: none;
@@ -351,4 +373,10 @@ dialog::backdrop {
 .items_of_table.active {
     height: auto;
     transform: translateY(0);
+}
+
+.text-center {
+    margin-top: 2rem;
+    font-size: 2.7rem;
+    font-family: sans-serif;
 }

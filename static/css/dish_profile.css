@@ -325,7 +325,6 @@ textarea.feedbackarea {
     min-height: 100px;
     resize: none;
     border: none !important;
-    border: none;
     border: 1px solid #cdcdcd !important;
     border-right: none !important;
     outline: none !important;

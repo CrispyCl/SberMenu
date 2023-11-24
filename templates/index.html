@@ -30,22 +30,47 @@
     </div>
     <i id="right" class='bx bx-right-arrow-alt'></i>
 </div>
-<div class="add_dish_wrapper">
-    <div class="text-center">Меню</div>
-</div>
-<div>
-    <div>
+<div class="news_wrapper">
+    <div class="text-center">Новости</div>
+    <div class="posts">
         {% for post in posts %}
-        <div>
-            <div>{{ post.title }}</div>
+        <div class="post">
             {% if post.image %}
-        <div><img src="{{ url_for('static', filename=post.image) }}"></div>
+            <div>
+                <img src="{{ url_for('static', filename=post.image) }}">
+            </div>
             {% endif %}
-            <div>{{ post.text }}</div>
+            <div class="posttitle">{{ post.title }}</div>
+            <div class="posttext">{{ post.text }}</div>
+        </div>
+        {% endfor %}
+        {% for post in posts %}
+        <div class="post">
+            {% if post.image %}
+            <div>
+                <img src="{{ url_for('static', filename=post.image) }}">
+            </div>
+            {% endif %}
+            <div class="posttitle">{{ post.title }}</div>
+            <div class="posttext">{{ post.text }}</div>
+        </div>
+        {% endfor %}
+        {% for post in posts %}
+        <div class="post">
+            {% if post.image %}
+            <div class="postimg">
+                <img src="{{ url_for('static', filename=post.image) }}">
+            </div>
+            {% endif %}
+            <div class="posttitle">{{ post.title }}</div>
+            <div class="posttext">{{ post.text }}</div>
         </div>
         {% endfor %}
     </div>
     <a href="/news">Все новости</a>
+</div>
+<div class="title_wrapper">
+    <div class="text-center">Меню</div>
 </div>
 {% for category in categories %}
 <div class="dish_category" id="{{ category.id }}">
@@ -95,13 +120,13 @@
             {% set dish = cdish.dish %}
             <div class="dish">
                 <div>
-                <a href="/profile/dish/{{ dish.id }}">
-                    <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
-                </a>
-                <div class="dish_name_and_price">
-                    <div class="dish_name">{{ dish.title }}</div>
-                    <div class="dish_price">{{ dish.price }}₽</div>
-                </div>
+                    <a href="/profile/dish/{{ dish.id }}">
+                        <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
+                    </a>
+                    <div class="dish_name_and_price">
+                        <div class="dish_name">{{ dish.title }}</div>
+                        <div class="dish_price">{{ dish.price }}₽</div>
+                    </div>
                 </div>
                 {% if current_user.role not in [0, 1] %}
                 <a class="add_dish_to_basket" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
@@ -147,17 +172,17 @@
 <script>
     {% for category in categories %}
     const category_title_btn{{ category.id }} = document.querySelector("#t_h{{ category.id }}"),
-        items_of_table{{ category.id }} = document.querySelector("#i_t{{ category.id }}");
+        items_of_table{ { category.id } } = document.querySelector("#i_t{{ category.id }}");
 
-    category_title_btn{{ category.id }}.addEventListener('click', () => {
-        if (items_of_table{{ category.id }}.classList.contains('active')) {
-            items_of_table{{ category.id }}.classList.remove('active');
-            category_title_btn{{ category.id }}.classList.remove('active_rotate')
-        }
+    category_title_btn{ { category.id } }.addEventListener('click', () => {
+            if (items_of_table{ { category.id } }.classList.contains('active')) {
+            items_of_table{ { category.id } }.classList.remove('active');
+            category_title_btn{ { category.id } }.classList.remove('active_rotate')
+    }
         else {
-            items_of_table{{ category.id }}.classList.add('active');
-            category_title_btn{{ category.id }}.classList.add('active_rotate')
-        }
+            items_of_table{ { category.id } }.classList.add('active');
+            category_title_btn{ { category.id } }.classList.add('active_rotate')
+    }
     })
     {% endfor %}
 </script>
