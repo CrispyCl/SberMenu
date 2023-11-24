@@ -9,6 +9,7 @@
     <script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mobile-detect@1.4.5/mobile-detect.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
     <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='svg/SberMenuLogo.svg') }}">
     <title>SberMenu | {{ title }}</title>
 </head>
@@ -48,44 +49,54 @@
                         <hr>
                         {% if current_user.role != 0 %}
                         <a href="/edit/user/{{ current_user.id }}" class="menu_link">
-                            <img class="menu_img" src="{{ url_for('static', filename='svg/settings-svgrepo-com.svg') }}">
+                            <img class="menu_img"
+                                src="{{ url_for('static', filename='svg/settings-svgrepo-com.svg') }}">
                             <p>Редактировать профиль</p>
-                            <span><img src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
+                            <span><img
+                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>
                         {% if current_user.role != 1 %}
                         <a id="mobile_basket" href="/confirm_order" class="menu_link">
-                            <img class="menu_img" src="{{ url_for('static', filename='svg/basket-shopping-alt-svgrepo-com.svg') }}">
+                            <img class="menu_img"
+                                src="{{ url_for('static', filename='svg/basket-shopping-alt-svgrepo-com.svg') }}">
                             <p>Моя корзина</p>
-                            <span><img src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
+                            <span><img
+                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>
                         {% endif %}
                         {% endif %}
                         {% if current_user.role == 0 %}
                         <a href="/register/spec" class="menu_link">
-                            <img class="menu_img" src="{{ url_for('static', filename='svg/user-alt-1-svgrepo-com.svg') }}">
+                            <img class="menu_img"
+                                src="{{ url_for('static', filename='svg/user-alt-1-svgrepo-com.svg') }}">
                             <p>Создать специалиста</p>
-                            <span><img src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
+                            <span><img
+                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>
                         <a href="/dishes" class="menu_link" id="dd_dishes">
                             <img class="menu_img" src="{{ url_for('static', filename='svg/list-svgrepo-com.svg') }}">
                             <p>Блюда</p>
-                            <span><img src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
+                            <span><img
+                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>
                         <a href="/create/lunch" class="menu_link" id="dd_dishes">
                             <img class="menu_img" src="{{ url_for('static', filename='svg/food-2-svgrepo-com.svg') }}">
                             <p>Создать бизнес-ланч</p>
-                            <span><img src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
+                            <span><img
+                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>
                         {% endif %}
                         <a href="/orders" class="menu_link" id="dd_orders">
                             <img class="menu_img" src="{{ url_for('static', filename='svg/list-svgrepo-com.svg') }}">
                             <p>Заказы</p>
-                            <span><img src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
+                            <span><img
+                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>
                         <a href="/logout" class="menu_link">
                             <img class="menu_img" src="{{ url_for('static', filename='svg/logout-svgrepo-com.svg') }}">
                             <p>Выйти</p>
-                            <span><img src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
+                            <span><img
+                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>
                     </div>
                 </div>

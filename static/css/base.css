@@ -124,7 +124,13 @@ main {
   flex: 1 1 auto;
 }
 
+
+
 /* Обнуление стилей css done */
+
+body {
+  background-color: white;
+}
 
 /* Header */
 .header {
@@ -554,6 +560,21 @@ main {
 .bad_alert_progress.active:before,
 .warning_alert_progress.active:before {
   animation: progress 5s linear forwards;
+}
+
+*::-webkit-scrollbar {
+  height: 12px;
+  width: 12px;
+}
+
+*::-webkit-scrollbar-track {
+  background: white;
+}
+
+*::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 5px;
+  border: 3px solid #ccc;
 }
 
 @keyframes progress {

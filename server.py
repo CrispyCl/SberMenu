@@ -54,7 +54,9 @@ def index():
     db_sess = db_session.create_session()
     categories = db_sess.query(Category).join(DishCategory).all()
 
-    return render_template("index.html", message=smessage, order=session["order"], categories=categories)
+    return render_template(
+        "index.html", message=smessage, order=session["order"], categories=categories, title="Добро пожаловать"
+    )
 
 
 @app.route("/add_dish/<int:dish_id>")
