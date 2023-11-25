@@ -58,43 +58,19 @@
 <div class="news_wrapper">
     <div class="text-center">Новости</div>
     <div class="posts">
-        <div>
-            {% for post in posts %}
-            <div class="post">
-                {% if post.image %}
-                <div>
-                    <img src="{{ url_for('static', filename=post.image) }}">
-                </div>
-                {% endif %}
-                <div class="posttitle">{{ post.title }}</div>
-                <div class="posttext">{{ post.text }}</div>
+        {% for post in posts %}
+        <div class="post">
+            {% if post.image %}
+            <div class="postimg">
+                <img src="{{ url_for('static', filename=post.image) }}">
             </div>
-            {% endfor %}
-            {% for post in posts %}
-            <div class="post">
-                {% if post.image %}
-                <div>
-                    <img src="{{ url_for('static', filename=post.image) }}">
-                </div>
-                {% endif %}
-                <div class="posttitle">{{ post.title }}</div>
-                <div class="posttext">{{ post.text }}</div>
-            </div>
-            {% endfor %}
-            {% for post in posts %}
-            <div class="post">
-                {% if post.image %}
-                <div class="postimg">
-                    <img src="{{ url_for('static', filename=post.image) }}">
-                </div>
-                {% endif %}
-                <div class="posttitle">{{ post.title }}</div>
-                <div class="posttext">{{ post.text }}</div>
-            </div>
-            {% endfor %}
+            {% endif %}
+            <div class="posttitle">{{ post.title }}</div>
+            <div class="posttext">{{ post.text }}</div>
         </div>
-        <a href="/news">Все новости</a>
+        {% endfor %}
     </div>
+    <a href="/news">Все новости</a>
 </div>
 <div class="title_wrapper">
     <div class="text-center">Меню</div>
@@ -198,17 +174,17 @@
 
 <script>
     {% for category in categories %}
-    const category_title_btn{{ category.id }} = document.querySelector("#t_h{{ category.id }}"),
-        items_of_table{ { category.id } } = document.querySelector("#i_t{{ category.id }}");
+    const category_title_btn{{ category.id }} = document.querySelector("#t_h{{ category.id }}");
+    const items_of_table{{ category.id }} = document.querySelector("#i_t{{ category.id }}");
 
-    category_title_btn{ { category.id } }.addEventListener('click', () => {
-            if (items_of_table{ { category.id } }.classList.contains('active')) {
-            items_of_table{ { category.id } }.classList.remove('active');
-            category_title_btn{ { category.id } }.classList.remove('active_rotate')
+    category_title_btn{{ category.id }}.addEventListener('click', () => {
+        if (items_of_table{{ category.id }}.classList.contains('active')) {
+            items_of_table{{ category.id }}.classList.remove('active');
+            category_title_btn{{ category.id }}.classList.remove('active_rotate')
     }
         else {
-            items_of_table{ { category.id } }.classList.add('active');
-            category_title_btn{ { category.id } }.classList.add('active_rotate')
+            items_of_table{{ category.id }}.classList.add('active');
+            category_title_btn{{ category.id }}.classList.add('active_rotate')
     }
     })
     {% endfor %}
