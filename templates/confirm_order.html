@@ -13,25 +13,39 @@
             <div class="order_wrapper">
                 {% if order["lunch"] %}
                 {% set lunch = order["lunch"] %}
-                <div>Бизнес-ланч</div>
-                <div>
-                    {% for dish in lunch["dishes"] %}
-                    <div class="item_dish_title">{{ dish.title }}</div>
-                    <div>
-                        Категория: {{ dish.category }}
+
+                <div style="
+                font-family: sans-serif;
+                font-size: 1.3rem;
+                font-style: normal;
+                font-weight: 500;
+                ">Бизнес-ланч - {{ lunch.price }}₽</div>
+                {% for dish in lunch["dishes"] %}
+                <div class="info">
+                    <div class="order_info">
+                        <img class="order_img" src="{{ url_for('static', filename=dish.image) }}">
+                        <div class="order_name">{{ dish.title }}</div>
+                        <div class="order_price_count">
+                        </div>
                     </div>
-                    <a class="item_img" href="#">
-                        <img src="{{ url_for('static', filename=dish.image) }}">
-                    </a>
-                    {% endfor %}
                 </div>
-                <div name="PricePC" class="price">{{ lunch.price }}₽</div>
-                <div name="PriceMB" style="display: none" class="price">{{ lunch.price }}₽</div>
-                <input id="number_{{ lunch.id * 1000 }}" type="number" class="number quantity" name="rcounts"
-                    value="{{ lunch.count }}" style="display: none" disabled />
-                <input id="number_{{ lunch.id * 1000 }}" type="number" class="number quantity" name="rrcounts"
-                    value="{{ lunch.count }}" style="display: none" disabled />
+
+                <div class="order_info_mobile">
+                    <div class="in">
+                        <div class="order_name">{{ dish.title }}</div>
+                        <img class="order_img" src="{{ url_for('static', filename=dish.image) }}">
+                    </div>
+                </div>
+                {% endfor %}
+                <hr>
+                <div style="
+                font-family: sans-serif;
+                font-size: 1.3rem;
+                font-style: normal;
+                font-weight: 500;
+                ">Другие блюда</div>
                 {% endif %}
+
                 {% for k in order %}
                 {% if k not in ["sum", "lunch"] %}
                 {% set dish = order[k] %}
@@ -83,14 +97,16 @@
                         <option value="true">Доставка на рабочее место</option>
                     </select>
                 </div>
-                <div style="display: none; flex-direction:column; align-items:center; margin-top:15px" id="delivery_comment">
+                <div style="display: none; flex-direction:column; align-items:center; margin-top:15px"
+                    id="delivery_comment">
                     <div class="place" style="display: flex; gap:1rem">
-                        <p  title="При указании некорректного места, заказ будет отменён">Укажите ваше рабочее место:</p>
-                    <input style="border: 1px solid #ccc;" id="delivery_address" name="delivery_address" type="text">
+                        <p title="При указании некорректного места, заказ будет отменён">Укажите ваше рабочее место:</p>
+                        <input style="border: 1px solid #ccc;" id="delivery_address" name="delivery_address"
+                            type="text">
                     </div>
                     <div class="timetoplace" style="display: flex; gap:1rem">
                         <p>Укажите желаемое время доставки:</p>
-                    <input id="delivery_time" name="delivery_time" type="time" onchange="TimeValidator()">
+                        <input id="delivery_time" name="delivery_time" type="time" onchange="TimeValidator()">
                     </div>
                 </div>
             </div>
@@ -146,7 +162,7 @@
         console.log(combobox);
         if (combobox.value == "true") {
             div.style.display = "flex";
-            input.required  = true;
+            input.required = true;
         }
         else {
             div.style.display = "none";

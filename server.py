@@ -790,7 +790,6 @@ def create_lunch():
 
         for dish in chosen_dishes:
             d_lunch = DishLunch(dish_id=dish)
-            d_lunch.count = int(request.form.getlist(f"p_change{dish}")[0])
             d_lunch.lunch = lunch
             dish = db_sess.query(Dish).get(dish)
             d_lunch.category_id = dish.normalized_category_id
@@ -842,9 +841,19 @@ def confirm_lanch(lunch_id):
         message = {"status": 2, "text": "В можете заказать только один бизнес-ланч"}
         session["message"] = dumps(message)
         return redirect("/")
+    categories = sorted(
+        {di.category for di in db_sess.query(DishLunch).filter(DishLunch.lunch_id == lunch_id)},
+        key=lambda ca: ca.title,
+    )
     if request.method == "POST":
-        dishes = request.form.getlist("dishes")
-        dishes = [db_sess.query(DishLunch).get(di_id) for di_id in dishes]
+        dishes = []
+        for category in categories:
+            if not category.lunch_dishes:
+                continue
+            dish = request.form.get(f"dish{category.id}")
+            print(dish)
+            dishes.append(db_sess.query(DishLunch).get(dish))
+        print(dishes)
         order_dishes = [
             {"id": di_l.id, "title": di_l.dish.title, "image": di_l.dish.image, "category": di_l.category.title}
             for di_l in dishes
@@ -860,10 +869,6 @@ def confirm_lanch(lunch_id):
         message = {"status": 1, "text": "Ланч добавлен в корзину"}
         session["message"] = message
         return redirect("/")
-    categories = sorted(
-        {di.category for di in db_sess.query(DishLunch).filter(DishLunch.lunch_id == lunch_id)},
-        key=lambda ca: ca.title,
-    )
     smessage = session["message"]
     session["message"] = dumps(ST_message)
 
@@ -1135,6 +1140,30 @@ def logout():
     logout_user()
     session["order"] = {}
     return redirect("/")
+
+
+@app.route("/chats")
+def chats():
+    title = "Чаты"
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role == 2:
+        abort(404)
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
+    db_sess = db_session.create_session()
+    users = db_sess.query(User).filter(User.role == 2).all()
+    return render_template(
+        "chats.html",
+        title=title,
+        message=smessage,
+        order=session["order"],
+        messages=smessage,
+        users=users,
+    )
+
+
+""
 
 
 @app.route("/chat/<int:user_id>")

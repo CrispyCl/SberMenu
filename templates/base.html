@@ -66,9 +66,34 @@
                             <span><img
                                     src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>
+
                         {% endif %}
+                        {% endif %}
+                        {% if current_user.role == 2 %}
+                        <a href="/chat/1" class="menu_link">
+                            <img class="menu_img"
+                                src="{{ url_for('static', filename='svg/settings-svgrepo-com.svg') }}">
+                            <p>Чат</p>
+                            <span><img
+                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
+                        </a>
+                        {% else %}
+                        <a href="/chats" class="menu_link">
+                            <img class="menu_img"
+                                src="{{ url_for('static', filename='svg/settings-svgrepo-com.svg') }}">
+                            <p>Чаты</p>
+                            <span><img
+                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
+                        </a>
                         {% endif %}
                         {% if current_user.role == 0 %}
+                        <a href="/create/normalized_category" class="menu_link">
+                            <img class="menu_img"
+                                src="{{ url_for('static', filename='svg/settings-svgrepo-com.svg') }}">
+                            <p>Создать главную категорию</p>
+                            <span><img
+                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
+                        </a>
                         <a href="/register/spec" class="menu_link">
                             <img class="menu_img"
                                 src="{{ url_for('static', filename='svg/user-alt-1-svgrepo-com.svg') }}">
@@ -121,23 +146,24 @@
                     <div class="dd-menu">
                         {% if order %}
                         {% if order["lunch"] %}
-                        <div>Бизнес-ланч - {{ order["lunch"]["date"] }}</div>
-                        <div>
-                           {% for dish in order["lunch"]["dishes"] %}
-                           <div class="item_dish_title">{{ dish.title }}</div>
-                           <div>
-                            Категория: {{ dish.category }}
-                           </div>
-                           <a class="item_img" href="#">
-                                <img src="{{ url_for('static', filename=dish.image) }}">
-                            </a>
-                           {% endfor %}
+                        <div class="item_dish_title">Бизнес-ланч - {{ order["lunch"].price }}₽</div>
+                        {% for dish in order["lunch"]["dishes"] %}
+                        <div class="ihr">
+                            <div class="basket_item">
+                                <a class="item_img" href="#">
+                                    <img src="{{ url_for('static', filename=dish.image) }}">
+                                </a>
+                                <div class="item_info">
+                                    <div class="item_dish_title">{{ dish.title }}</div>
+                                </div>
+                            </div>
                         </div>
-                        <div>Цена - {{ order["lunch"].price }} </div>
+                        {% endfor %}
                         {% endif %}
                         {% for k in order %}
                         {% if k not in ["sum", "lunch"] %}
                         {% set dish = order[k] %}
+                        <div class="item_dish_title">Другие блюда</div>
                         <div class="ihr">
                             <div class="basket_item">
                                 <a class="item_img" href="#">
