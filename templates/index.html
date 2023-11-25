@@ -153,7 +153,7 @@
                     </div>
                 </div>
                 {% if current_user.role not in [0, 1] %}
-                <a class="add_dish_to_basket" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
+                <input type="button" id="input{{ dish.id }}" class="add_dish_to_basket" value="Добавить в корзину">
                 {% endif %}
             </div>
             {% endfor %}
@@ -227,5 +227,22 @@
     })
 </script>
 <script src="{{ url_for('static', filename='scripts/slider.js') }}"></script>
+<script type="text/javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        var socket = io.connect("/");
 
+        socket.on("add_dish", function (data) {
+            console.log(data);
+            AddMessage(data["message"], close_time = 2000);
+          });
+
+        function AddDish() {
+            console.log(1);
+        };
+        $(".add_dish_to_basket").on("click", function() {
+            id = ($( this )[0].id).replace("input", "");
+            socket.emit("add_dish", {dish_id: id});
+        })
+      });
+</script>
 {% endblock %}

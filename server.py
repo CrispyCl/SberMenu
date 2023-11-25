@@ -3,7 +3,7 @@ from json import dumps
 
 from flask import abort, Flask, redirect, render_template, request, session
 from flask_login import current_user, login_required, login_user, LoginManager, logout_user
-from flask_socketio import join_room, leave_room, send, SocketIO
+from flask_socketio import emit, join_room, leave_room, send, SocketIO
 from PIL import Image
 import requests
 from sqlalchemy import or_
@@ -42,7 +42,7 @@ from forms.user import UserForm
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "very_secret_key"
-socketio = SocketIO(app)
+socketio = SocketIO(app, manage_session=False)
 
 ST_message = {"status": 404, "text": ""}
 STATUS = {1: "В процессе", 2: "Приготовлен", 3: "Выдан", 4: "Передан в доставку", 5: "Доставлен", 0: "Отменён"}
@@ -78,29 +78,6 @@ def index():
         posts=posts,
         lunch=lunch,
     )
-
-
-@app.route("/add_dish/<int:dish_id>")
-def add_dish(dish_id):
-    if current_user.is_authenticated:
-        if current_user.role in [0, 1]:
-            return redirect("/")
-    db_sess = db_session.create_session()
-    dish = db_sess.query(Dish).get(dish_id)
-    if not dish:
-        return redirect("/")
-    if not session.get("order"):
-        session["order"] = {}
-    if session["order"].get(str(dish_id)):
-        session["order"][str(dish_id)]["count"] += 1
-    else:
-        d1 = dish.to_dict()
-        d1["count"] = 1
-        session["order"][str(dish_id)] = d1
-    dc = session["order"]
-    session["order"]["sum"] = sum(dc[v]["count"] * dc[v]["price"] if v not in ["sum"] else 0 for v in dc)
-    session["order"] = session["order"]
-    return redirect("/")
 
 
 @app.route("/cancel_order/<int:order_id>")
@@ -1249,6 +1226,37 @@ def on_join(data):
 def on_leave(data):
     room = data["room"]
     leave_room(room)
+
+
+def add_dish(dish_id):
+    if current_user.is_authenticated:
+        if current_user.role in [0, 1]:
+            return redirect("/")
+    db_sess = db_session.create_session()
+    dish = db_sess.query(Dish).get(dish_id)
+    if not dish:
+        return redirect("/")
+    if not session.get("order"):
+        session["order"] = {}
+    if session["order"].get(str(dish_id)):
+        session["order"][str(dish_id)]["count"] += 1
+    else:
+        d1 = dish.to_dict()
+        d1["count"] = 1
+        session["order"][str(dish_id)] = d1
+    dc = session["order"]
+    session["order"]["sum"] = sum(dc[v]["count"] * dc[v]["price"] if v not in ["sum"] else 0 for v in dc)
+    session["order"] = session["order"]
+    return redirect("/")
+
+
+@socketio.on("add_dish")
+def socket_add_dish(data):
+    dish_id = data["dish_id"]
+    print(dish_id)
+    add_dish(dish_id)
+    print(session["order"])
+    emit("add_dish", {"message": {"status": 1, "text": "Блюдо добавлено"}})
 
 
 @socketio.on("message")

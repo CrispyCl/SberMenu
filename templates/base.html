@@ -1,271 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
-    <script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-    <script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+    <script
+      class="jsbin"
+      src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"
+    ></script>
+    <script
+      class="jsbin"
+      src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"
+    ></script>
     <script src="https://cdn.jsdelivr.net/npm/mobile-detect@1.4.5/mobile-detect.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.2/socket.io.js"></script>
-    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='svg/SberMenuLogo.svg') }}">
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="{{ url_for('static', filename='svg/SberMenuLogo.svg') }}"
+    />
     <title>SberMenu | {{ title }}</title>
-</head>
+  </head>
 
-<link rel="stylesheet" href="{{ url_for('static', filename='css/base.css') }}">
-<link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/base.css') }}"
+  />
+  <link
+    href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css"
+    rel="stylesheet"
+  />
 
-{% if not order %}
-{% set order = session["order"] %}
-{% endif %}
+  {% if not order %} {% set order = session["order"] %} {% endif %} {% from
+  "includes/order.html" import order_create %}
 
-<div class="PC">
+  <div class="PC">
     <header class="header_PC">
-        <div class="header">
-            <div class="message-content" style="display: none;">{{ message|tojson }}</div>
-            <a class="logo" href="/">
-                <div class="green">Sber</div>Menu
-            </a>
-            <div class="sba">
-                {% if current_user.role not in [0, 1] %}
-                <a class="basket" easy-toggle="#basket" easy-class="show" easy-rcoe>
-                    <img src="{{ url_for('static', filename='svg/basket-shopping-alt-svgrepo-com.svg') }}">
-                </a>
-                {% endif %}
-                {% if current_user.is_authenticated %}
-                <a class="dropdown-toggle" easy-toggle="#dropdown" easy-class="show" easy-rcoe>
-                    <img src="{{ url_for('static', filename='svg/user-alt-1-svgrepo-com.svg') }}">
-                </a>
-
-                <!-- User dropdown menu -->
-                <div class="dropdown-menu" id="dropdown">
-                    <div class="menu">
-                        <div class="user_info">
-                            {% if current_user.role == 2 %}
-                            <div class="name" id="namea">{{ current_user.name }} {{ current_user.surname }}</div>
-                            {% else %}
-                            <div class="name" id="namea">{{ current_user.email }}</div>
-                            {% endif %}
-                        </div>
-                        <hr>
-                        {% if current_user.role != 0 %}
-                        <a href="/edit/user/{{ current_user.id }}" class="menu_link">
-                            <img class="menu_img"
-                                src="{{ url_for('static', filename='svg/settings-svgrepo-com.svg') }}">
-                            <p>Редактировать профиль</p>
-                            <span><img
-                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
-                        </a>
-                        {% if current_user.role != 1 %}
-                        <a id="mobile_basket" href="/confirm_order" class="menu_link">
-                            <img class="menu_img"
-                                src="{{ url_for('static', filename='svg/basket-shopping-alt-svgrepo-com.svg') }}">
-                            <p>Моя корзина</p>
-                            <span><img
-                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
-                        </a>
-
-                        {% endif %}
-                        {% endif %}
-                        {% if current_user.role == 2 %}
-                        <a href="/chat/1" class="menu_link">
-                            <img class="menu_img"
-                                src="{{ url_for('static', filename='svg/settings-svgrepo-com.svg') }}">
-                            <p>Чат</p>
-                            <span><img
-                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
-                        </a>
-                        {% else %}
-                        <a href="/chats" class="menu_link">
-                            <img class="menu_img"
-                                src="{{ url_for('static', filename='svg/settings-svgrepo-com.svg') }}">
-                            <p>Чаты</p>
-                            <span><img
-                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
-                        </a>
-                        {% endif %}
-                        {% if current_user.role == 0 %}
-                        <a href="/create/normalized_category" class="menu_link">
-                            <img class="menu_img"
-                                src="{{ url_for('static', filename='svg/settings-svgrepo-com.svg') }}">
-                            <p>Создать главную категорию</p>
-                            <span><img
-                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
-                        </a>
-                        <a href="/register/spec" class="menu_link">
-                            <img class="menu_img"
-                                src="{{ url_for('static', filename='svg/user-alt-1-svgrepo-com.svg') }}">
-                            <p>Создать специалиста</p>
-                            <span><img
-                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
-                        </a>
-                        <a href="/lunch_list" class="menu_link" id="dd_dishes">
-                            <img class="menu_img" src="{{ url_for('static', filename='svg/food-2-svgrepo-com.svg') }}">
-                            <p>Бизнес-ланчи</p>
-                            <span><img
-                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
-                        </a>
-                        <a href="/create/criteria" class="menu_link" id="dd_orders">
-                            <img class="menu_img"
-                                src="{{ url_for('static', filename='svg/star-sharp-svgrepo-com.svg') }}">
-                            <p>Создать критерий</p>
-                            <span><img
-                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
-                        </a>
-                        <a href="/dishes" class="menu_link" id="dd_dishes">
-                            <img class="menu_img" src="{{ url_for('static', filename='svg/list-svgrepo-com.svg') }}">
-                            <p>Блюда</p>
-                            <span><img
-                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
-                        </a>
-                        {% endif %}
-                        <a href="/orders" class="menu_link" id="dd_orders">
-                            <img class="menu_img" src="{{ url_for('static', filename='svg/list-svgrepo-com.svg') }}">
-                            <p>Заказы</p>
-                            <span><img
-                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
-                        </a>
-                        <a href="/logout" class="menu_link">
-                            <img class="menu_img" src="{{ url_for('static', filename='svg/logout-svgrepo-com.svg') }}">
-                            <p>Выйти</p>
-                            <span><img
-                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
-                        </a>
-                    </div>
-                </div>
-                <!-- end User dropdown menu -->
-
-                {% else %}
-                <a class="login_btn" href="/login">Войти</a>
-                {% endif %}
-
-                <!-- basket dropdown menu -->
-                <div class="dd-menu-wrap" id="basket">
-                    <div class="dd-menu">
-                        {% if order %}
-                        {% if order["lunch"] %}
-                        <div class="item_dish_title">Бизнес-ланч - {{ order["lunch"].price }}₽</div>
-                        {% for dish in order["lunch"]["dishes"] %}
-                        <div class="ihr">
-                            <div class="basket_item">
-                                <a class="item_img" href="#">
-                                    <img src="{{ url_for('static', filename=dish.image) }}">
-                                </a>
-                                <div class="item_info">
-                                    <div class="item_dish_title">{{ dish.title }}</div>
-                                </div>
-                            </div>
-                        </div>
-                        {% endfor %}
-                        {% endif %}
-                        {% for k in order %}
-                        {% if k not in ["sum", "lunch"] %}
-                        {% set dish = order[k] %}
-                        <div class="item_dish_title">Другие блюда</div>
-                        <div class="ihr">
-                            <div class="basket_item">
-                                <a class="item_img" href="#">
-                                    <img src="{{ url_for('static', filename=dish.image) }}">
-                                </a>
-                                <div class="item_info">
-                                    <div class="item_dish_title">{{ dish.title }}</div>
-                                    {% if dish.count > 1 %}
-                                    <div class="item_dish_price">Цена - {{ dish.price }}₽ за 1 шт.</div>
-                                    {% else %}
-                                    <div class="item_dish_price">Цена - {{ dish.price }}₽</div>
-                                    {% endif %}
-                                    <div class="item_dish_count">Количество - {{ dish.count }} шт.</div>
-                                </div>
-                            </div>
-                            <hr>
-                        </div>
-                        {% endif %}
-                        {% endfor %}
-                        <div class="basket_bottom">
-                            <div class="end_price">Сумма заказа -<div class="bold">{{ order["sum"] }}₽</div>
-                            </div>
-                            <a class="order_basket" href="/confirm_order">Оформить заказ</a>
-                        </div>
-                        {% else %}
-                        <div class="empty_basket">Корзина пустая</div>
-                        {% endif %}
-                    </div>
-                </div>
-                <!-- end basket dropdown menu -->
-
-            </div>
+      <div class="header">
+        <div class="message-content" style="display: none">
+          {{ message|tojson }}
         </div>
+        <a class="logo" href="/">
+          <div class="green">Sber</div>
+          Menu
+        </a>
+        <div class="sba">
+          {% if current_user.role not in [0, 1] %}
+          <a class="basket" easy-toggle="#basket" easy-class="show" easy-rcoe>
+            <img
+              src="{{ url_for('static', filename='svg/basket-shopping-alt-svgrepo-com.svg') }}"
+            />
+          </a>
+          {% endif %} {% if current_user.is_authenticated %}
+          <a
+            class="dropdown-toggle"
+            easy-toggle="#dropdown"
+            easy-class="show"
+            easy-rcoe
+          >
+            <img
+              src="{{ url_for('static', filename='svg/user-alt-1-svgrepo-com.svg') }}"
+            />
+          </a>
+
+          <!-- User dropdown menu -->
+          <div class="dropdown-menu" id="dropdown">
+            <div class="menu">
+              <div class="user_info">
+                {% if current_user.role == 2 %}
+                <div class="name" id="namea">
+                  {{ current_user.name }} {{ current_user.surname }}
+                </div>
+                {% else %}
+                <div class="name" id="namea">{{ current_user.email }}</div>
+                {% endif %}
+              </div>
+              <hr />
+              {% if current_user.role != 0 %}
+              <a href="/edit/user/{{ current_user.id }}" class="menu_link">
+                <img
+                  class="menu_img"
+                  src="{{ url_for('static', filename='svg/settings-svgrepo-com.svg') }}"
+                />
+                <p>Редактировать профиль</p>
+                <span
+                  ><img
+                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"
+                /></span>
+              </a>
+              {% if current_user.role != 1 %}
+              <a id="mobile_basket" href="/confirm_order" class="menu_link">
+                <img
+                  class="menu_img"
+                  src="{{ url_for('static', filename='svg/basket-shopping-alt-svgrepo-com.svg') }}"
+                />
+                <p>Моя корзина</p>
+                <span
+                  ><img
+                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"
+                /></span>
+              </a>
+
+              {% endif %} {% endif %} {% if current_user.role == 2 %}
+              <a href="/chat/1" class="menu_link">
+                <img
+                  class="menu_img"
+                  src="{{ url_for('static', filename='svg/settings-svgrepo-com.svg') }}"
+                />
+                <p>Чат</p>
+                <span
+                  ><img
+                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"
+                /></span>
+              </a>
+              {% else %}
+              <a href="/chats" class="menu_link">
+                <img
+                  class="menu_img"
+                  src="{{ url_for('static', filename='svg/settings-svgrepo-com.svg') }}"
+                />
+                <p>Чаты</p>
+                <span
+                  ><img
+                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"
+                /></span>
+              </a>
+              {% endif %} {% if current_user.role == 0 %}
+              <a href="/create/normalized_category" class="menu_link">
+                <img
+                  class="menu_img"
+                  src="{{ url_for('static', filename='svg/settings-svgrepo-com.svg') }}"
+                />
+                <p>Создать главную категорию</p>
+                <span
+                  ><img
+                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"
+                /></span>
+              </a>
+              <a href="/register/spec" class="menu_link">
+                <img
+                  class="menu_img"
+                  src="{{ url_for('static', filename='svg/user-alt-1-svgrepo-com.svg') }}"
+                />
+                <p>Создать специалиста</p>
+                <span
+                  ><img
+                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"
+                /></span>
+              </a>
+              <a href="/lunch_list" class="menu_link" id="dd_dishes">
+                <img
+                  class="menu_img"
+                  src="{{ url_for('static', filename='svg/food-2-svgrepo-com.svg') }}"
+                />
+                <p>Бизнес-ланчи</p>
+                <span
+                  ><img
+                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"
+                /></span>
+              </a>
+              <a href="/create/criteria" class="menu_link" id="dd_orders">
+                <img
+                  class="menu_img"
+                  src="{{ url_for('static', filename='svg/star-sharp-svgrepo-com.svg') }}"
+                />
+                <p>Создать критерий</p>
+                <span
+                  ><img
+                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"
+                /></span>
+              </a>
+              <a href="/dishes" class="menu_link" id="dd_dishes">
+                <img
+                  class="menu_img"
+                  src="{{ url_for('static', filename='svg/list-svgrepo-com.svg') }}"
+                />
+                <p>Блюда</p>
+                <span
+                  ><img
+                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"
+                /></span>
+              </a>
+              {% endif %}
+              <a href="/orders" class="menu_link" id="dd_orders">
+                <img
+                  class="menu_img"
+                  src="{{ url_for('static', filename='svg/list-svgrepo-com.svg') }}"
+                />
+                <p>Заказы</p>
+                <span
+                  ><img
+                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"
+                /></span>
+              </a>
+              <a href="/logout" class="menu_link">
+                <img
+                  class="menu_img"
+                  src="{{ url_for('static', filename='svg/logout-svgrepo-com.svg') }}"
+                />
+                <p>Выйти</p>
+                <span
+                  ><img
+                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"
+                /></span>
+              </a>
+            </div>
+          </div>
+          <!-- end User dropdown menu -->
+
+          {% else %}
+          <a class="login_btn" href="/login">Войти</a>
+          {% endif %}
+
+          <!-- basket dropdown menu -->
+          <div class="dd-menu-wrap" id="basket">
+            <div class="dd-menu">{{ order_create(order) }}</div>
+          </div>
+          <!-- end basket dropdown menu -->
+        </div>
+      </div>
     </header>
     <main class="main_PC">
-        <!-- Good Alert Box  -->
-        <div class="good_alert_box">
-            <div class="good_alert_box_content">
-                <i class="fa-solid fa-check check"></i>
+      <!-- Good Alert Box  -->
+      <div class="good_alert_box">
+        <div class="good_alert_box_content">
+          <i class="fa-solid fa-check check"></i>
 
-                <div class="good_alert_message">
-                    <span class="text text-1">Успех!</span>
-                    <span class="text text-2"></span>
-                </div>
-            </div>
-            <i class="fa-solid fa-xmark close"></i>
-
-            <div class="good_alert_progress"></div>
+          <div class="good_alert_message">
+            <span class="text text-1">Успех!</span>
+            <span class="text text-2"></span>
+          </div>
         </div>
+        <i class="fa-solid fa-xmark close"></i>
 
+        <div class="good_alert_progress"></div>
+      </div>
 
-        <!-- Bad Alert Box -->
+      <!-- Bad Alert Box -->
 
-        <div class="bad_alert_box">
-            <div class="bad_alert_box_content">
-                <i class="fa-solid fa-xmark check"></i>
+      <div class="bad_alert_box">
+        <div class="bad_alert_box_content">
+          <i class="fa-solid fa-xmark check"></i>
 
-                <div class="bad_alert_message">
-                    <span class="text text-1">Поздравляю, ты крякнулся</span>
-                    <span class="text text-2"></span>
-                </div>
-            </div>
-            <i class="fa-solid fa-xmark close"></i>
-
-            <div class="bad_alert_progress"></div>
+          <div class="bad_alert_message">
+            <span class="text text-1">Поздравляю, ты крякнулся</span>
+            <span class="text text-2"></span>
+          </div>
         </div>
+        <i class="fa-solid fa-xmark close"></i>
 
-        <!-- Warning Alert Box -->
-        <div class="warning_alert_box">
-            <div class="warning_alert_box_content">
-                <i class="fa-solid fa-question check"></i>
+        <div class="bad_alert_progress"></div>
+      </div>
 
-                <div class="warning_alert_message">
-                    <span class="text text-1">Обратите внимание</span>
-                    <span class="text text-2"></span>
-                </div>
-            </div>
-            <i class="fa-solid fa-xmark close"></i>
+      <!-- Warning Alert Box -->
+      <div class="warning_alert_box">
+        <div class="warning_alert_box_content">
+          <i class="fa-solid fa-question check"></i>
 
-            <div class="warning_alert_progress"></div>
+          <div class="warning_alert_message">
+            <span class="text text-1">Обратите внимание</span>
+            <span class="text text-2"></span>
+          </div>
         </div>
-        {% block content %}{% endblock %}
+        <i class="fa-solid fa-xmark close"></i>
+
+        <div class="warning_alert_progress"></div>
+      </div>
+      {% block content %}{% endblock %}
     </main>
     <footer class="footer_PC">
-        <div class="github">
-            <a href="https://github.com/Gogasmerter/SberMenu"><img class="githubicon"
-                    src="{{ url_for('static', filename='svg/github-mark.svg') }}"></a>
-            <div class="githubtext">© 2023 ChinaGrib Team</div>
-        </div>
+      <div class="github">
+        <a href="https://github.com/Gogasmerter/SberMenu"
+          ><img
+            class="githubicon"
+            src="{{ url_for('static', filename='svg/github-mark.svg') }}"
+        /></a>
+        <div class="githubtext">© 2023 ChinaGrib Team</div>
+      </div>
     </footer>
-</div>
-<script>
+  </div>
+  <script>
     let details = navigator.userAgent;
     let regexp = /android|iphone|kindle|ipad/i;
     let isMobileDevice = regexp.test(details);
 
     if (isMobileDevice) {
-        document.write("<style>.wrapper i {display: none !important;}</style>")
+      document.write("<style>.wrapper i {display: none !important;}</style>");
     }
-</script>
-<script src="{{ url_for('static', filename='scripts/smooth scroll.js') }}"></script>
-<script src="{{ url_for('static', filename='scripts/message.js') }}"></script>
-<script type="module" src="{{ url_for('static', filename='scripts/base.js') }}"></script>
-
+  </script>
+  <script src="{{ url_for('static', filename='scripts/smooth scroll.js') }}"></script>
+  <script src="{{ url_for('static', filename='scripts/message.js') }}"></script>
+  <script
+    type="module"
+    src="{{ url_for('static', filename='scripts/base.js') }}"
+  ></script>
 </html>
