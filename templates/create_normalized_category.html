@@ -2,24 +2,28 @@
 
 {% block content %}
 
-<form action="" method="post">
-    <div class="text">
-        <h1 class="text-center">Добавить главную категорию</h1>
-    </div>
-    <div>
-        Укажите название:
-    </div>
-    {{ form.hidden_tag() }}
-    {{ form.title(class="form-control", type="text", placeholder="Название") }}
-    {% for error in form.title.errors %}
-    <p class="alert alert-danger" role="alert">
-        {{ error }}
-    </p>
-    {% endfor %}
-    <div>
-        {{ form.submit(class="submitbtn", value="Создать") }}
-    </div>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create_category_and_dish.css') }}">
 
-</form>
+
+<div class="wrapper">
+    <form action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="container">
+            <div class="text">
+                <h1 class="text-center">Добавить главную категорию</h1>
+            </div>
+
+            <!-- Name -->
+            {{ form.title(class="form-control name", type="text", placeholder="Название") }}
+            {% for error in form.title.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+            {% endfor %}
+
+            <!-- Submit -->
+            {{ form.submit(class="submitbtn", value="Создать") }}
+        </div>
+</div>
 
 {% endblock %}
