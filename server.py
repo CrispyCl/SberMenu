@@ -28,6 +28,7 @@ from data.posts import Post
 from data.stats import Stat
 from data.users import User
 from data.valuations import Valuation
+from data.votes import Vote
 from forms.category import CategoryForm
 from forms.comment import CommentForm
 from forms.criteria import CriteriaForm
@@ -1101,6 +1102,25 @@ def stats(dish_id, date):
         stats=stats_show,
         predict=predict,
     )
+
+
+@app.route("/vote/<int:dish_id>")
+def vote(dish_id):
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 2:
+        abort(404)
+    db_sess = db_session.create_session()
+    dish = db_sess.query(Dish).filter(Dish.id == dish_id).first()
+    if not dish:
+        abort(404)
+    votes = db_sess.query(Vote).filter(Vote.user_id == current_user.id).all()
+    dishes = [vote.dish_id for vote in votes]
+    if dish.id in dishes:
+        abort(404)
+    db_sess.add(Vote(dish_id=dish.id, user_id=current_user.id))
+    db_sess.commit()
+    return redirect(f"/profile/dish/{dish_id}")
 
 
 @login_manager.user_loader

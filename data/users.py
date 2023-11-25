@@ -25,3 +25,4 @@ class User(SqlAlchemyBase, UserMixin):
     orders = orm.relationship("Order", back_populates="user", lazy="dynamic", cascade="all, delete-orphan")
     messages = orm.relationship("Message", back_populates="user", lazy="dynamic", cascade="all, delete-orphan")
     comments = orm.relationship("Comment", back_populates="user", lazy="dynamic")
+    votes = orm.relationship("Vote", back_populates="user", lazy="dynamic", cascade="all, delete-orphan")

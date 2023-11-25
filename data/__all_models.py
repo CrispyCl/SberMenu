@@ -14,3 +14,4 @@ from . import dishes_lunch
 from . import lunch_orders
 from . import lunches
 from . import stats
+from . import votes
