@@ -913,8 +913,9 @@ def profile_dish(dish_id):
     criteria_valuations = {}
     can_vote = False
 
-    if current_user.role == 2 and not db_sess.query(Vote).filter(Vote.user_id == current_user.id, Vote.dish_id == dish_id).all():
-        can_vote = True
+    if current_user.is_authenticated:
+        if current_user.role == 2 and not db_sess.query(Vote).filter(Vote.user_id == current_user.id, Vote.dish_id == dish_id).all():
+            can_vote = True
     for comment in dish_comments:
         com_valuations[comment.id] = db_sess.query(Valuation).filter(Valuation.comment_id == comment.id).all()
         values = com_valuations[comment.id]
@@ -949,7 +950,8 @@ def profile_dish(dish_id):
         dish_comments=dish_comments,
         com_valuations=com_valuations,
         criteria_valuations=criteria_valuations,
-        can_vote=can_vote
+        can_vote=can_vote,
+        n_date=datetime.date.today(),
     )
 
 
