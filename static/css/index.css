@@ -269,6 +269,18 @@
     font-family: sans-serif;
 }
 
+a.posttitle {
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 1rem;
+    text-decoration: none;
+    color: #000;
+}
+
+a.posttitle:hover {
+    border: 1px solid #21201f;
+}
+
 .posttext {
     padding: 5px;
     font-family: sans-serif;
