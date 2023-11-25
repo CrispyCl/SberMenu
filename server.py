@@ -726,6 +726,7 @@ def edit_user(user_id):
 
 @app.route("/orders")
 def orders():
+    title = "Заказы"
     if not current_user.is_authenticated:
         abort(404)
     smessage = session["message"]
@@ -739,6 +740,7 @@ def orders():
         orders = db_sess.query(Order).all()[::-1]
     return render_template(
         "order_list.html",
+        title=title,
         message=smessage,
         order=session["order"],
         orders=orders,
@@ -759,6 +761,24 @@ def create_lunch():
     title = "Создание бизнес-ланча"
     db_sess = db_session.create_session()
     categories = db_sess.query(NormalizedCategory).join(Category).join(DishCategory).all()
+    voted_dishes={}
+    normalized_categories = db_sess.query(NormalizedCategory).all()
+    for category in normalized_categories:
+        cat_dishes = category.dishes
+        voted_dishes[category.id] = {}
+        for dish in cat_dishes:
+            a = len(db_sess.query(Vote).filter(Vote.dish_id == dish.id).all())
+            if a != 0:
+                voted_dishes[category.id][dish.id] = a
+        voted_dishes[category.id] = sorted(voted_dishes[category.id].items(), key=lambda item: item[1], reverse=True)
+        if len(voted_dishes[category.id]) >= 3:
+            voted_dishes[category.id] = [i[0] for i in voted_dishes[category.id][:3]]
+        elif len(voted_dishes[category.id]) == 2:
+            voted_dishes[category.id] = [i[0] for i in voted_dishes[category.id][:2]]
+        elif len(voted_dishes[category.id]) == 1:
+            voted_dishes[category.id] = [voted_dishes[category.id][0][0]]
+        else:
+            voted_dishes[category.id] = []
 
     if form.validate_on_submit():
         if db_sess.query(Lunch).filter(Lunch.date == form.date.data).first():
@@ -771,6 +791,7 @@ def create_lunch():
                 order=session["order"],
                 dishes=dishes,
                 categories=categories,
+                voted_dishes=voted_dishes
             )
         chosen_dishes = request.form.getlist("dishes")
         if not chosen_dishes:
@@ -783,6 +804,7 @@ def create_lunch():
                 order=session["order"],
                 dishes=dishes,
                 categories=categories,
+                voted_dishes=voted_dishes
             )
 
         lunch = Lunch(price=form.price.data, date=form.date.data)
@@ -805,6 +827,7 @@ def create_lunch():
         message=smessage,
         order=session["order"],
         categories=categories,
+        voted_dishes=voted_dishes
     )
 
 
@@ -893,6 +916,11 @@ def profile_dish(dish_id):
     dish_comments = db_sess.query(Comment).filter(Comment.dish_id == dish_id).all()
     com_valuations = {}
     criteria_valuations = {}
+    can_vote = False
+
+    if current_user.is_authenticated:
+        if current_user.role == 2 and not db_sess.query(Vote).filter(Vote.user_id == current_user.id, Vote.dish_id == dish_id).all():
+            can_vote = True
     for comment in dish_comments:
         com_valuations[comment.id] = db_sess.query(Valuation).filter(Valuation.comment_id == comment.id).all()
         values = com_valuations[comment.id]
@@ -927,6 +955,8 @@ def profile_dish(dish_id):
         dish_comments=dish_comments,
         com_valuations=com_valuations,
         criteria_valuations=criteria_valuations,
+        can_vote=can_vote,
+        n_date=datetime.date.today(),
     )
 
 
@@ -1240,4 +1270,4 @@ def handle_message(data):
 if __name__ == "__main__":
     db_session.global_init("db/GriBD.db")
     fill_db(db_session.create_session())
-    socketio.run(app, port=8080, host="127.0.0.1", debug=True)
+    socketio.run(app, port=8080, host="127.0.0.1", debug=True, allow_unsafe_werkzeug=True)

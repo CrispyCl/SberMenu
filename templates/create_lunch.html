@@ -29,7 +29,6 @@
                 </p>
                 {% endfor %}
             </div>
-
             <div class="all_categories">
                 {% for category in categories if category.dishes %}
                 <div class="category">
@@ -42,6 +41,9 @@
                                 <img class="category_image" src="{{ url_for('static', filename=dish.image) }}">
                             </label>
                             <div class="category_title">{{ dish.title }}</div>
+                            {% if dish.id in voted_dishes[category.id] %}
+                            <div>! Выбор пользователей !</div>
+                            {% endif %}
                         </div>
                         {% endfor %}
                     </div>
