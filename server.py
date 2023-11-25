@@ -726,6 +726,7 @@ def edit_user(user_id):
 
 @app.route("/orders")
 def orders():
+    title = "Заказы"
     if not current_user.is_authenticated:
         abort(404)
     smessage = session["message"]
@@ -739,6 +740,7 @@ def orders():
         orders = db_sess.query(Order).all()[::-1]
     return render_template(
         "order_list.html",
+        title=title,
         message=smessage,
         order=session["order"],
         orders=orders,
