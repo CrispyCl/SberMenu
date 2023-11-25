@@ -71,7 +71,7 @@
             <a class="order" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
         </div>
         {% endif %}
-        {% if current_user.role == 2 %}
+        {% if can_vote %}
         <div>
             <a href="/vote/{{ dish.id }}">Хотел бы видеть в бизнес-ланче</a>
         </div>
