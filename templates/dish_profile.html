@@ -65,6 +65,18 @@
                     </script>
                 </div>
                 {% endif %}
+            </div>
+            <div class="rating">
+                <div class="ratingtitle">Оценка блюда</div>
+                <div class="allcriterias">
+                    {% for criteria in criterias %}
+                    <div>{{ criteria.title }}: {% if criteria_valuations.get(criteria.title) %}{{
+                        criteria_valuations[criteria.title] }} {% else %}NaN{% endif %}</div>
+                    {% endfor %}
+                </div>
+                <a href="/stats/{{ dish.id }}/{{ today }}">Статистика</a>
+            </div>
+        </div>
         {% if current_user.role != 0 %}
         <div class="buy">
             <div class="price">Цена - {{ dish.price }}₽</div>
@@ -97,12 +109,17 @@
                 <div class="criterias">
                     {% for criteria in criterias %}
                     <div class="criteria">
-                        <!-- <input type="radio" id="star-5" name={{criteria.title}} value="1">
-                        <input type="radio" id="star-4" name={{criteria.title}} value="2">
-                        <input type="radio" id="star-3" name={{criteria.title}} value="3">
-                        <input type="radio" id="star-2" name={{criteria.title}} value="4">
-                        <input type="radio" id="star-1" name={{criteria.title}} value="5"> -->
-
+                        <div class="title">{{ criteria.title }}</div>
+                        <input class="starint" type="radio" id="star-5" name={{criteria.title}} value="5">
+                        <label class="starlab" for="rating-5">5</label>
+                        <input class="starint" type="radio" id="star-4" name={{criteria.title}} value="4">
+                        <label class="starlab" for="rating-5">4</label>
+                        <input class="starint" type="radio" id="star-3" name={{criteria.title}} value="3">
+                        <label class="starlab" for="rating-5">3</label>
+                        <input class="starint" type="radio" id="star-2" name={{criteria.title}} value="2">
+                        <label class="starlab" for="rating-5">2</label>
+                        <input class="starint" type="radio" id="star-1" name={{criteria.title}} value="1">
+                        <label class="starlab" for="rating-5">1</label>
                     </div>
                     {% endfor %}
                 </div>

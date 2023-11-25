@@ -966,9 +966,9 @@ def create_post():
         if form.image.data:
             img1 = form.image.data
             img1.save(f"static/img/posts/{last_id}.jpg")
+            post.image = f"img/posts/{last_id}.jpg"
         else:
             post.image = None
-        post.image = f"img/posts/{last_id}.jpg"
         db_sess.add(post)
         db_sess.commit()
         return redirect("/")
@@ -981,7 +981,7 @@ def news():
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
-    posts = db_sess.query(Post).all()
+    posts = db_sess.query(Post).order_by(Post.date).all()[::-1]
     return render_template("news.html", title=title, message=smessage, order=session["order"], posts=posts)
 
 

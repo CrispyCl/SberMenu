@@ -444,3 +444,58 @@ textarea.feedbackarea {
     font-family: sans-serif;
     font-size: 17px;
 }
+
+
+.criteria {
+    float:left;
+    border-style: none;
+}
+
+.criteria:not(:checked) > input.starint {
+    position:absolute;
+    top:-9999px;
+    clip:rect(0,0,0,0);
+}
+
+.criteria:not(:checked) > label.starlab {
+    float: right;
+    width: .80em;
+    overflow: hidden;
+    white-space: nowrap;
+    cursor: pointer;
+    font-size: 40px;
+    line-height: 32px;
+    color: lightgrey;
+    margin-bottom: 10px !important;
+}
+
+.criteria:not(:checked) > label.starlab:before {
+    content: '★';
+}
+
+.criteria > input.starint:checked ~ label.starlab {
+    color: #e8262d;
+    text-shadow: none;
+}
+
+.criteria:not(:checked) > label.starlab:hover,
+.criteria:not(:checked) > label.starlab:hover ~ label.starlab {
+    color: #e8262d;
+    
+}
+
+.criteria > input.starint:checked + label.starlab:hover,
+.criteria > input.starint:checked + label.starlab:hover ~ label.starlab,
+.criteria > input.starint:checked ~ label.starlab:hover,
+.criteria > input.starint:checked ~ label.starlab:hover ~ label.starlab,
+.criteria > label.starlab:hover ~ input.starint:checked ~ label.starlab {
+    color: #e8262d;
+    text-shadow: none;
+    
+}
+
+.criteria > label.starlab:active {
+    position:relative;
+    top:0px;
+    left:0px; 
+}
