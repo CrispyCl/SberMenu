@@ -11,8 +11,29 @@
     <form class="order" action="" method="post" enctype="multipart/form-data">
         <div class="wc">
             <div class="order_wrapper">
+                {% if order["lunch"] %}
+                {% set lunch = order["lunch"] %}
+                <div>Бизнес-ланч</div>
+                <div>
+                    {% for dish in lunch["dishes"] %}
+                    <div class="item_dish_title">{{ dish.title }}</div>
+                    <div>
+                        Категория: {{ dish.category }}
+                    </div>
+                    <a class="item_img" href="#">
+                        <img src="{{ url_for('static', filename=dish.image) }}">
+                    </a>
+                    {% endfor %}
+                </div>
+                <div name="PricePC" class="price">{{ lunch.price }}₽</div>
+                <div name="PriceMB" style="display: none" class="price">{{ lunch.price }}₽</div>
+                <input id="number_{{ lunch.id * 1000 }}" type="number" class="number quantity" name="rcounts"
+                    value="{{ lunch.count }}" style="display: none" disabled />
+                <input id="number_{{ lunch.id * 1000 }}" type="number" class="number quantity" name="rrcounts"
+                    value="{{ lunch.count }}" style="display: none" disabled />
+                {% endif %}
                 {% for k in order %}
-                {% if k != "sum" %}
+                {% if k not in ["sum", "lunch"] %}
                 {% set dish = order[k] %}
                 <div class="info">
                     <div class="order_info">
@@ -114,8 +135,8 @@
         let now_minutes = date.getMinutes();
         let delta = (hours - now_hours) * 60 + (minutes - now_minutes);
         if (delta < 15) {
-            var mes = {"status": 2, "text": "Доставка требует минимум 15 минут"}
-            AddMessage(mes, close_time=3000);
+            var mes = { "status": 2, "text": "Доставка требует минимум 15 минут" }
+            AddMessage(mes, close_time = 3000);
         }
     }
     function IsDeliveryChange() {
@@ -129,7 +150,7 @@
         }
         else {
             div.style.display = "none";
-            input.required  = false;
+            input.required = false;
         }
     }
     function SetSumPC(vers = "PC") {

@@ -106,6 +106,25 @@
         </div>
         <hr class="hr">
         <div class="dish">
+            {% if order.lunch %}
+            {% set lunch = order.lunch[0] %}
+            <div>
+            <div>Бизнес-ланч - {{ lunch.date }}</div>
+                <div>
+                {% for dish in lunch.dishes %}
+                <div class="item_dish_title">{{ dish.title }}</div>
+                <div>
+                 Категория: {{ dish.category }}
+                 </div>
+                <a class="item_img" href="#">
+                    <img src="{{ url_for('static', filename=dish.image) }}">
+                </a>
+                {% endfor %}
+
+            </div>
+            <div>Цена - {{ lunch.price }} </div>
+            </div>
+            {% endif %}
             {% for di_o in order.dishes %}
             {% set dish = di_o.dish %}
             {% set price = di_o.price %}

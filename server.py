@@ -5,24 +5,30 @@ from flask import abort, Flask, redirect, render_template, request, session
 from flask_login import current_user, login_required, login_user, LoginManager, logout_user
 from flask_socketio import join_room, leave_room, send, SocketIO
 from PIL import Image
+import requests
 from sqlalchemy import or_
 from static.python.functions import fill_db
+from translate import Translator
 
 from data import db_session
 from data.categories import Category
 from data.comments import Comment
 from data.criterias import Criteria
 from data.dish_categories import DishCategory
+from data.dish_lunch_orders import DishLunchOrder
 from data.dish_orders import DishOrder
 from data.dishes import Dish
 from data.dishes_lunch import DishLunch
+from data.lunch_orders import LunchOrder
 from data.lunches import Lunch
 from data.messages import Message
 from data.normalized_categories import NormalizedCategory
 from data.orders import Order
 from data.posts import Post
+from data.stats import Stat
 from data.users import User
 from data.valuations import Valuation
+from data.votes import Vote
 from forms.category import CategoryForm
 from forms.comment import CommentForm
 from forms.criteria import CriteriaForm
@@ -31,6 +37,7 @@ from forms.login import LoginForm
 from forms.lunch import LunchForm
 from forms.normalized_category import NormalizedCategoryForm
 from forms.post import PostForm
+from forms.stat import StatForm
 from forms.user import UserForm
 
 app = Flask(__name__)
@@ -42,6 +49,8 @@ STATUS = {1: "В процессе", 2: "Приготовлен", 3: "Выдан"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+api_url = "https://api.calorieninjas.com/v1/nutrition?query="
 
 
 @app.route("/")
@@ -89,7 +98,7 @@ def add_dish(dish_id):
         d1["count"] = 1
         session["order"][str(dish_id)] = d1
     dc = session["order"]
-    session["order"]["sum"] = sum(dc[v]["count"] * dc[v]["price"] if v != "sum" else 0 for v in dc)
+    session["order"]["sum"] = sum(dc[v]["count"] * dc[v]["price"] if v not in ["sum"] else 0 for v in dc)
     session["order"] = session["order"]
     return redirect("/")
 
@@ -149,7 +158,7 @@ def confirm_order():
             counts = request.form.getlist("rrcounts")
         to_del = set()
         for i, k in enumerate(session["order"]):
-            if k == "sum":
+            if k in ["sum", "lunch"]:
                 continue
             if int(counts[i]) == 0:
                 to_del.add(k)
@@ -204,6 +213,27 @@ def confirm_order():
         for k in session["order"]:
             if k == "sum":
                 continue
+            if k == "lunch":
+                order_lunch = session["order"]["lunch"]
+                date = datetime.datetime.strptime(order_lunch["date"], "%d.%m.%Y")
+                add_lunch = LunchOrder(
+                    order=order,
+                    lunch_id=order_lunch["id"],
+                    price=order_lunch["price"],
+                    date=date,
+                )
+                db_sess.add(add_lunch)
+                for di in order_lunch["dishes"]:
+                    dish = DishLunchOrder(
+                        lunch=add_lunch,
+                        dish_id=di["id"],
+                        category=di["category"],
+                        image=di["image"],
+                        title=di["title"],
+                    )
+                    db_sess.add(dish)
+                db_sess.commit()
+                continue
             el = session["order"][k]
 
             dish_order = DishOrder(
@@ -213,6 +243,22 @@ def confirm_order():
                 price=el["price"],
             )
             db_sess.add(dish_order)
+            if (
+                not db_sess.query(Stat)
+                .filter(Stat.dish_id == int(k))
+                .filter(Stat.date == datetime.date.today())
+                .first()
+            ):
+                stat = Stat(dish_id=int(k), date=datetime.date.today(), count=el["count"])
+            else:
+                stat = (
+                    db_sess.query(Stat)
+                    .filter(Stat.dish_id == int(k))
+                    .filter(Stat.date == datetime.date.today())
+                    .first()
+                )
+                stat.count += el["count"]
+            db_sess.add(stat)
         db_sess.commit()
         message = {"status": 1, "text": "Заказ оформлен"}
         session["message"] = dumps(message)
@@ -247,11 +293,22 @@ def create_dish():
                 order=session["order"],
                 categories=categories,
             )
+        query = Translator(from_lang="russian", to_lang="english").translate(form.title.data)
+        query = f"{form.mass.data}g " + query
+        response = requests.get(api_url + query, headers={"X-Api-Key": "uKs0cNCsySCuE/7uGjOldQ==ve4Drp6e8VJSfX1V"})
+        if response.status_code == requests.codes.ok:
+            data = response.json()
+        data = data["items"][0]
         dish = Dish(
             title=form.title.data,
             price=form.price.data,
             description=form.description.data.strip(),
             normalized_category_id=form.main_category.data,
+            mass=form.mass.data,
+            calories=data["calories"],
+            protein=data["protein_g"],
+            fat=data["fat_total_g"],
+            carbo=data["carbohydrates_total_g"],
         )
 
         dishes = db_sess.query(Dish).all()
@@ -563,6 +620,7 @@ def edit_dish(dish_id):
         form.title.data = dish.title
         form.description.data = dish.description
         form.price.data = dish.price
+        form.mass.data = dish.mass
         form.main_category.data = str(dish.normalized_category_id)
     if form.validate_on_submit():
         if db_sess.query(Dish).filter(Dish.title == form.title.data, dish_id != Dish.id).first():
@@ -576,10 +634,21 @@ def edit_dish(dish_id):
                 categories=categories,
                 checked=checked,
             )
+        query = Translator(from_lang="russian", to_lang="english").translate(form.title.data)
+        query = f"{form.mass.data}g " + query
+        response = requests.get(api_url + query, headers={"X-Api-Key": "uKs0cNCsySCuE/7uGjOldQ==ve4Drp6e8VJSfX1V"})
+        if response.status_code == requests.codes.ok:
+            data = response.json()
+        data = data["items"][0]
         dish.title = form.title.data
         dish.price = form.price.data
         dish.description = form.description.data.strip()
         dish.normalized_category_id = form.main_category.data
+        dish.mass = form.mass.data
+        dish.calories = data["calories"]
+        dish.fat = data["fat_total_g"]
+        dish.protein = data["protein_g"]
+        dish.carbo = data["carbohydrates_total_g"]
         db_sess.merge(dish)
         categories = {int(ct) for ct in request.form.getlist("categories")}
         for category in checked - categories:
@@ -663,12 +732,11 @@ def orders():
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
     if current_user.role == 2:
-        orders = db_sess.query(Order).filter(Order.user_id == current_user.id).join(DishOrder).all()[::-1]
+        orders = db_sess.query(Order).filter(Order.user_id == current_user.id).all()[::-1]
     elif current_user.role == 1:
-        orders = db_sess.query(Order).filter(Order.status.in_([1, 2, 4])).join(DishOrder).all()[::-1]
+        orders = db_sess.query(Order).filter(Order.status.in_([1, 2, 4])).all()[::-1]
     else:
-        orders = db_sess.query(Order).join(DishOrder).all()[::-1]
-
+        orders = db_sess.query(Order).all()[::-1]
     return render_template(
         "order_list.html",
         message=smessage,
@@ -722,8 +790,10 @@ def create_lunch():
 
         for dish in chosen_dishes:
             d_lunch = DishLunch(dish_id=dish)
-            d_lunch.price_change = int(request.form.getlist(f"p_change{dish}")[0])
+            d_lunch.count = int(request.form.getlist(f"p_change{dish}")[0])
             d_lunch.lunch = lunch
+            dish = db_sess.query(Dish).get(dish)
+            d_lunch.category_id = dish.normalized_category_id
             db_sess.add(d_lunch)
         db_sess.commit()
         message = {"status": 1, "text": "Бизнес-ланч создан"}
@@ -756,7 +826,7 @@ def lunch_list():
     )
 
 
-@app.route("/confirm/lunch/<int:lunch_id>")
+@app.route("/confirm/lunch/<int:lunch_id>", methods=["GET", "POST"])
 def confirm_lanch(lunch_id):
     title = "Базнес-ланч"
     if current_user.is_authenticated:
@@ -767,11 +837,43 @@ def confirm_lanch(lunch_id):
     if not lunch:
         return redirect("/")
     if not session.get("order"):
-        session["order"] = {}
+        session["order"] = {"sum": 0}
+    elif session["order"].get("lunch"):
+        message = {"status": 2, "text": "В можете заказать только один бизнес-ланч"}
+        session["message"] = dumps(message)
+        return redirect("/")
+    if request.method == "POST":
+        dishes = request.form.getlist("dishes")
+        dishes = [db_sess.query(DishLunch).get(di_id) for di_id in dishes]
+        order_dishes = [
+            {"id": di_l.id, "title": di_l.dish.title, "image": di_l.dish.image, "category": di_l.category.title}
+            for di_l in dishes
+        ]
+        session["order"]["sum"] += lunch.price
+        session["order"]["lunch"] = {
+            "id": lunch.id,
+            "price": lunch.price,
+            "count": 1,
+            "dishes": order_dishes,
+            "date": lunch.date.strftime("%d.%m.%Y"),
+        }
+        message = {"status": 1, "text": "Ланч добавлен в корзину"}
+        session["message"] = message
+        return redirect("/")
+    categories = sorted(
+        {di.category for di in db_sess.query(DishLunch).filter(DishLunch.lunch_id == lunch_id)},
+        key=lambda ca: ca.title,
+    )
     smessage = session["message"]
     session["message"] = dumps(ST_message)
 
-    return render_template("confirm_lunch.html", title=title, message=smessage, lunch=lunch)
+    return render_template(
+        "confirm_lunch.html",
+        title=title,
+        message=smessage,
+        lunch=lunch,
+        categories=categories,
+    )
 
 
 @app.route("/profile/dish/<int:dish_id>", methods=["GET", "POST"])
@@ -823,51 +925,6 @@ def profile_dish(dish_id):
     )
 
 
-@app.route("/order_lunch", methods=["GET", "POST"])
-def order_lunch():
-    if not current_user.is_authenticated:
-        abort(404)
-    form = LunchForm()
-    smessage = session["message"]
-    session["message"] = dumps(ST_message)
-    title = "Заказ бизнес-ланча"
-    db_sess = db_session.create_session()
-    lunch = db_sess.query(Lunch).filter(Lunch.date == datetime.date.today()).first()
-    categories = db_sess.query(Category).join(DishCategory).all()
-    lunch_dishes = [i.dish for i in lunch.dishes]
-    dishes = {}
-    for category in categories:
-        for dish in category.dishes:
-            if dish.dish in lunch_dishes:
-                if not dishes.get(category.id):
-                    dishes[category.id] = []
-                dishes[category.id].append(dish.dish)
-    price_changes = {}
-    for dish in lunch.dishes:
-        price_changes[dish.dish_id] = dish.price_change
-    if form.validate_on_submit():
-        chosen_dishes = request.form.getlist("dishes")
-        for dish in chosen_dishes:
-            d_lunch = DishLunch(dish_id=dish)
-            d_lunch.price_change = int(request.form.getlist(f"p_change{dish}")[0])
-            d_lunch.lunch = lunch
-            db_sess.add(d_lunch)
-        db_sess.commit()
-        message = {"status": 1, "text": "Бизнес-ланч заказан"}
-        session["message"] = dumps(message)
-        return redirect("/")
-    return render_template(
-        "order_lunch.html",
-        title=title,
-        form=form,
-        message=smessage,
-        order=session["order"],
-        categories=categories,
-        DISHES=dishes,
-        PRICE_CHANGES=price_changes,
-    )
-
-
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
@@ -909,9 +966,9 @@ def create_post():
         if form.image.data:
             img1 = form.image.data
             img1.save(f"static/img/posts/{last_id}.jpg")
+            post.image = f"img/posts/{last_id}.jpg"
         else:
             post.image = None
-        post.image = f"img/posts/{last_id}.jpg"
         db_sess.add(post)
         db_sess.commit()
         return redirect("/")
@@ -924,7 +981,7 @@ def news():
     smessage = session["message"]
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
-    posts = db_sess.query(Post).all()
+    posts = db_sess.query(Post).order_by(Post.date).all()[::-1]
     return render_template("news.html", title=title, message=smessage, order=session["order"], posts=posts)
 
 
@@ -955,6 +1012,115 @@ def create_criteria():
         db_sess.commit()
         return redirect("/")
     return render_template("create_criteria.html", title=title, form=form, message=smessage, order=session["order"])
+
+
+@app.route("/stats/<int:dish_id>/<string:date>", methods=["GET", "POST"])
+def stats(dish_id, date):
+    title = "Статистика"
+    smessage = session["message"]
+    form = StatForm(dish=dish_id, coerce=int)
+    session["message"] = dumps(ST_message)
+    db_sess = db_session.create_session()
+    dishes = db_sess.query(Dish).all()
+    for dish in dishes:
+        form.dish.choices.append((dish.id, dish.title))
+    date = date.split("-")
+    date = datetime.date(year=int(date[0]), month=int(date[1]), day=int(date[2]))
+    stats = {}
+
+    dish_stats = db_sess.query(Stat).filter(Stat.dish_id == dish_id).all()
+    for stat in dish_stats:
+        if stat.date == date:
+            stats["now"] = stat.count
+        if stat.date == date - datetime.timedelta(days=1):
+            stats["yesterday"] = stat.count
+        if stat.date == date - datetime.timedelta(days=7):
+            stats["week"] = stat.count
+        if stat.date == date - datetime.timedelta(days=30):
+            stats["month"] = stat.count
+        if stat.date == date - datetime.timedelta(days=365):
+            stats["years"] = stat.count
+    if not stats.get("now"):
+        stats["now"] = 0
+    if not stats.get("yesterday"):
+        stats["yesterday"] = stats["now"]
+    if not stats.get("week"):
+        stats["week"] = stats["yesterday"]
+    if not stats.get("month"):
+        stats["month"] = stats["week"]
+    if not stats.get("year"):
+        stats["year"] = stats["month"]
+    predict = stats["yesterday"] * 0.3 + stats["week"] * 0.3 + stats["month"] * 0.2 + stats["year"] * 0.2
+    predict = int(str(predict).split(".")[0])
+
+    stats_show = {}
+
+    dish_stats = db_sess.query(Stat).filter(Stat.dish_id == dish_id).all()
+    for stat in dish_stats:
+        if stat.date == date:
+            stats_show["now"] = stat.count
+        if date >= stat.date == date - datetime.timedelta(days=1):
+            stats_show["yesterday"] = stat.count
+        if date >= stat.date >= date - datetime.timedelta(days=7):
+            if not stats_show.get("week"):
+                stats_show["week"] = stat.count
+            else:
+                stats_show["week"] += stat.count
+        if date >= stat.date >= date - datetime.timedelta(days=30):
+            if not stats_show.get("month"):
+                stats_show["month"] = stat.count
+            else:
+                stats_show["month"] += stat.count
+        if date >= stat.date >= date - datetime.timedelta(days=365):
+            if not stats_show.get("year"):
+                stats_show["year"] = stat.count
+            else:
+                stats_show["year"] += stat.count
+    if not stats_show.get("now"):
+        stats_show["now"] = 0
+    if not stats_show.get("yesterday"):
+        stats_show["yesterday"] = 0
+    if not stats_show.get("week"):
+        stats_show["week"] = 0
+    if not stats_show.get("month"):
+        stats_show["month"] = 0
+    if not stats_show.get("year"):
+        stats_show["year"] = 0
+    if request.method == "GET":
+        form.dish.default = dish_id
+        form.date.data = date
+        form.data.setdefault(date)
+    if form.validate_on_submit():
+        dish = form.dish.data
+        return redirect(f"/stats/{dish}/{form.date.data}")
+    return render_template(
+        "stats.html",
+        title=title,
+        form=form,
+        message=smessage,
+        order=session["order"],
+        stats=stats_show,
+        predict=predict,
+    )
+
+
+@app.route("/vote/<int:dish_id>")
+def vote(dish_id):
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role != 2:
+        abort(404)
+    db_sess = db_session.create_session()
+    dish = db_sess.query(Dish).filter(Dish.id == dish_id).first()
+    if not dish:
+        abort(404)
+    votes = db_sess.query(Vote).filter(Vote.user_id == current_user.id).all()
+    dishes = [vote.dish_id for vote in votes]
+    if dish.id in dishes:
+        abort(404)
+    db_sess.add(Vote(dish_id=dish.id, user_id=current_user.id))
+    db_sess.commit()
+    return redirect(f"/profile/dish/{dish_id}")
 
 
 @login_manager.user_loader

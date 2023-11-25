@@ -40,7 +40,7 @@
             </div>
             <div class="price_ord">
                 <div>Цена: {{ lunch.price }}</div>
-                {% if current_user.role == 2 %}
+                {% if current_user.role not in [0, 1] and not order.lunch%}
                 <a class="add_dish_to_basket" href="confirm/lunch/{{ lunch.id }}">Заказать</a>
                 {% endif %}
             </div>
@@ -97,11 +97,6 @@
     </div>
     <i id="right" class='bx bx-right-arrow-alt'></i>
 </div>
-
-
-
-
-
 {% for category in categories %}
 <div class="dish_category" id="{{ category.id }}">
     <div class="category_title">

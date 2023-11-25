@@ -14,6 +14,14 @@
                     <img class="image" src="{{ url_for('static', filename=dish.image) }}">
                     <textarea class="info" style="padding: 2px;"
                         readonly>{% if dish.description == '' %}Описания нет{% else %}{{ dish.description }}{% endif %}</textarea>
+
+                </div>
+                <div>
+                    <div>Масса порции: {{ dish.mass }}г.</div>
+                    <div>Калории: {{ dish.calories }}</div>
+                    <div>Белки: {{ dish.protein }}г.</div>
+                    <div>Жиры: {{ dish.fat }}г.</div>
+                    <div>Углеводы: {{ dish.carbo }}г.</div>
                 </div>
                 {% if current_user.role == 0 %}
                 <style>
@@ -75,6 +83,11 @@
             <a class="order" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
         </div>
         {% endif %}
+        {% if current_user.role == 2 %}
+        <div>
+            <a href="/vote/{{ dish.id }}">Хотел бы видеть в бизнес-ланче</a>
+        </div>
+        {% endif %}
     </div>
 
     <form method="post" enctype="multipart/form-data">
@@ -98,15 +111,15 @@
                     <div class="criteria">
                         <div class="title">{{ criteria.title }}</div>
                         <input class="starint" type="radio" id="star-5" name={{criteria.title}} value="5">
-                        <label class="starlab" for="rating-5">5</label>	
+                        <label class="starlab" for="rating-5">5</label>
                         <input class="starint" type="radio" id="star-4" name={{criteria.title}} value="4">
                         <label class="starlab" for="rating-5">4</label>
                         <input class="starint" type="radio" id="star-3" name={{criteria.title}} value="3">
-                        <label class="starlab" for="rating-5">3</label>	
+                        <label class="starlab" for="rating-5">3</label>
                         <input class="starint" type="radio" id="star-2" name={{criteria.title}} value="2">
-                        <label class="starlab" for="rating-5">2</label>	
+                        <label class="starlab" for="rating-5">2</label>
                         <input class="starint" type="radio" id="star-1" name={{criteria.title}} value="1">
-                        <label class="starlab" for="rating-5">1</label>	
+                        <label class="starlab" for="rating-5">1</label>
                     </div>
                     {% endfor %}
                 </div>

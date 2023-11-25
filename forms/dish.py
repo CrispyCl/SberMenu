@@ -8,5 +8,6 @@ class DishForm(FlaskForm):
     description = TextAreaField("Описание")
     price = IntegerField("Цена", validators=[DataRequired()])
     main_category = SelectField("", choices=())
+    mass = IntegerField("Масса порции (г.)", default=100)
     image = FileField()
     submit = SubmitField("Добавить")

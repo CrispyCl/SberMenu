@@ -12,6 +12,11 @@ class Dish(SqlAlchemyBase):
     description = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     image = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    mass = sqlalchemy.Column(sqlalchemy.Integer, default=100)
+    calories = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    fat = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    protein = sqlalchemy.Column(sqlalchemy.Integer, default=0)
+    carbo = sqlalchemy.Column(sqlalchemy.Integer, default=0)
     normalized_category_id = sqlalchemy.Column(
         sqlalchemy.Integer,
         sqlalchemy.ForeignKey("normalized_categories.id"),
@@ -28,4 +33,6 @@ class Dish(SqlAlchemyBase):
 
     orders = orm.relationship("DishOrder", back_populates="dish", lazy="dynamic")
     categories = orm.relationship("DishCategory", back_populates="dish", lazy="dynamic", cascade="all, delete-orphan")
+
     normalized_category = orm.relationship("NormalizedCategory", back_populates="dishes")
+    votes = orm.relationship("Vote", back_populates="dish", lazy="dynamic", cascade="all, delete-orphan")

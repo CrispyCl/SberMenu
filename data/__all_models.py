@@ -9,3 +9,9 @@ from . import messages
 from . import criterias
 from . import comments
 from . import valuations
+from . import dish_lunch_orders
+from . import dishes_lunch
+from . import lunch_orders
+from . import lunches
+from . import stats
+from . import votes
