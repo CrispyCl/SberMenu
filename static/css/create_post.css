@@ -26,17 +26,20 @@
     font-size: 2rem;
     font-style: normal;
     font-weight: 500;
+    text-align: center;
     line-height: normal;
 }
 
 .txta {
     padding: 1rem !important;
     width: 17rem;
+    resize: none;
     max-width: 17rem;
     min-width: 17rem;
     font-size: 16px;
     line-height: 1.4;
-    border: 2px solid #CDCDCD;
+    outline: none !important;
+    border: 1px solid #ccc;
     border-radius: 0.9375rem;
     min-height: 100px !important;
     padding: 5px 20px;

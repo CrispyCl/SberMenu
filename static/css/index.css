@@ -217,13 +217,79 @@
     background: #bcde36;
 }
 
-.add_dish_wrapper {
+.title_wrapper {
     display: flex;
     align-self: center;
-    margin-top: 2rem;
-    font-size: 2.7rem;
+}
+
+.news_wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+.posts {
+    gap: 1rem;
+    flex-wrap: wrap;
+    display: flex;
+    justify-content: center;
+
+}
+
+.post {
+    margin: 3rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    max-width: 300px;
+
+}
+
+.postimg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    object-fit: cover;
+}
+
+
+.postimg img {
+    border-radius: 0.9375rem;
+    object-fit: cover;
+    min-width: 300px;
+    max-width: 300px;
+    max-height: 300px;
+    min-height: 300px;
+}
+
+.posttitle {
+    padding: 5px;
+    font-size: x-large;
     font-family: sans-serif;
 }
+
+a.posttitle {
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 1rem;
+    text-decoration: none;
+    color: #000;
+}
+
+a.posttitle:hover {
+    border: 1px solid #21201f;
+}
+
+.posttext {
+    padding: 5px;
+    font-family: sans-serif;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 300px;
+}
+
 
 .add_dish {
     border: none;
@@ -328,6 +394,12 @@ dialog::backdrop {
     }
 }
 
+@media screen and (max-width: 450px) {
+    .category_btns {
+        flex-direction: column;
+    }
+}
+
 #addd {
     justify-content: center;
 }
@@ -351,4 +423,10 @@ dialog::backdrop {
 .items_of_table.active {
     height: auto;
     transform: translateY(0);
+}
+
+.text-center {
+    margin-top: 2rem;
+    font-size: 2.7rem;
+    font-family: sans-serif;
 }

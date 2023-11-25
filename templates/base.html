@@ -18,7 +18,7 @@
 <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
 {% if not order %}
-    {% set order = session["order"] %}
+{% set order = session["order"] %}
 {% endif %}
 
 <div class="PC">
@@ -76,16 +76,24 @@
                             <span><img
                                     src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>
+                        <a href="/lunch_list" class="menu_link" id="dd_dishes">
+                            <img class="menu_img" src="{{ url_for('static', filename='svg/food-2-svgrepo-com.svg') }}">
+                            <p>Бизнес-ланчи</p>
+                            <span><img
+                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
+                        </a>
+                        <a href="/create/post" class="menu_link" id="dd_orders">
+                            <img class="menu_img"
+                                src="{{ url_for('static', filename='svg/news-news-release-to-promote-svgrepo-com.svg') }}">
+                            <p>Создать Новость</p>
+                            <span><img
+                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
+                        </a>
                         <a href="/dishes" class="menu_link" id="dd_dishes">
                             <img class="menu_img" src="{{ url_for('static', filename='svg/list-svgrepo-com.svg') }}">
                             <p>Блюда</p>
                             <span><img
                                     src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
-                        </a>
-                        <a href="/lunch_list" class="menu_link" id="dd_dishes">
-                            <img class="menu_img" src="{{ url_for('static', filename='svg/food-2-svgrepo-com.svg') }}">
-                            <p>Бизнес-ланчи</p>
-                            <span><img src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>
                         {% endif %}
                         <a href="/orders" class="menu_link" id="dd_orders">
@@ -230,7 +238,6 @@
         document.write("<style>.wrapper i {display: none !important;}</style>")
     }
 </script>
-
 <script src="{{ url_for('static', filename='scripts/smooth scroll.js') }}"></script>
 <script src="{{ url_for('static', filename='scripts/message.js') }}"></script>
 <script type="module" src="{{ url_for('static', filename='scripts/base.js') }}"></script>
