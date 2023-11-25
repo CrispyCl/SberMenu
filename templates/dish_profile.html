@@ -74,18 +74,20 @@
                         criteria_valuations[criteria.title] }} {% else %}NaN{% endif %}</div>
                     {% endfor %}
                 </div>
-                <a href="/stats/{{ dish.id }}/{{ today }}">Статистика</a>
+                {% if current_user.role in [0, 1] %}
+                <a href="/stats/{{ dish.id }}/{{ n_date }}">Статистика</a>
+                {% endif %}
             </div>
         </div>
         {% if current_user.role != 0 %}
         <div class="buy">
             <div class="price">Цена - {{ dish.price }}₽</div>
             <a class="order" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
-        </div>
-        {% endif %}
-        {% if can_vote %}
-        <div>
-            <a href="/vote/{{ dish.id }}">Хотел бы видеть в бизнес-ланче</a>
+            {% if can_vote %}
+            <div>
+                <a class="order" href="/vote/{{ dish.id }}" style="padding: 20px;">Хотел бы видеть в бизнес-ланче</a>
+            </div>
+            {% endif %}
         </div>
         {% endif %}
     </div>
@@ -93,7 +95,7 @@
     <form method="post" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <div class="feedback">
-            <div class="title">Отзовы</div>
+            <div class="title">Отзывы</div>
             <div class="your_feedback">
                 <div class="feed">
                     {{ form.comment(class="form-control txta feedbackarea", type="text",

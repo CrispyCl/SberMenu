@@ -5,43 +5,45 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/create_lunch.css') }}">
 
 <form action="" method="post">
-<div>
-  <div>
-    Бизнес-ланч
-  </div>
-  <div>
-    Дата: {{ lunch.date }}
-  </div>
-
-  <!-- Choose dihes -->
-  <div class="all_categories">
-    {% for category in categories if category.lunch_dishes %}
-    <div class="category">
+  <div style="display: flex; flex-direction:column; align-items:center;">
+    <div class="title_wrapper">
+      <div class="text-center">Бизнес-ланч на {{ lunch.date }}</div>
+    </div>
+    <!-- Choose dihes -->
+    <div class="all_categories">
+      {% for category in categories if category.lunch_dishes %}
+      <div class="category">
         <div class="category_title">{{category.title}}</div>
         <div class="choose_checkbox">
-            {% for di_l in category.lunch_dishes if di_l in lunch.dishes and di_l.count > 0 %}
-            {% set dish = di_l.dish %}
+          {% for di_l in category.lunch_dishes if di_l in lunch.dishes and di_l.count > 0 %}
+          {% set dish = di_l.dish %}
 
-            <div class="inc">
-                <input id="myCheckbox{{ dish.id }}" type="checkbox" name="dishes" value="{{ di_l.id }}"
-                {% if loop.first %} checked {% endif %}>
-                <label class="chekimg" for="myCheckbox{{ dish.id }}">
-                    <img class="category_image" src="{{ url_for('static', filename=dish.image) }}">
-                </label>
-                <div class="category_title">{{ dish.title }}</div>
-            </div>
-            {% else %}
-            <div>
-              Блюда закончились
-            </div>
-            {% endfor %}
+          <div class="inc">
+            <input id="myCheckbox{{ dish.id }}" type="radio" name="dish{{ category.id }}" value="{{ di_l.id }}" {% if
+              loop.first %} checked {% endif %}>
+            <label class="chekimg" for="myCheckbox{{ dish.id }}">
+              <img class="category_image" src="{{ url_for('static', filename=dish.image) }}">
+            </label>
+            <div class="category_title">{{ dish.title }}</div>
+          </div>
+          {% else %}
+          <div>
+            Блюда закончились
+          </div>
+          {% endfor %}
         </div>
+      </div>
+      {% endfor %}
     </div>
-    {% endfor %}
-    <button type="submit">Добавить</button>
-</div>
-</div>
-</div>
+    <button class="submitbtn" style="margin:5rem" type="submit">Добавить</button>
+  </div>
 </form>
+
+
+<style>
+  input[type="radio"] {
+    visibility: hidden;
+  }
+</style>
 
 {% endblock %}
