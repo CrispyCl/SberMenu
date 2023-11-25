@@ -1237,6 +1237,6 @@ def handle_message(data):
 
 
 if __name__ == "__main__":
-    db_session.global_init("db/GriBD.db")
+    db_session.global_init("db/prod.db")
     fill_db(db_session.create_session())
     socketio.run(app, port=8080, host="127.0.0.1", debug=True, allow_unsafe_werkzeug=True)
