@@ -773,6 +773,8 @@ def stats(dish_id, date):
             stats["month"] = stat.count
         if stat.date == date - datetime.timedelta(days=365):
             stats["years"] = stat.count
+    if not stats.get("now"):
+        stats["now"] = 0
     if not stats.get("yesterday"):
         stats["yesterday"] = stats["now"]
     if not stats.get("week"):
@@ -786,24 +788,23 @@ def stats(dish_id, date):
 
     stats_show = {}
 
-    print(date)
     dish_stats = db_sess.query(Stat).filter(Stat.dish_id == dish_id).all()
     for stat in dish_stats:
         if stat.date == date:
             stats_show["now"] = stat.count
-        if stat.date == date - datetime.timedelta(days=1):
+        if date >= stat.date == date - datetime.timedelta(days=1):
             stats_show["yesterday"] = stat.count
-        if stat.date >= date - datetime.timedelta(days=7):
+        if date >= stat.date >= date - datetime.timedelta(days=7):
             if not stats_show.get("week"):
                 stats_show["week"] = stat.count
             else:
                 stats_show["week"] += stat.count
-        if stat.date >= date - datetime.timedelta(days=30):
+        if date >= stat.date >= date - datetime.timedelta(days=30):
             if not stats_show.get("month"):
                 stats_show["month"] = stat.count
             else:
                 stats_show["month"] += stat.count
-        if stat.date >= date - datetime.timedelta(days=365):
+        if date >= stat.date >= date - datetime.timedelta(days=365):
             if not stats_show.get("year"):
                 stats_show["year"] = stat.count
             else:
@@ -818,7 +819,6 @@ def stats(dish_id, date):
         stats_show["month"] = 0
     if not stats_show.get("year"):
         stats_show["year"] = 0
-    print(stats_show)
     if request.method == "GET":
         form.dish.default = dish_id
         form.date.data = date
