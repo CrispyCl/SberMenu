@@ -62,11 +62,15 @@
                         <option value="true">Доставка на рабочее место</option>
                     </select>
                 </div>
-                <div id="delivery_comment" style="display: none;">
-                    <p title="При указании некорректного места, заказ будет отменён">Укажите ваше рабочее место:</p>
-                    <input id="delivery_address" name="delivery_address" type="text">
-                    <p>Укажите желаемое время доставки:</p>
+                <div style="display: none; flex-direction:column; align-items:center; margin-top:15px" id="delivery_comment">
+                    <div class="place" style="display: flex; gap:1rem">
+                        <p  title="При указании некорректного места, заказ будет отменён">Укажите ваше рабочее место:</p>
+                    <input style="border: 1px solid #ccc;" id="delivery_address" name="delivery_address" type="text">
+                    </div>
+                    <div class="timetoplace" style="display: flex; gap:1rem">
+                        <p>Укажите желаемое время доставки:</p>
                     <input id="delivery_time" name="delivery_time" type="time" onchange="TimeValidator()">
+                    </div>
                 </div>
             </div>
             {% if order %}
@@ -120,7 +124,7 @@
         let input = document.getElementById("delivery_address");
         console.log(combobox);
         if (combobox.value == "true") {
-            div.style.display = "";
+            div.style.display = "flex";
             input.required  = true;
         }
         else {

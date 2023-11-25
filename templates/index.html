@@ -3,6 +3,73 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 
+<!-- News -->
+<div class="news_wrapper">
+    <div class="text-center">Новости</div>
+    <div class="posts">
+        {% for post in posts %}
+        <div class="post">
+            {% if post.image %}
+            <div class="postimg">
+                <img src="{{ url_for('static', filename=post.image) }}">
+            </div>
+            {% endif %}
+            <div class="posttitle">{{ post.title }}</div>
+            <div class="posttext">{{ post.text }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    <a class="posttitle" href="/news">Все новости</a>
+</div>
+
+<!-- Lunches -->
+{% if lunch %}
+
+<div class="title_wrapper">
+    <div class="text-center">Бизнес-ланч на сегодня</div>
+</div>
+<div class="dish_category">
+        <div class="category_title" style="
+        justify-content: space-between;
+        cursor: pointer;
+        display: flex;
+        align-items: flex-end;">
+            <div class="lunchtitle" id="luncht">
+                <div class="text-center">Блюда</div>
+                <i class="fa fa-caret-down" style="margin-left: 30px;"></i>
+            </div>
+            <div class="price_ord">
+                <div>Цена: {{ lunch.price }}</div>
+                {% if current_user.role == 2 %}
+                <a class="add_dish_to_basket" href="confirm/lunch/{{ lunch.id }}">Заказать</a>
+                {% endif %}
+            </div>
+        </div>
+    <div class="items_of_table" id="lunchi">
+        <div class="dc">
+            {% for di_l in lunch.dishes %}
+            {% set dish = di_l.dish %}
+            <div class="dish">
+                <div>
+                    <a href="/profile/dish/{{ dish.id }}">
+                        <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
+                    </a>
+                    <div class="dish_name_and_price">
+                        <div class="dish_name">{{ dish.title }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Menu -->
+<div class="title_wrapper">
+    <div class="text-center">Меню</div>
+</div>
+
 <div class="wrapper">
     <i id="left" class='bx bx-left-arrow-alt'></i>
     <div class="top_container">
@@ -32,49 +99,9 @@
 </div>
 
 
-{% if lunch %}
-<div class="add_dish_wrapper">
-    <div class="text-center">Бизнес-ланч</div>
-</div>
-<div>
-    {% if current_user.role == 2 %}
-    <a href="confirm/lunch/{{ lunch.id }}">Заказать</a>
-    {% endif %}
-    <div>Дата: {{ lunch.date }}</div>
-    <div>Стандартная цена: {{ lunch.price }}</div>
-    <div>
-        Макс, вот это нужно стрелочкой своравичать
-        {% for di_l in lunch.dishes %}
-        {% set dish = di_l.dish %}
-        Вот сюда вставить блюда(как в dish_list.html:24)
-        <div>
-            Отклонение в цене: {{ di_l.price_change }}
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
 
-<div class="news_wrapper">
-    <div class="text-center">Новости</div>
-    <div class="posts">
-        {% for post in posts %}
-        <div class="post">
-            {% if post.image %}
-            <div class="postimg">
-                <img src="{{ url_for('static', filename=post.image) }}">
-            </div>
-            {% endif %}
-            <div class="posttitle">{{ post.title }}</div>
-            <div class="posttext">{{ post.text }}</div>
-        </div>
-        {% endfor %}
-    </div>
-    <a class="posttitle" href="/news">Все новости</a>
-</div>
-<div class="title_wrapper">
-    <div class="text-center">Меню</div>
-</div>
+
+
 {% for category in categories %}
 <div class="dish_category" id="{{ category.id }}">
     <div class="category_title">
@@ -114,7 +141,6 @@
         </script>
         {% endif %}
     </div>
-
 
     <div class="items_of_table active" id="i_t{{ category.id }}">
 
@@ -190,6 +216,21 @@
     {% endfor %}
 </script>
 
+<script>
+    const lunch_title = document.getElementById("luncht");
+    const lunch_item = document.getElementById("lunchi");
+
+    lunch_title.addEventListener('click', () => {
+        if (lunch_item.classList.contains('active')) {
+            lunch_item.classList.remove('active');
+            lunch_title.classList.remove('active_rotate')
+    }
+        else {
+            lunch_item.classList.add('active');
+            lunch_title.classList.add('active_rotate')
+    }
+    })
+</script>
 <script src="{{ url_for('static', filename='scripts/slider.js') }}"></script>
 
 {% endblock %}

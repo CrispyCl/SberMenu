@@ -2,22 +2,82 @@
 
 {% block content %}
 
-<a href="/create/lunch">Создать бизнес-ланч</a>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+
+<div class="title_wrapper">
+  <div class="text-center">
+    {% if current_user.role == 0 %}
+    <a class="posttitle" href="/create/lunch">Создать бизнес-ланч</a>
+    {% endif %}
+  </div>
+</div>
+<div class="lunch_list">
 {% for lunch in lunches %}
-  <div>
-    <div>Дата: {{ lunch.date }}</div>
-    <div>Стандартная цена: {{ lunch.price }}</div>
-    <div>
-       Макс, вот это нужно стрелочкой своравичать
-      {% for di_l in lunch.dishes %}
+<div class="title_wrapper">
+  <div class="text-center">Бизнес-ланч на {{ lunch.date }}</div>
+</div>
+<div>
+  <div class="dish_category">
+    <div class="category_title" style="
+      justify-content: space-between;
+      cursor: pointer;
+      display: flex;
+      align-items: flex-end;">
+      <div class="lunchtitle" id="luncht{{ lunch.id }}">
+        <div class="text-center">Блюда</div>
+        <i class="fa fa-caret-down" style="margin-left: 30px;"></i>
+      </div>
+      <div class="price_ord">
+        <div>Цена: {{ lunch.price }}</div>
+        {% if current_user.role == 2 %}
+        <a class="add_dish_to_basket" href="confirm/lunch/{{ lunch.id }}">Заказать</a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="items_of_table" id="lunchi{{ lunch.id }}">
+      <div class="dc">
+        {% for di_l in lunch.dishes %}
         {% set dish = di_l.dish %}
-        Вот сюда вставить блюда(как в dish_list.html:24)
-        <div>
-          Отклонение в цене: {{ di_l.price_change }}
+        <div class="dish">
+          <div>
+            <a href="/profile/dish/{{ dish.id }}">
+              <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
+            </a>
+            <div class="dish_name_and_price">
+              <div class="dish_name">{{ dish.title }}</div>
+            </div>
+          </div>
         </div>
-      {% endfor %}
+        {% endfor %}
+      </div>
     </div>
   </div>
+</div>
 {% endfor %}
+</div>
+<script>
+    {% for lunch in lunches %}
+    
+    const lunch_title{{ lunch.id }} = document.querySelector("#luncht{{ lunch.id }}");
+    const lunch_item{{ lunch.id }} = document.querySelector("#lunchi{{ lunch.id }}");
+
+    console.log(lunch_item{{ lunch.id }})
+    console.log(lunch_title{{ lunch.id }})
+
+    lunch_title{{ lunch.id }}.addEventListener('click', () => {
+      if (lunch_item{{ lunch.id }}.classList.contains('active')) {
+        lunch_item{{ lunch.id }}.classList.remove('active');
+        lunch_title{{ lunch.id }}.classList.remove('active_rotate');
+      }
+      else {
+        lunch_item{{ lunch.id }}.classList.add('active');
+        lunch_title{{ lunch.id }}.classList.add('active_rotate');
+      }
+    });
+    {% endfor %}
+
+
+</script>
+
 
 {% endblock %}

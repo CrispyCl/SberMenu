@@ -36,6 +36,7 @@
                     </div>
                 </div>
             </dialog>
+            {% endif %}
             <script>
                 function OpenDialog(order_id) {
                     document.getElementById(`di${order_id}`).showModal();
@@ -52,7 +53,6 @@
                     document.getElementById(`dic${order_id}`).close();
                 }
             </script>
-            {% endif %}
             <a class="cancel_status" onclick="COpenDialog('{{ order.id }}')">Отменить</a></div>
             <dialog id="dic{{ order.id }}">
                 <div class="dwrapper">
