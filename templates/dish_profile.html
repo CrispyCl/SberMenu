@@ -12,6 +12,13 @@
             <div class="ii">
                 <img class="image" src="{{ url_for('static', filename=dish.image) }}">
                 <textarea class="info" style="padding: 2px;" readonly>{% if dish.description == '' %}Описания нет{% else %}{{ dish.description }}{% endif %}</textarea>
+                <div>
+                    <div>Масса порции: {{ dish.mass }}г.</div>
+                    <div>Калории: {{ dish.calories }}</div>
+                    <div>Белки: {{ dish.protein }}г.</div>
+                    <div>Жиры: {{ dish.fat }}г.</div>
+                    <div>Углеводы: {{ dish.carbo }}г.</div>
+                </div>
             </div>
             <div>
                 <div>Оценка блюда</div>

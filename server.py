@@ -1,6 +1,8 @@
 import datetime
 from json import dumps
+import requests
 
+from translate import Translator
 from flask import abort, Flask, redirect, render_template, request, session
 from flask_login import current_user, login_required, login_user, LoginManager, logout_user
 from flask_socketio import join_room, leave_room, send, SocketIO
@@ -42,6 +44,8 @@ STATUS = {1: "В процессе", 2: "Приготовлен", 3: "Выдан"
 
 login_manager = LoginManager()
 login_manager.init_app(app)
+
+api_url = 'https://api.calorieninjas.com/v1/nutrition?query='
 
 
 @app.route("/")
@@ -247,11 +251,24 @@ def create_dish():
                 order=session["order"],
                 categories=categories,
             )
+        query = Translator(from_lang="russian", to_lang="english").translate(form.title.data)
+        query = f"{form.mass.data}g " + query
+        response = requests.get(api_url + query, headers={'X-Api-Key': 'uKs0cNCsySCuE/7uGjOldQ==ve4Drp6e8VJSfX1V'})
+        if response.status_code == requests.codes.ok:
+            data = response.json()
+        else:
+            print("Error:", response.status_code, response.text)
+        data = data["items"][0]
         dish = Dish(
             title=form.title.data,
             price=form.price.data,
             description=form.description.data.strip(),
             normalized_category_id=form.main_category.data,
+            mass=form.mass.data,
+            calories=data["calories"],
+            protein=data["protein_g"],
+            fat=data["fat_total_g"],
+            carbo=data["carbohydrates_total_g"]
         )
 
         dishes = db_sess.query(Dish).all()
@@ -563,6 +580,7 @@ def edit_dish(dish_id):
         form.title.data = dish.title
         form.description.data = dish.description
         form.price.data = dish.price
+        form.mass.data = dish.mass
         form.main_category.data = str(dish.normalized_category_id)
     if form.validate_on_submit():
         if db_sess.query(Dish).filter(Dish.title == form.title.data, dish_id != Dish.id).first():
@@ -576,10 +594,23 @@ def edit_dish(dish_id):
                 categories=categories,
                 checked=checked,
             )
+        query = Translator(from_lang="russian", to_lang="english").translate(form.title.data)
+        query = f"{form.mass.data}g " + query
+        response = requests.get(api_url + query, headers={'X-Api-Key': 'uKs0cNCsySCuE/7uGjOldQ==ve4Drp6e8VJSfX1V'})
+        if response.status_code == requests.codes.ok:
+            data = response.json()
+        else:
+            print("Error:", response.status_code, response.text)
+        data = data["items"][0]
         dish.title = form.title.data
         dish.price = form.price.data
         dish.description = form.description.data.strip()
         dish.normalized_category_id = form.main_category.data
+        dish.mass = form.mass.data
+        dish.calories = data["calories"]
+        dish.fat = data["fat_total_g"]
+        dish.protein = data["protein_g"]
+        dish.carbo = data["carbohydrates_total_g"]
         db_sess.merge(dish)
         categories = {int(ct) for ct in request.form.getlist("categories")}
         for category in checked - categories:
@@ -1043,6 +1074,6 @@ def handle_message(data):
 
 
 if __name__ == "__main__":
-    db_session.global_init("db/GriBD.db")
+    db_session.global_init("db/test.db")
     fill_db(db_session.create_session())
-    socketio.run(app, port=8080, host="127.0.0.1", debug=True)
+    socketio.run(app, port=8080, host="127.0.0.1", debug=True, allow_unsafe_werkzeug=True)

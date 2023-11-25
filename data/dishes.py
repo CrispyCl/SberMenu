@@ -12,6 +12,11 @@ class Dish(SqlAlchemyBase):
     description = sqlalchemy.Column(sqlalchemy.String, nullable=True)
     price = sqlalchemy.Column(sqlalchemy.Integer, nullable=False)
     image = sqlalchemy.Column(sqlalchemy.String, nullable=True)
+    mass = sqlalchemy.Column(sqlalchemy.Integer, default=100)
+    calories = sqlalchemy.Column(sqlalchemy.Integer)
+    fat = sqlalchemy.Column(sqlalchemy.Integer)
+    protein = sqlalchemy.Column(sqlalchemy.Integer)
+    carbo = sqlalchemy.Column(sqlalchemy.Integer)
     normalized_category_id = sqlalchemy.Column(
         sqlalchemy.Integer,
         sqlalchemy.ForeignKey("normalized_categories.id"),
