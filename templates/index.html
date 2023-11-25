@@ -36,7 +36,7 @@
     <div class="text-center">Бизнес-ланч</div>
 </div>
 <div>
-    {% if current_user.role not in [0, 1] %}
+    {% if current_user.role not in [0, 1] and not order.lunch%}
       <a href="confirm/lunch/{{ lunch.id }}">Заказать</a>
     {% endif %}
     <div>Дата: {{ lunch.date }}</div>

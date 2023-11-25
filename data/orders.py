@@ -19,5 +19,6 @@ class Order(SqlAlchemyBase):
     edit_date = sqlalchemy.Column(sqlalchemy.DATE, nullable=False, default=datetime.date.today())
 
     user = orm.relationship("User", back_populates="orders")
+    lunch = orm.relationship("LunchOrder", back_populates="order", cascade="all, delete-orphan")
 
     dishes = orm.relationship("DishOrder", back_populates="order", lazy="dynamic", cascade="all, delete-orphan")

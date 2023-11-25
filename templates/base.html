@@ -112,8 +112,23 @@
                 <div class="dd-menu-wrap" id="basket">
                     <div class="dd-menu">
                         {% if order %}
+                        {% if order["lunch"] %}
+                        <div>Бизнес-ланч - {{ order["lunch"]["date"] }}</div>
+                        <div>
+                           {% for dish in order["lunch"]["dishes"] %}
+                           <div class="item_dish_title">{{ dish.title }}</div>
+                           <div>
+                            Категория: {{ dish.category }}
+                           </div>
+                           <a class="item_img" href="#">
+                                <img src="{{ url_for('static', filename=dish.image) }}">
+                            </a>
+                           {% endfor %}
+                        </div>
+                        <div>Цена - {{ order["lunch"].price }} </div>
+                        {% endif %}
                         {% for k in order %}
-                        {% if k != "sum" %}
+                        {% if k not in ["sum", "lunch"] %}
                         {% set dish = order[k] %}
                         <div class="ihr">
                             <div class="basket_item">

@@ -12,3 +12,4 @@ class Lunch(SqlAlchemyBase):
     date = sqlalchemy.Column(sqlalchemy.DATE, nullable=False, unique=True)
 
     dishes = orm.relationship("DishLunch", back_populates="lunch", cascade="all, delete-orphan")
+    orders = orm.relationship("LunchOrder", cascade="all, delete-orphan")
