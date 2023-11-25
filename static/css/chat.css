@@ -1,3 +1,7 @@
+.main_PC {
+    justify-content: space-between;
+}
+
 #message-list {
     margin: 1rem;
     overflow-y: auto;
@@ -29,8 +33,10 @@
     align-items: flex-end;
 }
 
-.sender .chat .person .name {
-    /* display: none; */
+.sender .chat .person .name,
+.recipient .chat .person .name {
+    font-family: sans-serif;
+    font-weight: 600;
 }
 
 
@@ -43,7 +49,7 @@
 }
 
 .send {
-    margin: 0 1rem;
+    margin: 0 1rem 1rem;
 }
 
 .recipient .chat,

@@ -309,7 +309,7 @@ body {
 }
 
 .dropdown-menu.show {
-  max-height: 420px;
+  max-height: 450px;
 }
 
 .menu {
@@ -342,14 +342,14 @@ body {
 
 .menu_link {
   display: flex;
-  align-items: center;
   color: #525252;
   margin: 12px 0;
+  align-items: center;
 }
 
 .menu_link p {
   font-family: sans-serif;
-  margin-top: 10px;
+  /* margin-top: 10px; */
   font-size: large;
   width: 100%;
 }

@@ -13,9 +13,11 @@ from data.categories import Category
 from data.comments import Comment
 from data.criterias import Criteria
 from data.dish_categories import DishCategory
+from data.dish_lunch_orders import DishLunchOrder
 from data.dish_orders import DishOrder
 from data.dishes import Dish
 from data.dishes_lunch import DishLunch
+from data.lunch_orders import LunchOrder
 from data.lunches import Lunch
 from data.messages import Message
 from data.normalized_categories import NormalizedCategory
@@ -89,7 +91,7 @@ def add_dish(dish_id):
         d1["count"] = 1
         session["order"][str(dish_id)] = d1
     dc = session["order"]
-    session["order"]["sum"] = sum(dc[v]["count"] * dc[v]["price"] if v != "sum" else 0 for v in dc)
+    session["order"]["sum"] = sum(dc[v]["count"] * dc[v]["price"] if v not in ["sum"] else 0 for v in dc)
     session["order"] = session["order"]
     return redirect("/")
 
@@ -149,7 +151,7 @@ def confirm_order():
             counts = request.form.getlist("rrcounts")
         to_del = set()
         for i, k in enumerate(session["order"]):
-            if k == "sum":
+            if k in ["sum", "lunch"]:
                 continue
             if int(counts[i]) == 0:
                 to_del.add(k)
@@ -203,6 +205,27 @@ def confirm_order():
         db_sess.add(order)
         for k in session["order"]:
             if k == "sum":
+                continue
+            if k == "lunch":
+                order_lunch = session["order"]["lunch"]
+                date = datetime.datetime.strptime(order_lunch["date"], "%d.%m.%Y")
+                add_lunch = LunchOrder(
+                    order=order,
+                    lunch_id=order_lunch["id"],
+                    price=order_lunch["price"],
+                    date=date,
+                )
+                db_sess.add(add_lunch)
+                for di in order_lunch["dishes"]:
+                    dish = DishLunchOrder(
+                        lunch=add_lunch,
+                        dish_id=di["id"],
+                        category=di["category"],
+                        image=di["image"],
+                        title=di["title"],
+                    )
+                    db_sess.add(dish)
+                db_sess.commit()
                 continue
             el = session["order"][k]
 
@@ -663,12 +686,11 @@ def orders():
     session["message"] = dumps(ST_message)
     db_sess = db_session.create_session()
     if current_user.role == 2:
-        orders = db_sess.query(Order).filter(Order.user_id == current_user.id).join(DishOrder).all()[::-1]
+        orders = db_sess.query(Order).filter(Order.user_id == current_user.id).all()[::-1]
     elif current_user.role == 1:
-        orders = db_sess.query(Order).filter(Order.status.in_([1, 2, 4])).join(DishOrder).all()[::-1]
+        orders = db_sess.query(Order).filter(Order.status.in_([1, 2, 4])).all()[::-1]
     else:
-        orders = db_sess.query(Order).join(DishOrder).all()[::-1]
-
+        orders = db_sess.query(Order).all()[::-1]
     return render_template(
         "order_list.html",
         message=smessage,
@@ -722,8 +744,10 @@ def create_lunch():
 
         for dish in chosen_dishes:
             d_lunch = DishLunch(dish_id=dish)
-            d_lunch.price_change = int(request.form.getlist(f"p_change{dish}")[0])
+            d_lunch.count = int(request.form.getlist(f"p_change{dish}")[0])
             d_lunch.lunch = lunch
+            dish = db_sess.query(Dish).get(dish)
+            d_lunch.category_id = dish.normalized_category_id
             db_sess.add(d_lunch)
         db_sess.commit()
         message = {"status": 1, "text": "Бизнес-ланч создан"}
@@ -756,7 +780,7 @@ def lunch_list():
     )
 
 
-@app.route("/confirm/lunch/<int:lunch_id>")
+@app.route("/confirm/lunch/<int:lunch_id>", methods=["GET", "POST"])
 def confirm_lanch(lunch_id):
     title = "Базнес-ланч"
     if current_user.is_authenticated:
@@ -767,11 +791,43 @@ def confirm_lanch(lunch_id):
     if not lunch:
         return redirect("/")
     if not session.get("order"):
-        session["order"] = {}
+        session["order"] = {"sum": 0}
+    elif session["order"].get("lunch"):
+        message = {"status": 2, "text": "В можете заказать только один бизнес-ланч"}
+        session["message"] = dumps(message)
+        return redirect("/")
+    if request.method == "POST":
+        dishes = request.form.getlist("dishes")
+        dishes = [db_sess.query(DishLunch).get(di_id) for di_id in dishes]
+        order_dishes = [
+            {"id": di_l.id, "title": di_l.dish.title, "image": di_l.dish.image, "category": di_l.category.title}
+            for di_l in dishes
+        ]
+        session["order"]["sum"] += lunch.price
+        session["order"]["lunch"] = {
+            "id": lunch.id,
+            "price": lunch.price,
+            "count": 1,
+            "dishes": order_dishes,
+            "date": lunch.date.strftime("%d.%m.%Y"),
+        }
+        message = {"status": 1, "text": "Ланч добавлен в корзину"}
+        session["message"] = message
+        return redirect("/")
+    categories = sorted(
+        {di.category for di in db_sess.query(DishLunch).filter(DishLunch.lunch_id == lunch_id)},
+        key=lambda ca: ca.title,
+    )
     smessage = session["message"]
     session["message"] = dumps(ST_message)
 
-    return render_template("confirm_lunch.html", title=title, message=smessage, lunch=lunch)
+    return render_template(
+        "confirm_lunch.html",
+        title=title,
+        message=smessage,
+        lunch=lunch,
+        categories=categories,
+    )
 
 
 @app.route("/profile/dish/<int:dish_id>", methods=["GET", "POST"])
@@ -820,51 +876,6 @@ def profile_dish(dish_id):
         dish_comments=dish_comments,
         com_valuations=com_valuations,
         criteria_valuations=criteria_valuations,
-    )
-
-
-@app.route("/order_lunch", methods=["GET", "POST"])
-def order_lunch():
-    if not current_user.is_authenticated:
-        abort(404)
-    form = LunchForm()
-    smessage = session["message"]
-    session["message"] = dumps(ST_message)
-    title = "Заказ бизнес-ланча"
-    db_sess = db_session.create_session()
-    lunch = db_sess.query(Lunch).filter(Lunch.date == datetime.date.today()).first()
-    categories = db_sess.query(Category).join(DishCategory).all()
-    lunch_dishes = [i.dish for i in lunch.dishes]
-    dishes = {}
-    for category in categories:
-        for dish in category.dishes:
-            if dish.dish in lunch_dishes:
-                if not dishes.get(category.id):
-                    dishes[category.id] = []
-                dishes[category.id].append(dish.dish)
-    price_changes = {}
-    for dish in lunch.dishes:
-        price_changes[dish.dish_id] = dish.price_change
-    if form.validate_on_submit():
-        chosen_dishes = request.form.getlist("dishes")
-        for dish in chosen_dishes:
-            d_lunch = DishLunch(dish_id=dish)
-            d_lunch.price_change = int(request.form.getlist(f"p_change{dish}")[0])
-            d_lunch.lunch = lunch
-            db_sess.add(d_lunch)
-        db_sess.commit()
-        message = {"status": 1, "text": "Бизнес-ланч заказан"}
-        session["message"] = dumps(message)
-        return redirect("/")
-    return render_template(
-        "order_lunch.html",
-        title=title,
-        form=form,
-        message=smessage,
-        order=session["order"],
-        categories=categories,
-        DISHES=dishes,
-        PRICE_CHANGES=price_changes,
     )
 
 
