@@ -16,10 +16,12 @@
 <div class="wrapper">
     {% for order in orders %}
     <!-- внедряем -->
-    <div class="dish_number" id="t_h{{ order.id }}" style="cursor: pointer;justify-content: space-between;"><div class="di">Заказ №{{ order.id }}<i class="fa fa-caret-down"
-            style="margin-left: 30px;"></i></div>
-            {% if order.status in [1, 2, 4] %}
-            <div>
+    <div class="dish_number" id="t_h{{ order.id }}" style="cursor: pointer;justify-content: space-between;">
+        <div class="di">Заказ №{{ order.id }}
+            <i class="fa fa-caret-down" style="margin-left: 30px;"></i>
+        </div>
+        {% if order.status in [1, 2, 4] %}
+        <div>
             {% if current_user.role in [0, 1] %}
             <a class="edit_status" onclick="OpenDialog('{{ order.id }}')">Изменить статус</a>
             <dialog id="di{{ order.id }}">
@@ -53,32 +55,34 @@
                     document.getElementById(`dic${order_id}`).close();
                 }
             </script>
-            <a class="cancel_status" onclick="COpenDialog('{{ order.id }}')">Отменить</a></div>
-            <dialog id="dic{{ order.id }}">
-                <div class="dwrapper">
-                    <div class="dheader_remove">Отмена заказа</div>
-                    <div class="dmain">Вы хотите отменить заказ ?</div>
-                    <hr class="dhr">
-                    <div class="dfooter">
-                        <div class="dbtns">
-                            <a class="dremove_del" href="/cancel_order/{{ order.id }}">Да</a>
-                            <a class="dcancel" onclick="CRemoveDialog('{{ order.id }}')">Нет</a>
-                        </div>
+            <a class="cancel_status" onclick="COpenDialog('{{ order.id }}')">Отменить</a>
+        </div>
+        <dialog id="dic{{ order.id }}">
+            <div class="dwrapper">
+                <div class="dheader_remove">Отмена заказа</div>
+                <div class="dmain">Вы хотите отменить заказ ?</div>
+                <hr class="dhr">
+                <div class="dfooter">
+                    <div class="dbtns">
+                        <a class="dremove_del" href="/cancel_order/{{ order.id }}">Да</a>
+                        <a class="dcancel" onclick="CRemoveDialog('{{ order.id }}')">Нет</a>
                     </div>
                 </div>
-            </dialog>
-            {% if current_user.role == 2 %}
-            <script>
-                function OpenDialog(order_id) {
-                    document.getElementById(`di${order_id}`).showModal();
-                }
+            </div>
+        </dialog>
+        {% if current_user.role == 2 %}
+        <script>
+            function OpenDialog(order_id) {
+                document.getElementById(`di${order_id}`).showModal();
+            }
 
-                function RemoveDialog(order_id) {
-                    document.getElementById(`di${order_id}`).close();
-                }
-            </script>
-            {% endif %}
-            {% endif %}</div>
+            function RemoveDialog(order_id) {
+                document.getElementById(`di${order_id}`).close();
+            }
+        </script>
+        {% endif %}
+        {% endif %}
+    </div>
     <div class="all_order" id="i_t{{ order.id }}">
 
 
@@ -94,9 +98,9 @@
                 <div>{{ order.delivery_address }}</div>
                 <div>Желаемое время доставки:</div>
                 {% if order.delivery_time %}
-                    <div>{{ order.delivery_time.strftime("%H:%M") }}</div>
+                <div>{{ order.delivery_time.strftime("%H:%M") }}</div>
                 {% else %}
-                    <div>Не указано</div>
+                <div>Не указано</div>
                 {% endif %}
                 {% endif %}
             </div>
@@ -105,34 +109,43 @@
             </div>
         </div>
         <hr class="hr">
-        <div class="dish">
             {% if order.lunch %}
             {% set lunch = order.lunch[0] %}
-            <div>
-            <div>Бизнес-ланч - {{ lunch.date }}</div>
-                <div>
-                {% for dish in lunch.dishes %}
-                <div class="item_dish_title">{{ dish.title }}</div>
-                <div>
-                 Категория: {{ dish.category }}
-                 </div>
-                <a class="item_img" href="#">
-                    <img src="{{ url_for('static', filename=dish.image) }}">
-                </a>
-                {% endfor %}
+            <div class="title_wrapper">
+                <div class="text-center">Бизнес-ланч - {{ lunch.date }}</div>
+            </div>
+        <div class="dish" style="justify-content: space-between;">
 
+
+            {% for dish in lunch.dishes %}
+            <div class="dish_image_price">
+                <a class="dish_href" {% if dish %}href="/profile/dish/{{ dish.id }}" {% endif %}>
+                    <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
+                    <div class="ta">
+                        <div class="dish_title">{{ dish.title }}</div>
+                    </div>
+                </a>
             </div>
-            <div>Цена - {{ lunch.price }} </div>
-            </div>
+            {% endfor %}
+        </div>
+        <div class="title_wrapper">
+            <div class="text-center">Другие блюда</div>
+        </div>
+        <div class="dish" style="justify-content: space-between;">
+
+
+            
+            {% else %}
+        <div class="dish" style="justify-content: space-between;">
             {% endif %}
             {% for di_o in order.dishes %}
             {% set dish = di_o.dish %}
             {% set price = di_o.price %}
             {% if price == 0 %}
-                {% set price = dish.price %}
+            {% set price = dish.price %}
             {% endif %}
             <div class="dish_image_price">
-                <a class="dish_href" {% if dish %}href="/profile/dish/{{ dish.id }}"{% endif %}>
+                <a class="dish_href" {% if dish %}href="/profile/dish/{{ dish.id }}" {% endif %}>
                     <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
                     <div class="ta">
                         <div class="dish_title">{{ dish.title }}</div>
@@ -151,9 +164,10 @@
     #dd_orders {
         display: none;
     }
+
     .dish_number .fa.fa-caret-down {
-    transform: rotate(0deg);
-    transition: all 0.2s linear;
+        transform: rotate(0deg);
+        transition: all 0.2s linear;
     }
 
     .dish_number.active_rotate .fa.fa-caret-down {
@@ -171,7 +185,6 @@
         height: auto;
         transform: translateY(0);
     }
-
 </style>
 
 <script>
@@ -180,14 +193,14 @@
         items_of_table{{ order.id }} = document.querySelector("#i_t{{ order.id }}");
 
     category_title_btn{{ order.id }}.addEventListener('click', () => {
-        if (items_of_table{{ order.id }}.classList.contains('active')) {
+            if (items_of_table{{ order.id }}.classList.contains('active')) {
             items_of_table{{ order.id }}.classList.remove('active');
             category_title_btn{{ order.id }}.classList.remove('active_rotate')
-        }
+    }
         else {
             items_of_table{{ order.id }}.classList.add('active');
             category_title_btn{{ order.id }}.classList.add('active_rotate')
-        }
+    }
     })
     {% endfor %}
 </script>
