@@ -4,15 +4,12 @@ from json import dumps
 from flask import abort, Flask, redirect, render_template, request, session
 from flask_login import current_user, login_required, login_user, LoginManager, logout_user
 from flask_socketio import join_room, leave_room, send, SocketIO
+import pandas as pd
 from PIL import Image
 import requests
-import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
 from sqlalchemy import or_
 from static.python.functions import fill_db
 from translate import Translator
-import asyncio
 
 from data import db_session
 from data.categories import Category
@@ -1078,29 +1075,26 @@ def stats(dish_id, date):
     date = date.split("-")
     date = datetime.date(year=int(date[0]), month=int(date[1]), day=int(date[2]))
     stats = {}
-    dish_orders = db_sess.query(DishOrder).filter(DishOrder.dish_id != None).all()
+    dish_orders = db_sess.query(DishOrder).filter(DishOrder.dish_id is not None).all()
     data_dish_id = []
     data_date = []
     data_price = []
     for stat in dish_orders:
-        for i in range(stat.count):
+        for _ in range(stat.count):
             if stat.order.edit_date <= date:
                 data_dish_id.append(stat.dish_id)
                 data_date.append(str(stat.order.edit_date))
                 data_price.append(stat.price)
-    data = pd.DataFrame({'dish_id': data_dish_id, 'дата': data_date, 'цена': data_price})
-    data = data.astype({'дата': 'object'})
+    data = pd.DataFrame({"dish_id": data_dish_id, "дата": data_date, "цена": data_price})
+    data = data.astype({"дата": "object"})
     stat_date = str(date)
     str_date = str(date)
     data = data.query("dish_id == @dish_id")
-    print(data)
     stats["now"] = len(data.query("дата == @stat_date"))
     stat_date = str(date - datetime.timedelta(days=1))
     stats["yesterday"] = len(data.query("дата == @stat_date"))
     stat_date = str(date - datetime.timedelta(days=7))
     stats["week_ago"] = len(data.query("дата == @stat_date"))
-    print(data)
-    print(data.dtypes)
     stats["week"] = len(data.query("дата >= @stat_date & дата <= @str_date"))
     stat_date = str(date - datetime.timedelta(days=30))
     stats["month_ago"] = len(data.query("дата == @stat_date"))
@@ -1122,7 +1116,9 @@ def stats(dish_id, date):
     if not stats.get("year_ago"):
         stats["year_ago"] = stats["month_ago"]
 
-    predict = stats["yesterday_pred"] * 0.3 + stats["week_ago"] * 0.3 + stats["month_ago"] * 0.2 + stats["year_ago"] * 0.2
+    predict = (
+        stats["yesterday_pred"] * 0.3 + stats["week_ago"] * 0.3 + stats["month_ago"] * 0.2 + stats["year_ago"] * 0.2
+    )
     predict = int(str(predict).split(".")[0])
 
     if request.method == "GET":
@@ -1269,7 +1265,6 @@ def handle_message(data):
         ),
     )
     db_sess.commit()
-
 
 
 if __name__ == "__main__":
