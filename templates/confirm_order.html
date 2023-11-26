@@ -37,6 +37,11 @@
                     </div>
                 </div>
                 {% endfor %}
+                {% endif %}
+
+                {% for k in order %}
+                {% if k not in ["sum", "lunch"] %}
+                {% if order["lunch"] and loop.first %}
                 <hr>
                 <div style="
                 font-family: sans-serif;
@@ -45,9 +50,6 @@
                 font-weight: 500;
                 ">Другие блюда</div>
                 {% endif %}
-
-                {% for k in order %}
-                {% if k not in ["sum", "lunch"] %}
                 {% set dish = order[k] %}
                 <div class="info">
                     <div class="order_info">
@@ -90,25 +92,7 @@
 
                 {% endif %}
                 {% endfor %}
-                <div>
-                    <div>Укажите способ получения:</div>
-                    <select name="is_delivery" id="is_delivery" onchange="IsDeliveryChange()">
-                        <option value="false">Самовывоз</option>
-                        <option value="true">Доставка на рабочее место</option>
-                    </select>
-                </div>
-                <div style="display: none; flex-direction:column; align-items:center; margin-top:15px"
-                    id="delivery_comment">
-                    <div class="place" style="display: flex; gap:1rem">
-                        <p title="При указании некорректного места, заказ будет отменён">Укажите ваше рабочее место:</p>
-                        <input style="border: 1px solid #ccc;" id="delivery_address" name="delivery_address"
-                            type="text">
-                    </div>
-                    <div class="timetoplace" style="display: flex; gap:1rem">
-                        <p>Укажите желаемое время доставки:</p>
-                        <input id="delivery_time" name="delivery_time" type="time" onchange="TimeValidator()">
-                    </div>
-                </div>
+
             </div>
             {% if order %}
             <div class="order_total">
@@ -118,6 +102,28 @@
                         <div id="TotalSum" class="text-center-total">Всего: {{ order["sum"] }}₽</div>
                     </div>
                     <input class="order_submit" type="submit" value="Оплатить">
+                </div>
+                <div class="delivery">
+                    <div style="display: flex; flex-direction: column; align-items: center">
+                        <div>Укажите способ получения:</div>
+                        <select class="select" name="is_delivery" id="is_delivery" onchange="IsDeliveryChange()">
+                            <option value="false">Самовывоз</option>
+                            <option value="true">Доставка на рабочее место</option>
+                        </select>
+                    </div>
+                    <div style="display: none; flex-direction:column; align-items:center; margin-top:15px"
+                        id="delivery_comment">
+                        <div class="place" style="display: flex; gap:1rem">
+                            <p title="При указании некорректного места, заказ будет отменён">Укажите ваше рабочее место:
+                            </p>
+                            <input style="border: 1px solid #ccc;" id="delivery_address" name="delivery_address"
+                                type="text">
+                        </div>
+                        <div class="timetoplace" style="display: flex; gap:1rem">
+                            <p>Укажите желаемое время доставки:</p>
+                            <input id="delivery_time" name="delivery_time" type="time" onchange="TimeValidator()">
+                        </div>
+                    </div>
                 </div>
             </div>
             {% endif %}

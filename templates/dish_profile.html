@@ -14,14 +14,6 @@
                     <img class="image" src="{{ url_for('static', filename=dish.image) }}">
                     <textarea class="info" style="padding: 2px;"
                         readonly>{% if dish.description == '' %}Описания нет{% else %}{{ dish.description }}{% endif %}</textarea>
-
-                </div>
-                <div>
-                    <div>Масса порции: {{ dish.mass }}г.</div>
-                    <div>Калории: {{ dish.calories }}</div>
-                    <div>Белки: {{ dish.protein }}г.</div>
-                    <div>Жиры: {{ dish.fat }}г.</div>
-                    <div>Углеводы: {{ dish.carbo }}г.</div>
                 </div>
                 {% if current_user.role == 0 %}
                 <style>
@@ -66,17 +58,26 @@
                 </div>
                 {% endif %}
             </div>
-            <div class="rating">
-                <div class="ratingtitle">Оценка блюда</div>
-                <div class="allcriterias">
-                    {% for criteria in criterias %}
-                    <div>{{ criteria.title }}: {% if criteria_valuations.get(criteria.title) %}{{
-                        criteria_valuations[criteria.title] }} {% else %}NaN{% endif %}</div>
-                    {% endfor %}
+            <div class="rs">
+                <div class="rating">
+                    <div class="ratingtitle">Оценка блюда</div>
+                    <div class="allcriterias">
+                        {% for criteria in criterias %}
+                        <div>{{ criteria.title }}: {% if criteria_valuations.get(criteria.title) %}{{
+                            criteria_valuations[criteria.title] }} {% else %}NaN{% endif %}</div>
+                        {% endfor %}
+                    </div>
+                    {% if current_user.role in [0, 1] %}
+                    <a class="stats" href="/stats/{{ dish.id }}/{{ n_date }}">Статистика</a>
+                    {% endif %}
                 </div>
-                {% if current_user.role in [0, 1] %}
-                <a class="stats" href="/stats/{{ dish.id }}/{{ n_date }}">Статистика</a>
-                {% endif %}
+                <div>
+                    <div>Масса порции: {{ dish.mass }}г.</div>
+                    <div>Калории: {{ dish.calories }}</div>
+                    <div>Белки: {{ dish.protein }}г.</div>
+                    <div>Жиры: {{ dish.fat }}г.</div>
+                    <div>Углеводы: {{ dish.carbo }}г.</div>
+                </div>
             </div>
         </div>
         {% if current_user.role != 0 %}
@@ -144,6 +145,26 @@
             </div>
         </div>
     </form>
+    {% else %}
+    <div class="feedback">
+        <div class="title">Отзывы</div>
+        <div class="all_feedback">
+            {% for comment in dish_comments %}
+            <div class="feedbackitem">
+                <div class="createrrating">
+                    <div class="feedbackcreater">{{ comment.user.surname }}{{ comment.user.name }}</div>
+                    <div class="feedbackcriterias">
+                        {% for valuation in com_valuations[comment.id] %}
+                        <div class="feedbackcriteria">{{ valuation.criteria.title }}: {{ valuation.value }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <textarea class="feedbacktext" disabled readonly>{{ comment.comment }}</textarea>
+
+            </div>
+            {% endfor %}
+        </div>
+    </div>
     {% endif %}
 </div>
 
