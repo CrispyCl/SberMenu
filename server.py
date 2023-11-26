@@ -914,13 +914,14 @@ def profile_dish(dish_id):
     dish = db_sess.query(Dish).filter(Dish.id == dish_id).first()
     form = CommentForm()
     comments = db_sess.query(Comment).all()
-    last_id = 1 if not comments else comments[-1].id + 1
     if not dish:
         abort(404)
     dish_comments = db_sess.query(Comment).filter(Comment.dish_id == dish_id).all()
     com_valuations = {}
     criteria_valuations = {}
     can_vote = False
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
 
     if current_user.is_authenticated:
         if (
@@ -939,23 +940,27 @@ def profile_dish(dish_id):
     for i in criteria_valuations:
         criteria_valuations[i] = float(str(sum(criteria_valuations[i]) / len(criteria_valuations[i]))[:3])
     criterias = db_sess.query(Criteria).all()
-    criteria_count = len(criterias)
     if form.validate_on_submit():
-        comment = Comment(comment=form.comment.data, user_id=current_user.id, dish_id=dish_id)
-        for i in range(criteria_count):
+        if not current_user.is_authenticated:
+            message = {"status": 2, "text": "Для оставления отзыва авторизуйтесь"}
+            session["message"] = dumps(message)
+            return redirect(f"/profile/dish/{dish_id}")
+        last_id = 1 if not comments else comments[-1].id + 1
+        comment = Comment(id=last_id, comment=form.comment.data, user_id=current_user.id, dish_id=dish_id)
+        db_sess.add(comment)
+        for criteria in criterias:
             valuation = Valuation(
-                criteria_id=criterias[i].id,
+                criteria_id=criteria.id,
                 comment_id=last_id,
-                value=int(request.form[criterias[i].title]),
+                value=int(request.form[criteria.title]),
             )
             db_sess.add(valuation)
-        db_sess.add(comment)
         db_sess.commit()
         return redirect(f"/profile/dish/{dish_id}")
     return render_template(
         "dish_profile.html",
         title=dish.title,
-        message=ST_message,
+        message=smessage,
         dish=dish,
         criterias=criterias,
         form=form,

@@ -79,3 +79,7 @@ BadAlertClose.addEventListener("click", () => {
 GoodAlertClose.addEventListener("click", () => {
   GoodAlertBox.classList.remove("alert_show");
 });
+
+WarningAlertClose.addEventListener("click", () => {
+    WarningAlertBox.classList.remove("alert_show");
+  });
