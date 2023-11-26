@@ -6,9 +6,13 @@ from flask_login import current_user, login_required, login_user, LoginManager, 
 from flask_socketio import join_room, leave_room, send, SocketIO
 from PIL import Image
 import requests
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 from sqlalchemy import or_
 from static.python.functions import fill_db
 from translate import Translator
+import asyncio
 
 from data import db_session
 from data.categories import Category
@@ -1074,64 +1078,53 @@ def stats(dish_id, date):
     date = date.split("-")
     date = datetime.date(year=int(date[0]), month=int(date[1]), day=int(date[2]))
     stats = {}
-    dish_stats = db_sess.query(Stat).filter(Stat.dish_id == dish_id).all()
-    for stat in dish_stats:
-        if stat.date == date:
-            stats["now"] = stat.count
-        if stat.date == date - datetime.timedelta(days=1):
-            stats["yesterday"] = stat.count
-        if stat.date == date - datetime.timedelta(days=7):
-            stats["week"] = stat.count
-        if stat.date == date - datetime.timedelta(days=30):
-            stats["month"] = stat.count
-        if stat.date == date - datetime.timedelta(days=365):
-            stats["years"] = stat.count
+    dish_orders = db_sess.query(DishOrder).filter(DishOrder.dish_id != None).all()
+    data_dish_id = []
+    data_date = []
+    data_price = []
+    for stat in dish_orders:
+        for i in range(stat.count):
+            if stat.order.edit_date <= date:
+                data_dish_id.append(stat.dish_id)
+                data_date.append(str(stat.order.edit_date))
+                data_price.append(stat.price)
+    data = pd.DataFrame({'dish_id': data_dish_id, 'дата': data_date, 'цена': data_price})
+    data = data.astype({'дата': 'object'})
+    stat_date = str(date)
+    str_date = str(date)
+    data = data.query("dish_id == @dish_id")
+    print(data)
+    stats["now"] = len(data.query("дата == @stat_date"))
+    stat_date = str(date - datetime.timedelta(days=1))
+    stats["yesterday"] = len(data.query("дата == @stat_date"))
+    stat_date = str(date - datetime.timedelta(days=7))
+    stats["week_ago"] = len(data.query("дата == @stat_date"))
+    print(data)
+    print(data.dtypes)
+    stats["week"] = len(data.query("дата >= @stat_date & дата <= @str_date"))
+    stat_date = str(date - datetime.timedelta(days=30))
+    stats["month_ago"] = len(data.query("дата == @stat_date"))
+    stats["month"] = len(data.query("дата >= @stat_date & дата <= @str_date"))
+    stat_date = str(date - datetime.timedelta(days=365))
+    stats["year_ago"] = len(data.query("дата == @stat_date"))
+    stats["year"] = len(data.query("дата >= @stat_date & дата <= @str_date"))
+
     if not stats.get("now"):
         stats["now"] = 0
     if not stats.get("yesterday"):
-        stats["yesterday"] = stats["now"]
-    if not stats.get("week"):
-        stats["week"] = stats["yesterday"]
-    if not stats.get("month"):
-        stats["month"] = stats["week"]
-    if not stats.get("year"):
-        stats["year"] = stats["month"]
-    predict = stats["yesterday"] * 0.3 + stats["week"] * 0.3 + stats["month"] * 0.2 + stats["year"] * 0.2
+        stats["yesterday_pred"] = stats["now"]
+    else:
+        stats["yesterday_pred"] = stats["yesterday"]
+    if not stats.get("week_ago"):
+        stats["week_ago"] = stats["yesterday"]
+    if not stats.get("month_ago"):
+        stats["month_ago"] = stats["week_ago"]
+    if not stats.get("year_ago"):
+        stats["year_ago"] = stats["month_ago"]
+
+    predict = stats["yesterday_pred"] * 0.3 + stats["week_ago"] * 0.3 + stats["month_ago"] * 0.2 + stats["year_ago"] * 0.2
     predict = int(str(predict).split(".")[0])
 
-    stats_show = {}
-
-    dish_stats = db_sess.query(Stat).filter(Stat.dish_id == dish_id).all()
-    for stat in dish_stats:
-        if stat.date == date:
-            stats_show["now"] = stat.count
-        if date >= stat.date == date - datetime.timedelta(days=1):
-            stats_show["yesterday"] = stat.count
-        if date >= stat.date >= date - datetime.timedelta(days=7):
-            if not stats_show.get("week"):
-                stats_show["week"] = stat.count
-            else:
-                stats_show["week"] += stat.count
-        if date >= stat.date >= date - datetime.timedelta(days=30):
-            if not stats_show.get("month"):
-                stats_show["month"] = stat.count
-            else:
-                stats_show["month"] += stat.count
-        if date >= stat.date >= date - datetime.timedelta(days=365):
-            if not stats_show.get("year"):
-                stats_show["year"] = stat.count
-            else:
-                stats_show["year"] += stat.count
-    if not stats_show.get("now"):
-        stats_show["now"] = 0
-    if not stats_show.get("yesterday"):
-        stats_show["yesterday"] = 0
-    if not stats_show.get("week"):
-        stats_show["week"] = 0
-    if not stats_show.get("month"):
-        stats_show["month"] = 0
-    if not stats_show.get("year"):
-        stats_show["year"] = 0
     if request.method == "GET":
         form.dish.default = dish_id
         form.date.data = date
@@ -1145,7 +1138,7 @@ def stats(dish_id, date):
         form=form,
         message=smessage,
         order=session["order"],
-        stats=stats_show,
+        stats=stats,
         predict=predict,
     )
 
@@ -1276,6 +1269,7 @@ def handle_message(data):
         ),
     )
     db_sess.commit()
+
 
 
 if __name__ == "__main__":
