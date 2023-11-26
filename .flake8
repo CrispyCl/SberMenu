@@ -1,6 +1,6 @@
 [flake8]
 exclude = .git,__pycache__,venv,__all_models.py,db_session.py
-extend-ignore = C901
+extend-ignore = C901, F841
 max-complexity = 10
 import-order-style = google
 application-import-names = data, forms

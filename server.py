@@ -4,6 +4,7 @@ from json import dumps
 from flask import abort, Flask, redirect, render_template, request, session
 from flask_login import current_user, login_required, login_user, LoginManager, logout_user
 from flask_socketio import join_room, leave_room, send, SocketIO
+import pandas as pd
 from PIL import Image
 import requests
 from sqlalchemy import or_
@@ -474,7 +475,7 @@ def register_user():
         db_sess.commit()
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         login_user(user, remember=False)
-        message = {"status": 1, "text": "Успешная авторизиция"}
+        message = {"status": 1, "text": "Успешная авторизация"}
         session["message"] = dumps(message)
         return redirect("/")
     return render_template("register_user.html", title=title, form=form, message=smessage, order=session["order"])
@@ -767,7 +768,7 @@ def create_lunch():
     title = "Создание бизнес-ланча"
     db_sess = db_session.create_session()
     categories = db_sess.query(NormalizedCategory).join(Category).join(DishCategory).all()
-    voted_dishes={}
+    voted_dishes = {}
     normalized_categories = db_sess.query(NormalizedCategory).all()
     for category in normalized_categories:
         cat_dishes = category.dishes
@@ -797,7 +798,7 @@ def create_lunch():
                 order=session["order"],
                 dishes=dishes,
                 categories=categories,
-                voted_dishes=voted_dishes
+                voted_dishes=voted_dishes,
             )
         chosen_dishes = request.form.getlist("dishes")
         if not chosen_dishes:
@@ -810,7 +811,7 @@ def create_lunch():
                 order=session["order"],
                 dishes=dishes,
                 categories=categories,
-                voted_dishes=voted_dishes
+                voted_dishes=voted_dishes,
             )
 
         lunch = Lunch(price=form.price.data, date=form.date.data)
@@ -833,7 +834,7 @@ def create_lunch():
         message=smessage,
         order=session["order"],
         categories=categories,
-        voted_dishes=voted_dishes
+        voted_dishes=voted_dishes,
     )
 
 
@@ -880,9 +881,7 @@ def confirm_lanch(lunch_id):
             if not category.lunch_dishes:
                 continue
             dish = request.form.get(f"dish{category.id}")
-            print(dish)
             dishes.append(db_sess.query(DishLunch).get(dish))
-        print(dishes)
         order_dishes = [
             {"id": di_l.id, "title": di_l.dish.title, "image": di_l.dish.image, "category": di_l.category.title}
             for di_l in dishes
@@ -916,16 +915,20 @@ def profile_dish(dish_id):
     dish = db_sess.query(Dish).filter(Dish.id == dish_id).first()
     form = CommentForm()
     comments = db_sess.query(Comment).all()
-    last_id = 1 if not comments else comments[-1].id + 1
     if not dish:
         abort(404)
     dish_comments = db_sess.query(Comment).filter(Comment.dish_id == dish_id).all()
     com_valuations = {}
     criteria_valuations = {}
     can_vote = False
+    smessage = session["message"]
+    session["message"] = dumps(ST_message)
 
     if current_user.is_authenticated:
-        if current_user.role == 2 and not db_sess.query(Vote).filter(Vote.user_id == current_user.id, Vote.dish_id == dish_id).all():
+        if (
+            current_user.role == 2
+            and not db_sess.query(Vote).filter(Vote.user_id == current_user.id, Vote.dish_id == dish_id).all()
+        ):
             can_vote = True
     for comment in dish_comments:
         com_valuations[comment.id] = db_sess.query(Valuation).filter(Valuation.comment_id == comment.id).all()
@@ -938,23 +941,27 @@ def profile_dish(dish_id):
     for i in criteria_valuations:
         criteria_valuations[i] = float(str(sum(criteria_valuations[i]) / len(criteria_valuations[i]))[:3])
     criterias = db_sess.query(Criteria).all()
-    criteria_count = len(criterias)
     if form.validate_on_submit():
-        comment = Comment(comment=form.comment.data, user_id=current_user.id, dish_id=dish_id)
-        for i in range(criteria_count):
+        if not current_user.is_authenticated:
+            message = {"status": 2, "text": "Для оставления отзыва авторизуйтесь"}
+            session["message"] = dumps(message)
+            return redirect(f"/profile/dish/{dish_id}")
+        last_id = 1 if not comments else comments[-1].id + 1
+        comment = Comment(id=last_id, comment=form.comment.data, user_id=current_user.id, dish_id=dish_id)
+        db_sess.add(comment)
+        for criteria in criterias:
             valuation = Valuation(
-                criteria_id=criterias[i].id,
+                criteria_id=criteria.id,
                 comment_id=last_id,
-                value=int(request.form[criterias[i].title]),
+                value=int(request.form[criteria.title]),
             )
             db_sess.add(valuation)
-        db_sess.add(comment)
         db_sess.commit()
         return redirect(f"/profile/dish/{dish_id}")
     return render_template(
         "dish_profile.html",
         title=dish.title,
-        message=ST_message,
+        message=smessage,
         dish=dish,
         criterias=criterias,
         form=form,
@@ -1055,8 +1062,23 @@ def create_criteria():
     return render_template("create_criteria.html", title=title, form=form, message=smessage, order=session["order"])
 
 
+@app.route("/stats")
+def go_to_stats():
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role not in [0, 1]:
+        abort(404)
+    db_sess = db_session.create_session()
+    dish = db_sess.query(Dish).first()
+    return redirect(f"/stats/{dish.id}/{datetime.date.today()}")
+
+
 @app.route("/stats/<int:dish_id>/<string:date>", methods=["GET", "POST"])
 def stats(dish_id, date):
+    if not current_user.is_authenticated:
+        abort(404)
+    if current_user.role not in [0, 1]:
+        abort(404)
     title = "Статистика"
     smessage = session["message"]
     form = StatForm(dish=dish_id, coerce=int)
@@ -1068,64 +1090,52 @@ def stats(dish_id, date):
     date = date.split("-")
     date = datetime.date(year=int(date[0]), month=int(date[1]), day=int(date[2]))
     stats = {}
-    dish_stats = db_sess.query(Stat).filter(Stat.dish_id == dish_id).all()
-    for stat in dish_stats:
-        if stat.date == date:
-            stats["now"] = stat.count
-        if stat.date == date - datetime.timedelta(days=1):
-            stats["yesterday"] = stat.count
-        if stat.date == date - datetime.timedelta(days=7):
-            stats["week"] = stat.count
-        if stat.date == date - datetime.timedelta(days=30):
-            stats["month"] = stat.count
-        if stat.date == date - datetime.timedelta(days=365):
-            stats["years"] = stat.count
+    dish_orders = db_sess.query(DishOrder).filter(DishOrder.dish_id is not None).all()
+    data_dish_id = []
+    data_date = []
+    data_price = []
+    for stat in dish_orders:
+        for _ in range(stat.count):
+            if stat.order.edit_date <= date:
+                data_dish_id.append(stat.dish_id)
+                data_date.append(str(stat.order.edit_date))
+                data_price.append(stat.price)
+    data = pd.DataFrame({"dish_id": data_dish_id, "дата": data_date, "цена": data_price})
+    data = data.astype({"дата": "object"})
+    stat_date = str(date)
+    str_date = str(date)
+    data = data.query("dish_id == @dish_id")
+    stats["now"] = len(data.query("дата == @stat_date"))
+    stat_date = str(date - datetime.timedelta(days=1))
+    stats["yesterday"] = len(data.query("дата == @stat_date"))
+    stat_date = str(date - datetime.timedelta(days=7))
+    stats["week_ago"] = len(data.query("дата == @stat_date"))
+    stats["week"] = len(data.query("дата >= @stat_date & дата <= @str_date"))
+    stat_date = str(date - datetime.timedelta(days=30))
+    stats["month_ago"] = len(data.query("дата == @stat_date"))
+    stats["month"] = len(data.query("дата >= @stat_date & дата <= @str_date"))
+    stat_date = str(date - datetime.timedelta(days=365))
+    stats["year_ago"] = len(data.query("дата == @stat_date"))
+    stats["year"] = len(data.query("дата >= @stat_date & дата <= @str_date"))
+
     if not stats.get("now"):
         stats["now"] = 0
     if not stats.get("yesterday"):
-        stats["yesterday"] = stats["now"]
-    if not stats.get("week"):
-        stats["week"] = stats["yesterday"]
-    if not stats.get("month"):
-        stats["month"] = stats["week"]
-    if not stats.get("year"):
-        stats["year"] = stats["month"]
-    predict = stats["yesterday"] * 0.3 + stats["week"] * 0.3 + stats["month"] * 0.2 + stats["year"] * 0.2
+        stats["yesterday_pred"] = stats["now"]
+    else:
+        stats["yesterday_pred"] = stats["yesterday"]
+    if not stats.get("week_ago"):
+        stats["week_ago"] = stats["yesterday"]
+    if not stats.get("month_ago"):
+        stats["month_ago"] = stats["week_ago"]
+    if not stats.get("year_ago"):
+        stats["year_ago"] = stats["month_ago"]
+
+    predict = (
+        stats["yesterday_pred"] * 0.3 + stats["week_ago"] * 0.3 + stats["month_ago"] * 0.2 + stats["year_ago"] * 0.2
+    )
     predict = int(str(predict).split(".")[0])
 
-    stats_show = {}
-
-    dish_stats = db_sess.query(Stat).filter(Stat.dish_id == dish_id).all()
-    for stat in dish_stats:
-        if stat.date == date:
-            stats_show["now"] = stat.count
-        if date >= stat.date == date - datetime.timedelta(days=1):
-            stats_show["yesterday"] = stat.count
-        if date >= stat.date >= date - datetime.timedelta(days=7):
-            if not stats_show.get("week"):
-                stats_show["week"] = stat.count
-            else:
-                stats_show["week"] += stat.count
-        if date >= stat.date >= date - datetime.timedelta(days=30):
-            if not stats_show.get("month"):
-                stats_show["month"] = stat.count
-            else:
-                stats_show["month"] += stat.count
-        if date >= stat.date >= date - datetime.timedelta(days=365):
-            if not stats_show.get("year"):
-                stats_show["year"] = stat.count
-            else:
-                stats_show["year"] += stat.count
-    if not stats_show.get("now"):
-        stats_show["now"] = 0
-    if not stats_show.get("yesterday"):
-        stats_show["yesterday"] = 0
-    if not stats_show.get("week"):
-        stats_show["week"] = 0
-    if not stats_show.get("month"):
-        stats_show["month"] = 0
-    if not stats_show.get("year"):
-        stats_show["year"] = 0
     if request.method == "GET":
         form.dish.default = dish_id
         form.date.data = date
@@ -1139,7 +1149,7 @@ def stats(dish_id, date):
         form=form,
         message=smessage,
         order=session["order"],
-        stats=stats_show,
+        stats=stats,
         predict=predict,
     )
 

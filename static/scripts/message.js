@@ -22,42 +22,51 @@ function AddMessage(mes, close_time=5000) {
         return;
     }
     if (mes["status"] == 0) {
+        if (BadAlertBox.classList.contains("alert_show")) {
+            return
+        }
         BadAlertBox.classList.add("alert_show");
         BadAlertProgress.classList.add("active");
-        Badmess.appendChild(document.createTextNode(mes["text"]));
+        Badmess.textContent = mes["text"];
 
         if (BadAlertBox.classList.contains("alert_show")) {
         setTimeout(() => {
             BadAlertBox.classList.remove("alert_show");
             setTimeout(() => {
-            BadAlertProgress.classList.remove("active");
-            }, close_time - 100);
+                BadAlertProgress.classList.remove("active");
+            }, 300);
         }, close_time);
         }
     } else if (mes["status"] == 1) {
+        if (GoodAlertBox.classList.contains("alert_show")) {
+            return
+        }
         GoodAlertBox.classList.add("alert_show");
         GoodAlertProgress.classList.add("active");
-        Goodmess.appendChild(document.createTextNode(mes["text"]));
+        Goodmess.textContent = mes["text"];
 
         if (GoodAlertBox.classList.contains("alert_show")) {
         setTimeout(() => {
             GoodAlertBox.classList.remove("alert_show");
             setTimeout(() => {
-            GoodAlertProgress.classList.remove("active");
-            }, close_time - 100);
+                GoodAlertProgress.classList.remove("active");
+            }, 300);
         }, close_time);
         }
     } else {
+        if (WarningAlertBox.classList.contains("alert_show")) {
+            return
+        }
         WarningAlertBox.classList.add("alert_show");
         WarningAlertProgress.classList.add("active");
-        Warningmess.appendChild(document.createTextNode(mes["text"]));
+        Warningmess.textContent = mes["text"];
 
         if (WarningAlertBox.classList.contains("alert_show")) {
         setTimeout(() => {
             WarningAlertBox.classList.remove("alert_show");
             setTimeout(() => {
-            GoodAlertProgress.classList.remove("active");
-            }, close_time - 100);
+                WarningAlertProgress.classList.remove("active");
+            }, 300);
         }, close_time);
         }
     }
@@ -70,3 +79,7 @@ BadAlertClose.addEventListener("click", () => {
 GoodAlertClose.addEventListener("click", () => {
   GoodAlertBox.classList.remove("alert_show");
 });
+
+WarningAlertClose.addEventListener("click", () => {
+    WarningAlertBox.classList.remove("alert_show");
+  });

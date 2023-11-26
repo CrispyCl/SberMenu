@@ -75,7 +75,7 @@
                     {% endfor %}
                 </div>
                 {% if current_user.role in [0, 1] %}
-                <a href="/stats/{{ dish.id }}/{{ n_date }}">Статистика</a>
+                <a class="stats" href="/stats/{{ dish.id }}/{{ n_date }}">Статистика</a>
                 {% endif %}
             </div>
         </div>
@@ -91,8 +91,8 @@
         </div>
         {% endif %}
     </div>
-
-    <form method="post" enctype="multipart/form-data">
+    {% if current_user.role not in [0, 1] %}
+    <form action="" method="post" enctype="multipart/form-data">
         {{ form.hidden_tag() }}
         <div class="feedback">
             <div class="title">Отзывы</div>
@@ -112,21 +112,20 @@
                     {% for criteria in criterias %}
                     <div class="criteria">
                         <div class="title">{{ criteria.title }}</div>
-                        <input class="starint" type="radio" id="star-5" name={{criteria.title}} value="5">
+                        <input class="starint" type="radio" id="star-5" name="{{criteria.title}}" value="5">
                         <label class="starlab" for="rating-5">5</label>
-                        <input class="starint" type="radio" id="star-4" name={{criteria.title}} value="4">
+                        <input class="starint" type="radio" id="star-4" name="{{criteria.title}}" value="4">
                         <label class="starlab" for="rating-5">4</label>
-                        <input class="starint" type="radio" id="star-3" name={{criteria.title}} value="3">
+                        <input class="starint" type="radio" id="star-3" name="{{criteria.title}}" value="3" checked>
                         <label class="starlab" for="rating-5">3</label>
-                        <input class="starint" type="radio" id="star-2" name={{criteria.title}} value="2">
+                        <input class="starint" type="radio" id="star-2" name="{{criteria.title}}" value="2">
                         <label class="starlab" for="rating-5">2</label>
-                        <input class="starint" type="radio" id="star-1" name={{criteria.title}} value="1">
+                        <input class="starint" type="radio" id="star-1" name="{{criteria.title}}" value="1">
                         <label class="starlab" for="rating-5">1</label>
                     </div>
                     {% endfor %}
                 </div>
             </div>
-    </form>
             <div class="all_feedback">
                 {% for comment in dish_comments %}
                 <div class="feedbackitem">
@@ -144,6 +143,8 @@
                 {% endfor %}
             </div>
         </div>
+    </form>
+    {% endif %}
 </div>
 
 <script>
