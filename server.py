@@ -298,7 +298,10 @@ def create_dish():
         response = requests.get(api_url + query, headers={"X-Api-Key": "uKs0cNCsySCuE/7uGjOldQ==ve4Drp6e8VJSfX1V"})
         if response.status_code == requests.codes.ok:
             data = response.json()
-        data = data["items"][0]
+        if data.get("items"):
+            data = data["items"][0]
+        else:
+            data = {"calories": 0, "protein_g": 0, "fat_total_g": 0, "carbohydrates_total_g": 0}
         dish = Dish(
             title=form.title.data,
             price=form.price.data,
@@ -639,7 +642,10 @@ def edit_dish(dish_id):
         response = requests.get(api_url + query, headers={"X-Api-Key": "uKs0cNCsySCuE/7uGjOldQ==ve4Drp6e8VJSfX1V"})
         if response.status_code == requests.codes.ok:
             data = response.json()
-        data = data["items"][0]
+        if data.get("items"):
+            data = data["items"][0]
+        else:
+            data = {"calories": 0, "protein_g": 0, "fat_total_g": 0, "carbohydrates_total_g": 0}
         dish.title = form.title.data
         dish.price = form.price.data
         dish.description = form.description.data.strip()
@@ -1063,7 +1069,6 @@ def stats(dish_id, date):
     date = date.split("-")
     date = datetime.date(year=int(date[0]), month=int(date[1]), day=int(date[2]))
     stats = {}
-
     dish_stats = db_sess.query(Stat).filter(Stat.dish_id == dish_id).all()
     for stat in dish_stats:
         if stat.date == date:
@@ -1269,6 +1274,6 @@ def handle_message(data):
 
 
 if __name__ == "__main__":
-    db_session.global_init("db/GriBD.db")
+    db_session.global_init("db/prod.db")
     fill_db(db_session.create_session())
     socketio.run(app, port=8080, host="127.0.0.1", debug=True, allow_unsafe_werkzeug=True)
