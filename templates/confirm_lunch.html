@@ -10,7 +10,7 @@
       <div class="text-center">Бизнес-ланч на {{ lunch.date }}</div>
     </div>
     <!-- Choose dihes -->
-    <div class="all_categories">
+    <div class="all_categories" style="flex-direction:column;">
       {% for category in categories if category.lunch_dishes %}
       <div class="category">
         <div class="category_title">{{category.title}}</div>
