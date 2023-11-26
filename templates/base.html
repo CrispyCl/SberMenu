@@ -72,7 +72,7 @@
                         {% if current_user.role == 2 %}
                         <a href="/chat/1" class="menu_link">
                             <img class="menu_img"
-                                src="{{ url_for('static', filename='svg/settings-svgrepo-com.svg') }}">
+                                src="{{ url_for('static', filename='svg/chat-line-round-svgrepo-com.svg') }}">
                             <p>Чат</p>
                             <span><img
                                     src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
@@ -80,8 +80,16 @@
                         {% else %}
                         <a href="/chats" class="menu_link">
                             <img class="menu_img"
-                                src="{{ url_for('static', filename='svg/settings-svgrepo-com.svg') }}">
+                                src="{{ url_for('static', filename='svg/chat-line-round-svgrepo-com.svg') }}">
                             <p>Чаты</p>
+                            <span><img
+                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
+                        </a>
+                        {% endif %}
+                        {% if current_user.role == 1 %}
+                        <a href="/stats" class="menu_link" id="dd_stats">
+                            <img class="menu_img" src="{{ url_for('static', filename='svg/stats-svgrepo-com.svg') }}">
+                            <p>Статистика</p>
                             <span><img
                                     src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>
@@ -101,16 +109,22 @@
                             <span><img
                                     src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>
+                        <a href="/create/criteria" class="menu_link" id="dd_orders">
+                            <img class="menu_img"
+                                src="{{ url_for('static', filename='svg/star-sharp-svgrepo-com.svg') }}">
+                            <p>Создать критерий</p>
+                            <span><img
+                                    src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
+                        </a>
                         <a href="/lunch_list" class="menu_link" id="dd_dishes">
                             <img class="menu_img" src="{{ url_for('static', filename='svg/food-2-svgrepo-com.svg') }}">
                             <p>Бизнес-ланчи</p>
                             <span><img
                                     src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>
-                        <a href="/create/criteria" class="menu_link" id="dd_orders">
-                            <img class="menu_img"
-                                src="{{ url_for('static', filename='svg/star-sharp-svgrepo-com.svg') }}">
-                            <p>Создать критерий</p>
+                        <a href="/stats" class="menu_link" id="dd_stats">
+                            <img class="menu_img" src="{{ url_for('static', filename='svg/stats-svgrepo-com.svg') }}">
+                            <p>Статистика</p>
                             <span><img
                                     src="{{ url_for('static', filename='svg/right-chevron-svgrepo-com.svg') }}"></span>
                         </a>

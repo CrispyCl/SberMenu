@@ -447,7 +447,19 @@ textarea.feedbackarea {
 
 
 .criteria {
-    float:left;
+    float: left;
     border-style: none;
 }
 
+.stats {
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 1rem;
+    text-decoration: none;
+    color: #000;
+    font-family: sans-serif;
+    font-size: medium;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
