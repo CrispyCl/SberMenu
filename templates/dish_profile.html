@@ -75,7 +75,7 @@
                     {% endfor %}
                 </div>
                 {% if current_user.role in [0, 1] %}
-                <a href="/stats/{{ dish.id }}/{{ n_date }}">Статистика</a>
+                <a class="stats" href="/stats/{{ dish.id }}/{{ n_date }}">Статистика</a>
                 {% endif %}
             </div>
         </div>
