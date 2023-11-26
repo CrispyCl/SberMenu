@@ -471,7 +471,7 @@ def register_user():
         db_sess.commit()
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         login_user(user, remember=False)
-        message = {"status": 1, "text": "Успешная авторизиция"}
+        message = {"status": 1, "text": "Успешная авторизация"}
         session["message"] = dumps(message)
         return redirect("/")
     return render_template("register_user.html", title=title, form=form, message=smessage, order=session["order"])
@@ -761,7 +761,7 @@ def create_lunch():
     title = "Создание бизнес-ланча"
     db_sess = db_session.create_session()
     categories = db_sess.query(NormalizedCategory).join(Category).join(DishCategory).all()
-    voted_dishes={}
+    voted_dishes = {}
     normalized_categories = db_sess.query(NormalizedCategory).all()
     for category in normalized_categories:
         cat_dishes = category.dishes
@@ -791,7 +791,7 @@ def create_lunch():
                 order=session["order"],
                 dishes=dishes,
                 categories=categories,
-                voted_dishes=voted_dishes
+                voted_dishes=voted_dishes,
             )
         chosen_dishes = request.form.getlist("dishes")
         if not chosen_dishes:
@@ -804,7 +804,7 @@ def create_lunch():
                 order=session["order"],
                 dishes=dishes,
                 categories=categories,
-                voted_dishes=voted_dishes
+                voted_dishes=voted_dishes,
             )
 
         lunch = Lunch(price=form.price.data, date=form.date.data)
@@ -827,7 +827,7 @@ def create_lunch():
         message=smessage,
         order=session["order"],
         categories=categories,
-        voted_dishes=voted_dishes
+        voted_dishes=voted_dishes,
     )
 
 
@@ -874,9 +874,7 @@ def confirm_lanch(lunch_id):
             if not category.lunch_dishes:
                 continue
             dish = request.form.get(f"dish{category.id}")
-            print(dish)
             dishes.append(db_sess.query(DishLunch).get(dish))
-        print(dishes)
         order_dishes = [
             {"id": di_l.id, "title": di_l.dish.title, "image": di_l.dish.image, "category": di_l.category.title}
             for di_l in dishes
@@ -919,7 +917,10 @@ def profile_dish(dish_id):
     can_vote = False
 
     if current_user.is_authenticated:
-        if current_user.role == 2 and not db_sess.query(Vote).filter(Vote.user_id == current_user.id, Vote.dish_id == dish_id).all():
+        if (
+            current_user.role == 2
+            and not db_sess.query(Vote).filter(Vote.user_id == current_user.id, Vote.dish_id == dish_id).all()
+        ):
             can_vote = True
     for comment in dish_comments:
         com_valuations[comment.id] = db_sess.query(Valuation).filter(Valuation.comment_id == comment.id).all()
