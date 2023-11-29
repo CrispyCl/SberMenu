@@ -5,9 +5,13 @@ name: Python package
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - "main"
+      - "release/**"
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - "main"
+      - "release/**"
 
 jobs:
   build:
@@ -30,6 +34,7 @@ jobs:
         pip install -r requirements/prod.txt
         pip install -r requirements/dev.txt
         pip install -r requirements/test.txt
-    - name: Lint with flake8
+    - name: Lint
       run: |
         flake8 --verbose
+        black --config pyproject.toml .

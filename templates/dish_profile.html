@@ -8,66 +8,175 @@
 <div class="wrapper">
     <div class="text-center">{{ dish.title }}</div>
     <div class="dish_buy">
-        <div class="container">
-            <div class="ii">
-                <img class="image" src="{{ url_for('static', filename=dish.image) }}">
-                <textarea class="info" style="padding: 2px;" readonly>{% if dish.description == '' %}Описания нет{% else %}{{ dish.description }}{% endif %}</textarea>
-            </div>
-            {% if current_user.role == 0 %}
-            <style>
-                .dish_buy {
-                    margin: 0 auto;
-                    width: auto;
-                }
+        <div class="conrating">
+            <div class="container">
+                <div class="ii">
+                    <img class="image" src="{{ url_for('static', filename=dish.image) }}">
+                    <textarea class="info" style="padding: 2px;"
+                        readonly>{% if dish.description == '' %}Описания нет{% else %}{{ dish.description }}{% endif %}</textarea>
+                </div>
+                {% if current_user.role == 0 %}
+                <style>
+                    .dish_buy {
+                        margin: 0 auto;
+                        width: auto;
+                    }
 
-                .container {
-                    width: auto;
-                }
+                    .container {
+                        width: auto;
+                    }
 
-                .btns {
-                    margin-bottom: 30px;
-                }
-            </style>
-            <div class="btns">
-                <a class="edit" href="/edit/dish/{{ dish.id }}">Редактировать</a>
-                <a class="remove" onclick="OpenDialog('{{dish.id }}')">Удалить</a>
-                <dialog id="di{{ dish.id }}">
-                    <div class="dwrapper">
-                        <div class="dheader">Удаление блюда!</div>
-                        <div class="dmain">Вы хотите удалить блюдо "{{ dish.title }}" ?</div>
-                        <hr class="dhr">
-                        <div class="dfooter">
-                            <div class="dbtns">
-                                <a class="dremove" href="/delete/dish/{{ dish.id }}">Удалить</a>
-                                <a class="dcancel" onclick="RemoveDialog('{{dish.id }}')">Отмена</a>
+                    .btns {
+                        margin-bottom: 30px;
+                    }
+                </style>
+                <div class="btns">
+                    <a class="edit" href="/edit/dish/{{ dish.id }}">Редактировать</a>
+                    <a class="remove" onclick="OpenDialog('{{dish.id }}')">Удалить</a>
+                    <dialog id="di{{ dish.id }}">
+                        <div class="dwrapper">
+                            <div class="dheader">Удаление блюда!</div>
+                            <div class="dmain">Вы хотите удалить блюдо "{{ dish.title }}" ?</div>
+                            <hr class="dhr">
+                            <div class="dfooter">
+                                <div class="dbtns">
+                                    <a class="dremove" href="/delete/dish/{{ dish.id }}">Удалить</a>
+                                    <a class="dcancel" onclick="RemoveDialog('{{dish.id }}')">Отмена</a>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </dialog>
-                <script>
-                    function OpenDialog(dish_id) {
-                        document.getElementById(`di${dish_id}`).showModal();
-                    }
+                    </dialog>
+                    <script>
+                        function OpenDialog(dish_id) {
+                            document.getElementById(`di${dish_id}`).showModal();
+                        }
 
-                    function RemoveDialog(dish_id) {
-                        document.getElementById(`di${dish_id}`).close();
-                    }
-                </script>
+                        function RemoveDialog(dish_id) {
+                            document.getElementById(`di${dish_id}`).close();
+                        }
+                    </script>
+                </div>
+                {% endif %}
             </div>
-            {% endif %}
+            <div class="rs">
+                <div class="rating">
+                    <div class="ratingtitle">Оценка блюда</div>
+                    <div class="allcriterias">
+                        {% for criteria in criterias %}
+                        <div>{{ criteria.title }}: {% if criteria_valuations.get(criteria.title) %}{{
+                            criteria_valuations[criteria.title] }} {% else %}NaN{% endif %}</div>
+                        {% endfor %}
+                    </div>
+                    {% if current_user.role in [0, 1] %}
+                    <a class="stats" href="/stats/{{ dish.id }}/{{ n_date }}">Статистика</a>
+                    {% endif %}
+                </div>
+                <div>
+                    <div>Масса порции: {{ dish.mass }}г.</div>
+                    <div>Калории: {{ dish.calories }}</div>
+                    <div>Белки: {{ dish.protein }}г.</div>
+                    <div>Жиры: {{ dish.fat }}г.</div>
+                    <div>Углеводы: {{ dish.carbo }}г.</div>
+                </div>
+            </div>
         </div>
         {% if current_user.role != 0 %}
         <div class="buy">
             <div class="price">Цена - {{ dish.price }}₽</div>
             <a class="order" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
+            {% if can_vote %}
+            <div>
+                <a class="order" href="/vote/{{ dish.id }}" style="padding: 20px;">Хотел бы видеть в бизнес-ланче</a>
+            </div>
+            {% endif %}
         </div>
         {% endif %}
     </div>
+    {% if current_user.role not in [0, 1] %}
+    <form action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="feedback">
+            <div class="title">Отзывы</div>
+            <div class="your_feedback">
+                <div class="feed">
+                    {{ form.comment(class="form-control txta feedbackarea", type="text",
+                    placeholder="Ваш отзыв") }}
+                    {% for error in form.comment.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                    {% endfor %}
+                    {{ form.submit(class="feedbackbtn submitbtn", value="Отправить") }}
+                </div>
+
+                <div class="criterias">
+                    {% for criteria in criterias %}
+                    <div class="criteria">
+                        <div class="title">{{ criteria.title }}</div>
+                        <input class="starint" type="radio" id="star-5" name="{{criteria.title}}" value="5">
+                        <label class="starlab" for="rating-5">5</label>
+                        <input class="starint" type="radio" id="star-4" name="{{criteria.title}}" value="4">
+                        <label class="starlab" for="rating-5">4</label>
+                        <input class="starint" type="radio" id="star-3" name="{{criteria.title}}" value="3" checked>
+                        <label class="starlab" for="rating-5">3</label>
+                        <input class="starint" type="radio" id="star-2" name="{{criteria.title}}" value="2">
+                        <label class="starlab" for="rating-5">2</label>
+                        <input class="starint" type="radio" id="star-1" name="{{criteria.title}}" value="1">
+                        <label class="starlab" for="rating-5">1</label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="all_feedback">
+                {% for comment in dish_comments %}
+                <div class="feedbackitem">
+                    <div class="createrrating">
+                        <div class="feedbackcreater">{{ comment.user.surname }}{{ comment.user.name }}</div>
+                        <div class="feedbackcriterias">
+                            {% for valuation in com_valuations[comment.id] %}
+                            <div class="feedbackcriteria">{{ valuation.criteria.title }}: {{ valuation.value }}</div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <textarea class="feedbacktext" disabled readonly>{{ comment.comment }}</textarea>
+
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </form>
+    {% else %}
+    <div class="feedback">
+        <div class="title">Отзывы</div>
+        <div class="all_feedback">
+            {% for comment in dish_comments %}
+            <div class="feedbackitem">
+                <div class="createrrating">
+                    <div class="feedbackcreater">{{ comment.user.surname }}{{ comment.user.name }}</div>
+                    <div class="feedbackcriterias">
+                        {% for valuation in com_valuations[comment.id] %}
+                        <div class="feedbackcriteria">{{ valuation.criteria.title }}: {{ valuation.value }}</div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <textarea class="feedbacktext" disabled readonly>{{ comment.comment }}</textarea>
+
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
 </div>
 
+<script>
+    $("textarea").each(function () {
+        this.setAttribute("style", "height:" + (this.scrollHeight) + "px;overflow-y:hidden;");
+    }).on("input", function () {
+        this.style.height = 0;
+        this.style.height = (this.scrollHeight) + "px";
+    });
 
 
-
-
+</script>
 
 {% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/news.css') }}">
+
+
+<div class="news">
+    <div class="text-center">Новости</div>
+    {% if current_user.role == 0 %}
+    <a class="posttitle" href="/create/post">Создать новость</a>
+    {% endif %}
+    {% for post in posts %}
+    <div class="post">
+        <div class="tt">
+            <div class="posttitle">{{ post.title }}</div>
+            <div class="posttime">{{ post.date.strftime("%d.%m.%Y") }}</div>
+        </div>
+        <div class="postimg">
+            {% if post.image %}
+            <img src="{{ url_for('static', filename=post.image) }}">
+            {% endif %}
+            <div class="posttext">{{ post.text }}</div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}

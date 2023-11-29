@@ -11,8 +11,45 @@
     <form class="order" action="" method="post" enctype="multipart/form-data">
         <div class="wc">
             <div class="order_wrapper">
+                {% if order["lunch"] %}
+                {% set lunch = order["lunch"] %}
+
+                <div style="
+                font-family: sans-serif;
+                font-size: 1.3rem;
+                font-style: normal;
+                font-weight: 500;
+                ">Бизнес-ланч - {{ lunch.price }}₽</div>
+                {% for dish in lunch["dishes"] %}
+                <div class="info">
+                    <div class="order_info">
+                        <img class="order_img" src="{{ url_for('static', filename=dish.image) }}">
+                        <div class="order_name">{{ dish.title }}</div>
+                        <div class="order_price_count">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="order_info_mobile">
+                    <div class="in">
+                        <div class="order_name">{{ dish.title }}</div>
+                        <img class="order_img" src="{{ url_for('static', filename=dish.image) }}">
+                    </div>
+                </div>
+                {% endfor %}
+                {% endif %}
+
                 {% for k in order %}
-                {% if k != "sum" %}
+                {% if k not in ["sum", "lunch"] %}
+                {% if order["lunch"] and loop.first %}
+                <hr>
+                <div style="
+                font-family: sans-serif;
+                font-size: 1.3rem;
+                font-style: normal;
+                font-weight: 500;
+                ">Другие блюда</div>
+                {% endif %}
                 {% set dish = order[k] %}
                 <div class="info">
                     <div class="order_info">
@@ -55,6 +92,7 @@
 
                 {% endif %}
                 {% endfor %}
+
             </div>
             {% if order %}
             <div class="order_total">
@@ -63,7 +101,29 @@
                     <div class="total_price">
                         <div id="TotalSum" class="text-center-total">Всего: {{ order["sum"] }}₽</div>
                     </div>
-                    <input class="order_submit" type="submit" value="Заказать">
+                    <input class="order_submit" type="submit" value="Оплатить">
+                </div>
+                <div class="delivery">
+                    <div style="display: flex; flex-direction: column; align-items: center">
+                        <div>Укажите способ получения:</div>
+                        <select class="select" name="is_delivery" id="is_delivery" onchange="IsDeliveryChange()">
+                            <option value="false">Самовывоз</option>
+                            <option value="true">Доставка на рабочее место</option>
+                        </select>
+                    </div>
+                    <div style="display: none; flex-direction:column; align-items:center; margin-top:15px"
+                        id="delivery_comment">
+                        <div class="place" style="display: flex; gap:1rem">
+                            <p title="При указании некорректного места, заказ будет отменён">Укажите ваше рабочее место:
+                            </p>
+                            <input style="border: 1px solid #ccc;" id="delivery_address" name="delivery_address"
+                                type="text">
+                        </div>
+                        <div class="timetoplace" style="display: flex; gap:1rem">
+                            <p>Укажите желаемое время доставки:</p>
+                            <input id="delivery_time" name="delivery_time" type="time" onchange="TimeValidator()">
+                        </div>
+                    </div>
                 </div>
             </div>
             {% endif %}
@@ -87,6 +147,34 @@
     }
 </style>
 <script>
+    function TimeValidator() {
+        let input = document.getElementById("delivery_time").value;
+        let time = input.split(":");
+        let hours = time[0];
+        let minutes = time[1];
+        let date = new Date();
+        let now_hours = date.getHours();
+        let now_minutes = date.getMinutes();
+        let delta = (hours - now_hours) * 60 + (minutes - now_minutes);
+        if (delta < 15) {
+            var mes = { "status": 2, "text": "Доставка требует минимум 15 минут" }
+            AddMessage(mes, close_time = 3000);
+        }
+    }
+    function IsDeliveryChange() {
+        let combobox = document.getElementById("is_delivery");
+        let div = document.getElementById("delivery_comment");
+        let input = document.getElementById("delivery_address");
+        console.log(combobox);
+        if (combobox.value == "true") {
+            div.style.display = "flex";
+            input.required = true;
+        }
+        else {
+            div.style.display = "none";
+            input.required = false;
+        }
+    }
     function SetSumPC(vers = "PC") {
         if (vers == "PC") {
             var arr = document.getElementsByName('rcounts');
@@ -121,5 +209,4 @@
         document.getElementById("req_version").value = "PC"
     }
 </script>
-
 {% endblock %}

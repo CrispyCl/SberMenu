@@ -34,7 +34,6 @@
 }
 
 .img_text {
-
     color: #000;
 }
 
@@ -43,14 +42,13 @@
     min-width: 234.66px;
     height: 11rem;
     object-fit: cover;
-    background: #FFF;
+    background: #fff;
     border-radius: 0.9375rem;
 }
 
 .top_container .it:first-child {
     margin-left: 3rem;
 }
-
 
 .wrapper .top_container {
     font-size: 0px;
@@ -69,7 +67,7 @@
     cursor: pointer;
     position: absolute;
     font-size: 1.2rem;
-    background: #BCDE36;
+    background: #bcde36;
     border-radius: 50%;
     transform: translateY(-50%);
 }
@@ -88,7 +86,6 @@
     margin-top: 10px;
     font-size: xx-large;
 }
-
 
 .create_category {
     display: flex;
@@ -117,9 +114,14 @@
 }
 
 .dc {
+    align-items: center;
     display: flex;
     gap: 3rem;
     flex-wrap: wrap;
+}
+
+.dc:first-child {
+    min-height: 378.5px;
 }
 
 .category_title {
@@ -136,6 +138,7 @@
     flex-direction: column;
     align-items: center;
     max-width: 368px;
+    justify-content: space-between;
 }
 
 .dish_img {
@@ -167,7 +170,7 @@
 
 .del_dish:hover {
     background-color: red;
-    color: #FFF;
+    color: #fff;
 }
 
 .category_btns {
@@ -180,13 +183,13 @@
 .del_dish,
 .add_dish {
     margin-top: 1rem;
-    border: 3px solid #BCDE36;
+    border: 3px solid #bcde36;
     display: flex;
     height: 3.125rem;
     border-radius: 0.9375rem;
     flex-shrink: 0;
     cursor: pointer;
-    color: #21201F;
+    color: #21201f;
     font-family: sans-serif;
     font-size: 1.3rem;
     font-style: normal;
@@ -212,16 +215,82 @@
 .add_dish_to_basket:hover,
 .edit_dish:hover,
 .add_dish:hover {
-    background: #BCDE36;
+    background: #bcde36;
 }
 
-.add_dish_wrapper {
+.title_wrapper {
     display: flex;
     align-self: center;
-    margin: 5rem 0;
-    font-size: 2.7rem;
+}
+
+.news_wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+
+.posts {
+    gap: 1rem;
+    flex-wrap: wrap;
+    display: flex;
+    justify-content: center;
+
+}
+
+.post {
+    margin: 3rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    max-width: 300px;
+}
+
+.postimg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    object-fit: cover;
+}
+
+
+.postimg img {
+    border-radius: 0.9375rem;
+    object-fit: cover;
+    min-width: 300px;
+    max-width: 300px;
+    max-height: 300px;
+    min-height: 300px;
+}
+
+.posttitle {
+    padding: 5px;
+    font-size: x-large;
     font-family: sans-serif;
 }
+
+a.posttitle {
+    padding: 15px;
+    border: 1px solid #ccc;
+    border-radius: 1rem;
+    text-decoration: none;
+    color: #000;
+}
+
+a.posttitle:hover {
+    border: 1px solid #21201f;
+}
+
+.posttext {
+    padding: 5px;
+    font-family: sans-serif;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    width: 300px;
+}
+
 
 .add_dish {
     border: none;
@@ -233,12 +302,9 @@
     padding: 0;
 }
 
-
-
 .dis_none {
     display: none;
 }
-
 
 dialog {
     border-radius: 0.9375rem;
@@ -293,7 +359,7 @@ dialog::backdrop {
     border-radius: 0.9375rem;
     flex-shrink: 0;
     cursor: pointer;
-    color: #21201F;
+    color: #21201f;
     font-family: sans-serif;
     font-size: 1.3rem;
     font-style: normal;
@@ -313,7 +379,6 @@ dialog::backdrop {
     color: #fff;
 }
 
-
 @media screen and (max-width: 650px) {
     dialog {
         margin: auto 0;
@@ -325,19 +390,29 @@ dialog::backdrop {
         /* font-size: xx-large; */
     }
 
+    .category_title {
+        flex-direction: column;
+    }
+}
+
+@media screen and (max-width: 450px) {
+    .category_btns {
+        flex-direction: column;
+    }
 }
 
 #addd {
     justify-content: center;
 }
 
-
 .category_title .fa.fa-caret-down {
     transform: rotate(0deg);
     transition: all 0.2s linear;
 }
 
-.category_title.active_rotate .fa.fa-caret-down {
+.category_title.active_rotate .fa.fa-caret-down,
+.lunchtitle.active_rotate .fa.fa-caret-down,
+.luncht.activate_rotate .fa.fa-caret-down {
     transform: rotate(180deg);
     transition: all 0.2s linear;
 }
@@ -345,10 +420,65 @@ dialog::backdrop {
 .items_of_table {
     height: 0;
     overflow: hidden;
-    transition: height .5s ease;
+    transition: height 0.5s ease;
 }
 
 .items_of_table.active {
     height: auto;
     transform: translateY(0);
+}
+
+.text-center {
+    margin-top: 2rem;
+    font-size: 2.7rem;
+    font-family: sans-serif;
+}
+
+.price_ord {
+    gap: 2rem;
+    display: flex;
+    align-items: flex-end;
+}
+
+.price_ord a {
+    color: #000;
+    text-decoration: none;
+}
+
+#luncht {
+    justify-content: space-between;
+    display: flex;
+    align-items: flex-end;
+}
+
+.lunchtitle {
+    display: flex;
+    align-items: flex-end;
+}
+
+.lunch_list {
+    display: flex;
+    flex-direction: column;
+    max-width: 1200px;
+    align-self: center;
+}
+
+@media screen and (max-width:500px) {
+    .post {
+        margin: 3rem 0;
+    }
+}
+
+#catlunch {
+    justify-content: space-between;
+    cursor: pointer;
+    display: flex;
+    align-items: flex-end;
+}
+
+@media screen and (max-width: 650px) {
+    #catlunch {
+
+        align-items: center;
+    }
 }

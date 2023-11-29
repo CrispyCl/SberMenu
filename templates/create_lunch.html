@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create_lunch.css') }}">
+
+<div class="wrapper">
+    <form class="dishform" action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="container">
+            <div class="title">Создание бизнес-ланча</div>
+            <div class="text">
+                <!-- Date -->
+                {{ form.date(class="form-control name", type="date",
+                placeholder="Дата") }}
+                {% for error in form.date.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+                {% endfor %}
+
+
+                <!-- Price -->
+                {{ form.price(class="form-control name", type="text",
+                placeholder="Цена") }}
+                {% for error in form.price.errors %}
+                <p class="alert alert-danger" role="alert">
+                    {{ error }}
+                </p>
+                {% endfor %}
+            </div>
+            <div class="all_categories">
+                {% for category in categories if category.dishes %}
+                <div class="category">
+                    <div class="category_titlee">{{category.title}}</div>
+                    <div class="choose_checkbox">
+                        {% for dish in category.dishes %}
+                        <div class="inc">
+                            <input id="myCheckbox{{ dish.id }}" type="checkbox" name="dishes" value="{{ dish.id }}">
+                            <label class="chekimg" for="myCheckbox{{ dish.id }}">
+                                <img class="category_image" src="{{ url_for('static', filename=dish.image) }}">
+                            </label>
+                            <div class="category_title">{{ dish.title }}</div>
+                            {% if dish.id in voted_dishes[category.id] %}
+                            <div>! Выбор пользователей !</div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- Submit -->
+            {{ form.submit(class="submitbtn", value="Добавить") }}
+        </div>
+    </form>
+</div>
+
+{% endblock %}

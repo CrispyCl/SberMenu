@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/stats.css') }}">
+
+<div class="title_wrapper">
+    <div class="text-center">Статистика</div>
+</div>
+
+<div class="all">
+    <div class="stats">
+        <form method="post" enctype="multipart/form-data">
+            {{ form.hidden_tag() }}
+            <div class="stats_head">
+                <div style="align-self: center;">
+                    {{ form.dish(class="form-control select", type="text",
+                    placeholder="Выберите блюдо") }}
+                    {% for error in form.dish.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                    {% endfor %}
+                </div>
+                <div style="align-self: center;">
+                    {{ form.date(class="form-control name", type="date",
+                    placeholder="Дата") }}
+                    {% for error in form.date.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                    {% endfor %}
+                </div>
+                <div style="align-self: center;">{{ form.submit(class="submitbtn", value="Вывести") }}</div>
+            </div>
+        </form>
+        <div class="predict">
+            <div>
+                Предполагаемое количество - {{ predict }}
+            </div>
+            <div>
+                В этот день - {{ stats["now"] }}
+            </div>
+            <div>
+                Предыдущий день - {{ stats["yesterday"] }}
+            </div>
+            <div>
+                За неделю - {{ stats["week"] }}
+            </div>
+            <div>
+                За месяц - {{ stats["month"] }}
+            </div>
+            <div>
+                За год - {{ stats["year"] }}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -15,6 +15,7 @@
             <div class="cols">
                 <div class="first_col">
                     <!-- Name -->
+                    Название:
                     {{ form.title(class="form-control name", type="text",
                     placeholder="Название") }}
                     {% for error in form.title.errors %}
@@ -23,10 +24,29 @@
                     </p>
                     {% endfor %}
 
+                    <!-- Category -->
+                    Главная категория:
+                    {{ form.main_category(class="form-control") }}
+                    {% for error in form.main_category.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                    {% endfor %}
+
                     <!-- Price -->
+                    Цена:
                     {{ form.price(class="form-control name", type="text",
                     placeholder="Цена") }}
                     {% for error in form.price.errors %}
+                    <p class="alert alert-danger" role="alert">
+                        {{ error }}
+                    </p>
+                    {% endfor %}
+
+                    Масса (г.):
+                    {{ form.mass(class="form-control name", type="text",
+                    placeholder="Масса") }}
+                    {% for error in form.mass.errors %}
                     <p class="alert alert-danger" role="alert">
                         {{ error }}
                     </p>

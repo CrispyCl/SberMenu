@@ -3,6 +3,69 @@
 {% block content %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
 
+<!-- News -->
+<div class="news_wrapper">
+    <div class="text-center">Новости</div>
+    <div class="posts">
+        {% for post in posts %}
+        <div class="post">
+            {% if post.image %}
+            <div class="postimg">
+                <img src="{{ url_for('static', filename=post.image) }}">
+            </div>
+            {% endif %}
+            <div class="posttitle">{{ post.title }}</div>
+            <div class="posttext">{{ post.text }}</div>
+        </div>
+        {% endfor %}
+    </div>
+    <a class="posttitle" href="/news">Все новости</a>
+</div>
+
+<!-- Lunches -->
+{% if lunch %}
+
+<div class="title_wrapper">
+    <div class="text-center">Бизнес-ланч на сегодня</div>
+</div>
+<div class="dish_category">
+        <div class="category_title" id="catlunch">
+            <div class="lunchtitle" id="luncht">
+                <div class="text-center">Блюда</div>
+                <i class="fa fa-caret-down" style="margin-left: 30px;"></i>
+            </div>
+            <div class="price_ord">
+                <div>Цена: {{ lunch.price }}</div>
+                {% if current_user.role not in [0, 1] and not order.lunch%}
+                <a class="add_dish_to_basket" href="confirm/lunch/{{ lunch.id }}">Заказать</a>
+                {% endif %}
+            </div>
+        </div>
+    <div class="items_of_table" id="lunchi">
+        <div class="dc">
+            {% for di_l in lunch.dishes %}
+            {% set dish = di_l.dish %}
+            <div class="dish">
+                <div>
+                    <a href="/profile/dish/{{ dish.id }}">
+                        <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
+                    </a>
+                    <div class="dish_name_and_price">
+                        <div class="dish_name">{{ dish.title }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Menu -->
+<div class="title_wrapper">
+    <div class="text-center">Меню</div>
+</div>
+
 <div class="wrapper">
     <i id="left" class='bx bx-left-arrow-alt'></i>
     <div class="top_container">
@@ -19,7 +82,7 @@
         {% for category in categories %}
 
         <script>
-            console.log((a += 1))
+            a += 1;
         </script>
 
         <div class="it">
@@ -30,16 +93,7 @@
     </div>
     <i id="right" class='bx bx-right-arrow-alt'></i>
 </div>
-<div class="add_dish_wrapper">
-    <div class="text-center">Меню</div>
-</div>
 {% for category in categories %}
-<!-- внедряем -->
-
-
-
-
-
 <div class="dish_category" id="{{ category.id }}">
     <div class="category_title">
         <div class="category_title active_rotate" id="t_h{{ category.id }}" style="cursor: pointer;">
@@ -79,18 +133,20 @@
         {% endif %}
     </div>
 
-
     <div class="items_of_table active" id="i_t{{ category.id }}">
 
         <div class="dc">
-            {% for dish in dishes[category.id] %}
+            {% for cdish in category.dishes %}
+            {% set dish = cdish.dish %}
             <div class="dish">
-                <a href="/profile/dish/{{ dish.id }}">
-                    <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
-                </a>
-                <div class="dish_name_and_price">
-                    <div class="dish_name">{{ dish.title }}</div>
-                    <div class="dish_price">{{ dish.price }}₽</div>
+                <div>
+                    <a href="/profile/dish/{{ dish.id }}">
+                        <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
+                    </a>
+                    <div class="dish_name_and_price">
+                        <div class="dish_name">{{ dish.title }}</div>
+                        <div class="dish_price">{{ dish.price }}₽</div>
+                    </div>
                 </div>
                 {% if current_user.role not in [0, 1] %}
                 <a class="add_dish_to_basket" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
@@ -100,70 +156,7 @@
         </div>
     </div>
 </div>
-
-
-
-
-
-
-
-
-<!-- работает -->
-
-<!-- <div class="dish_category">
-    <div class="category_title" id="{{ category.id }}">{{ category.title }}
-
-        {% if current_user.role == 0 %}
-        <div class="category_btns">
-            <a class="edit_dish" href="/edit/category/{{ category.id }}">Изменить</a>
-            <a class="del_dish" onclick="OpenDialog('{{category.id }}')">Удалить</a>
-        </div>
-        <dialog id="di{{ category.id }}">
-            <div class="dwrapper">
-                <div class="dheader">Удаление категории!</div>
-                <div class="dmain">Вы хотите удалить категорию "{{ category.title }}" ?</div>
-                <hr class="dhr">
-                <div class="dfooter">
-                    <div class="dbtns">
-                        <a class="dremove" href="/delete/category/{{ category.id }}">Удалить</a>
-                        <a class="dcancel" onclick="RemoveDialog('{{category.id }}')">Отмена</a>
-                    </div>
-                </div>
-            </div>
-        </dialog>
-        <script>
-            function OpenDialog(category_id) {
-                document.getElementById(`di${category_id}`).showModal();
-            }
-
-            function RemoveDialog(category_id) {
-                document.getElementById(`di${category_id}`).close();
-            }
-        </script>
-        {% endif %}
-    </div>
-    <div class="dc">
-        {% for dish in dishes[category.id] %}
-        <div class="dish">
-            <a href="/profile/dish/{{ dish.id }}">
-                <img class="dish_img" src="{{ url_for('static', filename=dish.image) }}">
-            </a>
-            <div class="dish_name_and_price">
-                <div class="dish_name">{{ dish.title }}</div>
-                <div class="dish_price">{{ dish.price }}₽</div>
-            </div>
-            {% if current_user.role not in [0, 1] %}
-            <a class="add_dish_to_basket" href="/add_dish/{{ dish.id }}">Добавить в корзину</a>
-            {% endif %}
-
-        </div>
-        {% endfor %}
-    </div>
-</div> -->
 {% endfor %}
-
-
-
 
 <script>
     const ricon = document.getElementById("right");
@@ -198,21 +191,37 @@
 
 <script>
     {% for category in categories %}
-    const category_title_btn{{ category.id }} = document.querySelector("#t_h{{ category.id }}"),
-        items_of_table{{ category.id }} = document.querySelector("#i_t{{ category.id }}");
+    const category_title_btn{{ category.id }} = document.querySelector("#t_h{{ category.id }}");
+    const items_of_table{{ category.id }} = document.querySelector("#i_t{{ category.id }}");
 
     category_title_btn{{ category.id }}.addEventListener('click', () => {
         if (items_of_table{{ category.id }}.classList.contains('active')) {
             items_of_table{{ category.id }}.classList.remove('active');
             category_title_btn{{ category.id }}.classList.remove('active_rotate')
-        }
+    }
         else {
             items_of_table{{ category.id }}.classList.add('active');
             category_title_btn{{ category.id }}.classList.add('active_rotate')
-        }
+    }
     })
     {% endfor %}
 </script>
 
+<script>
+    const lunch_title = document.getElementById("luncht");
+    const lunch_item = document.getElementById("lunchi");
+
+    lunch_title.addEventListener('click', () => {
+        if (lunch_item.classList.contains('active')) {
+            lunch_item.classList.remove('active');
+            lunch_title.classList.remove('active_rotate')
+    }
+        else {
+            lunch_item.classList.add('active');
+            lunch_title.classList.add('active_rotate')
+    }
+    })
+</script>
 <script src="{{ url_for('static', filename='scripts/slider.js') }}"></script>
+
 {% endblock %}

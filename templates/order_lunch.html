@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{{ url_for('static', filename='css/create_lunch.css') }}">
+
+<div class="wrapper">
+    <form class="dishform" action="" method="post" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div class="container">
+            <div class="title">Заказ бизнес-ланча</div>
+
+            <div class="all_categories">
+                {% for category in categories %}
+                {% if DISHES.get(category.id) %}
+                <div class="category">
+                    <div class="category_title">{{category.title}}</div>
+                    <div class="choose_checkbox">
+                      {% for dish in DISHES[category.id] %}
+                        <div class="inc">
+                            <input id="myCheckbox{{ dish.id }}" type="radio" name="{{ category.id }}" value="{{ dish.id }}">
+                            <label class="chekimg" for="myCheckbox{{ dish.id }}">
+                                <img class="category_image" src="{{ url_for('static', filename=dish.image) }}">
+                            </label>
+                            <div>{{ dish.title }}</div>
+                            {% if PRICE_CHANGES[dish.id] != 0 %}
+                            {% if PRICE_CHANGES[dish.id] > 0 %}
+                            <div>+{{ PRICE_CHANGES[dish.id] }}</div>
+                            {% else %}
+                            <div>{{ PRICE_CHANGES[dish.id] }}</div>
+                            {% endif %}
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+                {% endfor %}
+
+            </div>
+            <!-- Submit -->
+            {{ form.submit(class="submitbtn", value="Добавить") }}
+        </div>
+    </form>
+</div>
+
+{% endblock %}
